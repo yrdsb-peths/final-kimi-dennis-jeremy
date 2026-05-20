@@ -17,5 +17,7 @@ public class GameWorld extends World
     {    
         // Create a new world with 600x400 cells with a cell size of 1x1 pixels.
         super(1500, 750, 1); 
+        AureaSolvine aureaSolvine = new AureaSolvine();
+        addObject(aureaSolvine,750, 375);
     }
 }
