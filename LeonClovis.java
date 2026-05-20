@@ -9,81 +9,135 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 public class LeonClovis extends Actor
 {
     int speed = 4;
-    
-    GreenfootImage[] leonRight = new GreenfootImage[4];  
-    GreenfootImage[] leonLeft = new GreenfootImage[4];
-    String facing = "right";
-    SimpleTimer animationTimer = new SimpleTimer();
 
-    /**
-     * Act - do whatever the LeonClovis wants to do. This method is called whenever
-     * the 'Act' or 'Run' button gets pressed in the environment.
-     */
+    GreenfootImage[] leonRight = new GreenfootImage[8];  
+    GreenfootImage[] leonLeft = new GreenfootImage[8];
+    GreenfootImage[] leonFront = new GreenfootImage[4];
+    GreenfootImage[] leonBack = new GreenfootImage[4];
+
+    String facing = "right";
+
+    SimpleTimer animationTimer = new SimpleTimer();
     
+    int imageIndex = 0;
     public LeonClovis()
     {
         for(int i = 0; i < leonRight.length; i++)
         {
-            leonRight[i]= new GreenfootImage("images/leon_move/leon" + i + ".png");
-            leonRight[i].scale(100,100);
+            leonRight[i] = new GreenfootImage("images/leon_move/leon" + i + ".png");
+            leonRight[i].scale(50,50);
         }
-        
+
         for(int i = 0; i < leonLeft.length; i++)
         {
-            leonLeft[i]= new GreenfootImage("images/leon_move/leon" + i + ".png");
+            leonLeft[i] = new GreenfootImage("images/leon_move/leon" + i + ".png");
             leonLeft[i].mirrorHorizontally();
-            leonLeft[i].scale(90,75);
+            leonLeft[i].scale(50,50);
+        }
+
+        for(int i = 0; i < leonFront.length; i++)
+        {
+            leonFront[i] = new GreenfootImage("images/leon_move_front/leon" + i + ".png");
+            leonFront[i].scale(50,50);
+        }
+
+        for(int i = 0; i < leonBack.length; i++)
+        {
+            leonBack[i] = new GreenfootImage("images/leon_move_back/leon" + i + ".png");
+            leonBack[i].scale(50,50);
         }
     }
-    int imageIndex = 0;
-    public void animateLeon()
-    {   
-        if(animationTimer.millisElapsed() < 100)
-        {
-            return;
-        }
-        animationTimer.mark();
-        if(facing.equals("right"))
-        {
-            setImage(leonRight[imageIndex]);
-            imageIndex = (imageIndex + 1) % leonRight.length;
-        }
-        else
-        {
-            setImage(leonLeft[imageIndex]);
-            imageIndex = (imageIndex + 1) % leonLeft.length;
-        }
-    }
-    
+
     public void act()
     {
-        // Add your action code here.
         movePlayer();
         animateLeon();
     }
-    
+
     public void movePlayer()
     {
+        boolean moving = false;
+
         if (Greenfoot.isKeyDown("w"))
         {
             setLocation(getX(), getY() - speed);
+            facing = "back";
+            moving = true;
         }
 
         if (Greenfoot.isKeyDown("s"))
         {
             setLocation(getX(), getY() + speed);
+            facing = "front";
+            moving = true;
         }
 
         if (Greenfoot.isKeyDown("a"))
         {
             setLocation(getX() - speed, getY());
             facing = "left";
+            moving = true;
         }
 
         if (Greenfoot.isKeyDown("d"))
         {
             setLocation(getX() + speed, getY());
             facing = "right";
+            moving = true;
         }
-    }   
+
+        if(!moving)
+        {
+            imageIndex = 0;
+
+            if(facing.equals("right"))
+            {
+                setImage(leonRight[0]);
+            }
+            else if(facing.equals("left"))
+            {
+                setImage(leonLeft[0]);
+            }
+            else if(facing.equals("front"))
+            {
+                setImage(leonFront[0]);
+            }
+            else if(facing.equals("back"))
+            {
+                setImage(leonBack[0]);
+            }
+        }
+    }
+
+    public void animateLeon()
+    {
+        if(animationTimer.millisElapsed() < 100)
+        {
+            return;
+        }
+
+        animationTimer.mark();
+
+        if(facing.equals("right"))
+        {
+            setImage(leonRight[imageIndex]);
+            imageIndex = (imageIndex + 1) % leonRight.length;
+        }
+        else if(facing.equals("left"))
+        {
+            setImage(leonLeft[imageIndex]);
+            imageIndex = (imageIndex + 1) % leonLeft.length;
+        }
+        else if(facing.equals("front"))
+        {
+            imageIndex %= leonFront.length;
+            setImage(leonFront[imageIndex]);
+            imageIndex++;
+        }
+        else if(facing.equals("back"))
+        {
+            setImage(leonBack[imageIndex]);
+            imageIndex = (imageIndex + 1) % leonBack.length;
+        }
+    }
 }
