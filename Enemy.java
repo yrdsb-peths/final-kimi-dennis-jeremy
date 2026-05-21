@@ -3,7 +3,7 @@ import greenfoot.*;
 public class Enemy extends Actor
 {
     int speed = 2;
-
+    int hp = 100;
     public void act()
     {
         followPlayer();
