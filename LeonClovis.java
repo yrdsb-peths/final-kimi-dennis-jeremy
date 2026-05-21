@@ -43,7 +43,7 @@ public class LeonClovis extends Actor
 
         for(int i = 0; i < leonBack.length; i++)
         {
-            leonBack[i] = new GreenfootImage("images/leon_move_back/leon" + i + ".png");
+            leonBack[i] = new GreenfootImage("images/leon_move_back/leonBack" + i + ".png");
             leonBack[i].scale(50,50);
         }
     }
@@ -136,8 +136,9 @@ public class LeonClovis extends Actor
         }
         else if(facing.equals("back"))
         {
+            imageIndex %= leonBack.length;
             setImage(leonBack[imageIndex]);
-            imageIndex = (imageIndex + 1) % leonBack.length;
+            imageIndex++;
         }
     }
 }
