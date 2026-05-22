@@ -9,7 +9,7 @@ public class GameWorld extends World
 
     public GameWorld()
     {
-        super(1000, 500, 1);
+        super(1500, 750, 1);
 
         aureaSolvine = new AureaSolvine();
 
