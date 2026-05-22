@@ -1,0 +1,21 @@
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+
+/**
+ * Write a description of class HeroScreen here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class HeroScreen extends World
+{
+
+    /**
+     * Constructor for objects of class HeroScreen.
+     * 
+     */
+    public HeroScreen()
+    {    
+        // Create a new world with 600x400 cells with a cell size of 1x1 pixels.
+        super(1500, 750, 1); 
+    }
+}
