@@ -8,7 +8,11 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  */
 public class LeonClovis extends Actor
 {
+    public int hp = 70;
+    public int xp = 0;
+    public int coin = 0;
     int speed = 4;
+    int gunDamage = 10;
 
     GreenfootImage[] leonRight = new GreenfootImage[8];  
     GreenfootImage[] leonLeft = new GreenfootImage[8];
@@ -18,7 +22,7 @@ public class LeonClovis extends Actor
     String facing = "right";
 
     SimpleTimer animationTimer = new SimpleTimer();
-    
+    SimpleTimer shootTimer = new SimpleTimer();
     int imageIndex = 0;
     public LeonClovis()
     {
@@ -52,8 +56,25 @@ public class LeonClovis extends Actor
     {
         movePlayer();
         animateLeon();
+        autoShoot();
     }
-
+    
+    public void autoShoot()
+    {
+        if(shootTimer.millisElapsed() > 500)
+        {
+            java.util.list<Enemy> enemies = getWorld().getObject(Enemy.class);
+            
+            if(enemies.size() > 0)
+            {
+                Enemy target = enemies.get(0);
+                Bullet bullet = new Bullet(target);
+                
+                getWorld().addObject(bullet, getX();, getY());
+                shootTimer.mark();
+            }
+        }
+    }
     public void movePlayer()
     {
         boolean moving = false;
