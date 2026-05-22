@@ -6,6 +6,5 @@ public class MyWorld extends World {
         
         LeonClovis leon = new LeonClovis();
         addObject(leon, 300, 200);
-        
     }
 }
