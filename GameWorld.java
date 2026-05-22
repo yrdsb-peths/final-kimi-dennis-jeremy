@@ -6,6 +6,7 @@ public class GameWorld extends World
 
     int enemySpawnTimer = 0;
     int lightningTimer = 0;
+    int fireballTimer = 0;
 
     public GameWorld()
     {
@@ -19,14 +20,38 @@ public class GameWorld extends World
     public void act()
     {
         spawnEnemy();
-        spawnLightning();
+        //spawnLightning();
+        spawnFireball();
+
+    }
+    
+    public void spawnFireball()
+    {
+        fireballTimer++;
+    
+        
+        if(fireballTimer >= 90)
+        {
+            fireballTimer = 0;
+    
+            Enemy closest = getClosestEnemy();
+    
+            if(closest != null)
+            {
+                addObject(
+                    new Fireball(closest),
+    
+                    aureaSolvine.getX(),
+                    aureaSolvine.getY()
+                );
+            }
+        }
     }
     
     public void spawnLightning()
     {
         lightningTimer++;
     
-        // 每1.5秒
         if(lightningTimer >= 90)
         {
             lightningTimer = 0;
