@@ -9,6 +9,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 public class LeonClovis extends Actor
 {
     int speed = 4;
+    String[] inventory;
 
     GreenfootImage[] leonRight = new GreenfootImage[8];  
     GreenfootImage[] leonLeft = new GreenfootImage[8];
@@ -22,6 +23,8 @@ public class LeonClovis extends Actor
     int imageIndex = 0;
     public LeonClovis()
     {
+        setUpInventory();
+
         for(int i = 0; i < leonRight.length; i++)
         {
             leonRight[i] = new GreenfootImage("images/leon_move/leon" + i + ".png");
@@ -140,5 +143,15 @@ public class LeonClovis extends Actor
             setImage(leonBack[imageIndex]);
             imageIndex++;
         }
+    }
+
+    private void setUpInventory()
+    {
+        inventory = new String[0];
+    }
+
+    public String getInventoryText()
+    {
+        return "Inventory: no weapons yet";
     }
 }
