@@ -3,17 +3,21 @@ import greenfoot.*;
 public class KaineVelsarth extends Actor
 {
     private static final int SPEED = 3;
+    private static final int SWORD_X_OFFSET = 22;
+    private static final int SWORD_Y_OFFSET = -6;
 
     private String[] inventory;
     private String[] equippedSwords;
     private int activeSwordIndex;
     private boolean spaceWasDown;
+    private Actor activeSword;
 
     public KaineVelsarth()
     {
         setUpInventory();
         activeSwordIndex = -1;
         spaceWasDown = false;
+        activeSword = null;
 
         GreenfootImage image = getImage();
 
@@ -27,12 +31,13 @@ public class KaineVelsarth extends Actor
     public void act()
     {
         moveKaine();
+        updateSwordPosition();
         handleSwordCycle();
     }
 
     protected void addedToWorld(World world)
     {
-        showSwordStatus("Press SPACE to cycle swords.");
+        world.showText("", 300, 330);
     }
 
     private void setUpInventory()
@@ -96,16 +101,44 @@ public class KaineVelsarth extends Actor
     private void activateNextSword()
     {
         activeSwordIndex = (activeSwordIndex + 1) % equippedSwords.length;
-        showSwordStatus("Active Sword: " + equippedSwords[activeSwordIndex]);
+        spawnActiveSword();
     }
 
-    private void showSwordStatus(String status)
+    private void spawnActiveSword()
     {
         World world = getWorld();
 
-        if (world != null)
+        if (world == null)
         {
-            world.showText(status, 300, 330);
+            return;
+        }
+
+        if (activeSword != null && activeSword.getWorld() != null)
+        {
+            world.removeObject(activeSword);
+        }
+
+        if (activeSwordIndex == 0)
+        {
+            activeSword = new fireSword();
+        }
+        else if (activeSwordIndex == 1)
+        {
+            activeSword = new futuristicSword();
+        }
+        else
+        {
+            activeSword = new lightningSword();
+        }
+
+        world.addObject(activeSword, getX() + SWORD_X_OFFSET, getY() + SWORD_Y_OFFSET);
+    }
+
+    private void updateSwordPosition()
+    {
+        if (activeSword != null && activeSword.getWorld() != null)
+        {
+            activeSword.setLocation(getX() + SWORD_X_OFFSET, getY() + SWORD_Y_OFFSET);
         }
     }
 
