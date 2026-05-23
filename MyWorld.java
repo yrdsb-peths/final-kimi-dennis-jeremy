@@ -5,7 +5,7 @@ public class MyWorld extends World {
 
     public MyWorld() {
         super(600, 400, 1);
-        showCharacterSelect();
+        showTitleScreen();
     }
 
     public void act() {
@@ -26,8 +26,8 @@ public class MyWorld extends World {
         }
     }
 
-    private void showCharacterSelect() {
-        showText("Choose your character", 300, 130);
+    private void showTitleScreen() {
+        showText("titlescreen", 300, 130);
         showText("Press K for Kaine", 300, 170);
         showText("Press L for Leon", 300, 200);
         showText("Click the world, then press a key", 300, 230);
@@ -36,7 +36,7 @@ public class MyWorld extends World {
         showText("Equipped: Fire Sword, Futuristic Sword, Lightning Sword", 300, 355);
     }
 
-    private void clearCharacterSelect() {
+    private void clearTitleScreen() {
         showText("", 300, 130);
         showText("", 300, 170);
         showText("", 300, 200);
@@ -50,14 +50,14 @@ public class MyWorld extends World {
         KaineVelsarth kaine = new KaineVelsarth();
         addObject(kaine, 300, 170);
         playerChosen = true;
-        clearCharacterSelect();
+        clearTitleScreen();
     }
 
     private void spawnLeon() {
         LeonClovis leon = new LeonClovis();
         addObject(leon, 300, 170);
         playerChosen = true;
-        clearCharacterSelect();
+        clearTitleScreen();
         showText("Leon starts with no weapons equipped.", 300, 305);
         showText(leon.getInventoryText(), 300, 330);
         showText("", 300, 355);
