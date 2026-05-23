@@ -31,9 +31,6 @@ public class MyWorld extends World {
         showText("Press K for Kaine", 300, 170);
         showText("Press L for Leon", 300, 200);
         showText("Click the world, then press a key", 300, 230);
-        showText("Player starts with all 3 swords equipped.", 300, 305);
-        showText("Inventory: Fire Sword, Futuristic Sword, Lightning Sword", 300, 330);
-        showText("Equipped: Fire Sword, Futuristic Sword, Lightning Sword", 300, 355);
     }
 
     private void clearTitleScreen() {
@@ -51,6 +48,9 @@ public class MyWorld extends World {
         addObject(kaine, 300, 170);
         playerChosen = true;
         clearTitleScreen();
+        showText(kaine.getStartingLoadoutText(), 300, 305);
+        showText(kaine.getInventoryText(), 300, 330);
+        showText(kaine.getEquippedText(), 300, 355);
     }
 
     private void spawnLeon() {
