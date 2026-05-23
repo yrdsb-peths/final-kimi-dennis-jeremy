@@ -1,19 +1,31 @@
-import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.*;
 
-/**
- * Write a description of class futuristicSword here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
 public class futuristicSword extends Actor
 {
-    /**
-     * Act - do whatever the futuristicSword wants to do. This method is called whenever
-     * the 'Act' or 'Run' button gets pressed in the environment.
-     */
+    public futuristicSword()
+    {
+        this(false);
+    }
+
+    public futuristicSword(boolean swordRightMode)
+    {
+        GreenfootImage image;
+
+        if (swordRightMode)
+        {
+            image = new GreenfootImage("Futuristic sword. 90 right.png");
+            image.scale(40, 40);
+        }
+        else
+        {
+            image = new GreenfootImage("20.png");
+            image.scale(20, 40);
+        }
+
+        setImage(image);
+    }
+
     public void act()
     {
-        // Add your action code here.
     }
 }

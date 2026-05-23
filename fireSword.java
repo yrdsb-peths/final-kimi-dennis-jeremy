@@ -1,19 +1,31 @@
-import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.*;
 
-/**
- * Write a description of class fireSword here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
 public class fireSword extends Actor
 {
-    /**
-     * Act - do whatever the fireSword wants to do. This method is called whenever
-     * the 'Act' or 'Run' button gets pressed in the environment.
-     */
+    public fireSword()
+    {
+        this(false);
+    }
+
+    public fireSword(boolean swordRightMode)
+    {
+        GreenfootImage image;
+
+        if (swordRightMode)
+        {
+            image = new GreenfootImage("FireSword.90 right.png");
+            image.scale(40, 40);
+        }
+        else
+        {
+            image = new GreenfootImage("10.png");
+            image.scale(20, 40);
+        }
+
+        setImage(image);
+    }
+
     public void act()
     {
-        // Add your action code here.
     }
 }

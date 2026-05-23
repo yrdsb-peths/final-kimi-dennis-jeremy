@@ -8,12 +8,24 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  */
 public class AureaSolvine extends Actor
 {
-    /**
-     * Act - do whatever the AureaSolvine wants to do. This method is called whenever
-     * the 'Act' or 'Run' button gets pressed in the environment.
-     */
+    String[] inventory;
+
+    public AureaSolvine()
+    {
+        setUpInventory();
+    }
+
     public void act()
     {
-        // Add your action code here.
+    }
+
+    private void setUpInventory()
+    {
+        inventory = new String[0];
+    }
+
+    public String getInventoryText()
+    {
+        return "Inventory: no weapons yet";
     }
 }
