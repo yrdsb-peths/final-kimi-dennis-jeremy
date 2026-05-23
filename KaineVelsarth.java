@@ -10,6 +10,8 @@ public class KaineVelsarth extends Actor
     private String[] equippedSwords;
     private int activeSwordIndex;
     private boolean spaceWasDown;
+    private boolean tabWasDown;
+    private boolean lightningRightMode;
     private Actor activeSword;
 
     public KaineVelsarth()
@@ -17,6 +19,8 @@ public class KaineVelsarth extends Actor
         setUpInventory();
         activeSwordIndex = -1;
         spaceWasDown = false;
+        tabWasDown = false;
+        lightningRightMode = false;
         activeSword = null;
 
         GreenfootImage image = getImage();
@@ -33,6 +37,7 @@ public class KaineVelsarth extends Actor
         moveKaine();
         updateSwordPosition();
         handleSwordCycle();
+        handleLightningPose();
     }
 
     protected void addedToWorld(World world)
@@ -98,9 +103,23 @@ public class KaineVelsarth extends Actor
         spaceWasDown = spaceDown;
     }
 
+    private void handleLightningPose()
+    {
+        boolean tabDown = Greenfoot.isKeyDown("tab");
+
+        if (tabDown && !tabWasDown && activeSwordIndex == 2)
+        {
+            lightningRightMode = !lightningRightMode;
+            spawnActiveSword();
+        }
+
+        tabWasDown = tabDown;
+    }
+
     private void activateNextSword()
     {
         activeSwordIndex = (activeSwordIndex + 1) % equippedSwords.length;
+        lightningRightMode = false;
         spawnActiveSword();
     }
 
@@ -113,25 +132,30 @@ public class KaineVelsarth extends Actor
             return;
         }
 
-        if (activeSword != null && activeSword.getWorld() != null)
+        if (activeSword == null || activeSword.getWorld() == null)
         {
-            world.removeObject(activeSword);
+            activeSword = createSwordForCurrentIndex();
+            world.addObject(activeSword, getX() + SWORD_X_OFFSET, getY() + SWORD_Y_OFFSET);
+            return;
         }
 
+        Actor replacementSword = createSwordForCurrentIndex();
+        activeSword.setImage(replacementSword.getImage());
+    }
+
+    private Actor createSwordForCurrentIndex()
+    {
         if (activeSwordIndex == 0)
         {
-            activeSword = new fireSword();
-        }
-        else if (activeSwordIndex == 1)
-        {
-            activeSword = new futuristicSword();
-        }
-        else
-        {
-            activeSword = new lightningSword();
+            return new fireSword();
         }
 
-        world.addObject(activeSword, getX() + SWORD_X_OFFSET, getY() + SWORD_Y_OFFSET);
+        if (activeSwordIndex == 1)
+        {
+            return new futuristicSword();
+        }
+
+        return new lightningSword(lightningRightMode);
     }
 
     private void updateSwordPosition()
