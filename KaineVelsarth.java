@@ -6,10 +6,14 @@ public class KaineVelsarth extends Actor
 
     private String[] inventory;
     private String[] equippedSwords;
+    private int activeSwordIndex;
+    private boolean spaceWasDown;
 
     public KaineVelsarth()
     {
         setUpInventory();
+        activeSwordIndex = -1;
+        spaceWasDown = false;
 
         GreenfootImage image = getImage();
 
@@ -23,6 +27,12 @@ public class KaineVelsarth extends Actor
     public void act()
     {
         moveKaine();
+        handleSwordCycle();
+    }
+
+    protected void addedToWorld(World world)
+    {
+        showSwordStatus("Press SPACE to cycle swords.");
     }
 
     private void setUpInventory()
@@ -69,6 +79,34 @@ public class KaineVelsarth extends Actor
         }
 
         setLocation(x, y);
+    }
+
+    private void handleSwordCycle()
+    {
+        boolean spaceDown = Greenfoot.isKeyDown("space");
+
+        if (spaceDown && !spaceWasDown)
+        {
+            activateNextSword();
+        }
+
+        spaceWasDown = spaceDown;
+    }
+
+    private void activateNextSword()
+    {
+        activeSwordIndex = (activeSwordIndex + 1) % equippedSwords.length;
+        showSwordStatus("Active Sword: " + equippedSwords[activeSwordIndex]);
+    }
+
+    private void showSwordStatus(String status)
+    {
+        World world = getWorld();
+
+        if (world != null)
+        {
+            world.showText(status, 300, 330);
+        }
     }
 
     public String getInventoryText()
