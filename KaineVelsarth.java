@@ -80,4 +80,9 @@ public class KaineVelsarth extends Actor
     {
         return "Equipped: " + equippedSwords[0] + ", " + equippedSwords[1] + ", " + equippedSwords[2];
     }
+
+    public String getStartingLoadoutText()
+    {
+        return "Player starts with all 3 swords equipped.";
+    }
 }
