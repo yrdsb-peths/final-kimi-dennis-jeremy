@@ -9,14 +9,14 @@ public class KaineVelsarth extends Actor
     private String[] inventory;
     private String[] equippedSwords;
     private int activeSwordIndex;
-    private boolean lightningRightMode;
+    private boolean swordRightMode;
     private Actor activeSword;
 
     public KaineVelsarth()
     {
         setUpInventory();
         activeSwordIndex = -1;
-        lightningRightMode = false;
+        swordRightMode = false;
         activeSword = null;
 
         GreenfootImage image = getImage();
@@ -99,9 +99,9 @@ public class KaineVelsarth extends Actor
         {
             activateNextSword();
         }
-        else if (key.equalsIgnoreCase("tab") && activeSwordIndex == 2)
+        else if (key.equalsIgnoreCase("tab") && activeSwordIndex >= 0)
         {
-            lightningRightMode = !lightningRightMode;
+            swordRightMode = !swordRightMode;
             spawnActiveSword();
         }
     }
@@ -109,7 +109,7 @@ public class KaineVelsarth extends Actor
     private void activateNextSword()
     {
         activeSwordIndex = (activeSwordIndex + 1) % equippedSwords.length;
-        lightningRightMode = false;
+        swordRightMode = false;
         spawnActiveSword();
     }
 
@@ -137,15 +137,15 @@ public class KaineVelsarth extends Actor
     {
         if (activeSwordIndex == 0)
         {
-            return new fireSword();
+            return new fireSword(swordRightMode);
         }
 
         if (activeSwordIndex == 1)
         {
-            return new futuristicSword();
+            return new futuristicSword(swordRightMode);
         }
 
-        return new lightningSword(lightningRightMode);
+        return new lightningSword(swordRightMode);
     }
 
     private void updateSwordPosition()
