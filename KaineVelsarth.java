@@ -9,8 +9,6 @@ public class KaineVelsarth extends Actor
     private String[] inventory;
     private String[] equippedSwords;
     private int activeSwordIndex;
-    private boolean spaceWasDown;
-    private boolean tabWasDown;
     private boolean lightningRightMode;
     private Actor activeSword;
 
@@ -18,8 +16,6 @@ public class KaineVelsarth extends Actor
     {
         setUpInventory();
         activeSwordIndex = -1;
-        spaceWasDown = false;
-        tabWasDown = false;
         lightningRightMode = false;
         activeSword = null;
 
@@ -36,8 +32,7 @@ public class KaineVelsarth extends Actor
     {
         moveKaine();
         updateSwordPosition();
-        handleSwordCycle();
-        handleLightningPose();
+        handleSwordInput();
     }
 
     protected void addedToWorld(World world)
@@ -91,29 +86,24 @@ public class KaineVelsarth extends Actor
         setLocation(x, y);
     }
 
-    private void handleSwordCycle()
+    private void handleSwordInput()
     {
-        boolean spaceDown = Greenfoot.isKeyDown("space");
+        String key = Greenfoot.getKey();
 
-        if (spaceDown && !spaceWasDown)
+        if (key == null)
+        {
+            return;
+        }
+
+        if (key.equalsIgnoreCase("space"))
         {
             activateNextSword();
         }
-
-        spaceWasDown = spaceDown;
-    }
-
-    private void handleLightningPose()
-    {
-        boolean tabDown = Greenfoot.isKeyDown("tab");
-
-        if (tabDown && !tabWasDown && activeSwordIndex == 2)
+        else if (key.equalsIgnoreCase("tab") && activeSwordIndex == 2)
         {
             lightningRightMode = !lightningRightMode;
             spawnActiveSword();
         }
-
-        tabWasDown = tabDown;
     }
 
     private void activateNextSword()
