@@ -8,11 +8,7 @@ public class Fireball extends Actor
     {
         for(int i = 0; i < 9; i++)
         {
-            frames[i] =
-                new GreenfootImage(
-                    "FireBall/tile00" + i + ".png"
-                );
-
+            frames[i] = new GreenfootImage("FireBall/tile00" + i + ".png");
             frames[i].scale(
                 frames[i].getWidth() / 4,
                 frames[i].getHeight() / 4
@@ -20,81 +16,69 @@ public class Fireball extends Actor
         }
     }
 
-    Enemy target;
-
     int frame = 0;
     int animationTimer = 0;
+    int speed = 6;
+    int targetX, targetY;
 
-    int speed = 12;
-
-    public Fireball(Enemy enemy)
+    public Fireball(int targetX, int targetY)
     {
-        target = enemy;
-
+        this.targetX = targetX;
+        this.targetY = targetY;
         setImage(frames[0]);
+    }
+
+    protected void addedToWorld(World world)
+    {
+        turnTowards(targetX, targetY);
     }
 
     public void act()
     {
-        moveToEnemy();
-
-        if(getWorld() == null)
-        {
-            return;
-        }
-
+        move(speed);
+        if(getWorld() == null) return;
         animate();
-
         hitEnemy();
+        removeIfOutOfBounds();
     }
-
-    public void moveToEnemy()
-{
-    if(target == null || target.getWorld() == null)
-    {
-        getWorld().removeObject(this);
-        return;
-    }
-
-    turnTowards(target.getX(), target.getY());
-
-    move(speed);
-}
 
     public void animate()
     {
         animationTimer++;
-
         if(animationTimer % 3 == 0)
         {
-            frame++;
-
-            if(frame >= frames.length)
-            {
-                frame = 0;
-            }
-
+            frame = (frame + 1) % frames.length;
             GreenfootImage img = new GreenfootImage(frames[frame]);
-
-            img.rotate(-90); // 或 -90（看你素材）
-            
+            img.rotate(-90);
             setImage(img);
         }
     }
 
     public void hitEnemy()
     {
-      Enemy enemy =
-            (Enemy)getOneIntersectingObject(
-                Enemy.class
-            );
-
+        Enemy enemy = (Enemy)getOneIntersectingObject(Enemy.class);
         if(enemy != null)
         {
-            World world = getWorld();
+            GameWorld gw = (GameWorld)getWorld();
+            boolean died = enemy.takeDamage(gw.aureaSolvine.getDamage());
+            if(died)
+            {
+                gw.aureaSolvine.gainXP(enemy.xpDrop);
+                gw.aureaSolvine.gainCoin(enemy.coinDrop);
+                if(enemy.getWorld() != null) gw.removeObject(enemy);
+            }
+            if(getWorld() != null) gw.removeObject(this);
+        }
+    }
 
-            world.removeObject(enemy);
-            world.removeObject(this);
+    public void removeIfOutOfBounds()
+    {
+        if(getWorld() == null) return;
+        World w = getWorld();
+        if(getX() < -10 || getX() > w.getWidth() + 10 ||
+           getY() < -10 || getY() > w.getHeight() + 10)
+        {
+            w.removeObject(this);
         }
     }
 }
