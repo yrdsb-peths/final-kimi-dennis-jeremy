@@ -2,13 +2,13 @@ import greenfoot.*;
 
 public class Lightning extends Actor
 {
-    static GreenfootImage[] frames = new GreenfootImage[16];
+    static GreenfootImage[] frames = new GreenfootImage[5];
 
     static
     {
-        for(int i = 0; i < 16; i++)
+        for(int i = 0; i < 5; i++)
         {
-            frames[i] = new GreenfootImage("lightning/lightning" + i + ".png");
+            frames[i] = new GreenfootImage("lightning/tile00" + i + ".png");
             frames[i].scale(
                 frames[i].getWidth() / 3,
                 frames[i].getHeight() / 3

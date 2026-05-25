@@ -2,17 +2,15 @@ import greenfoot.*;
 
 public class Fireball extends Actor
 {
-    static GreenfootImage[] frames = new GreenfootImage[9];
+    static GreenfootImage[] frames = new GreenfootImage[44];
 
     static
     {
-        for(int i = 0; i < 9; i++)
+        for(int i = 0; i < 44; i++)
         {
-            frames[i] = new GreenfootImage("FireBall/tile00" + i + ".png");
-            frames[i].scale(
-                frames[i].getWidth() / 4,
-                frames[i].getHeight() / 4
-            );
+            String num = String.format("%03d", i); // 000, 001, ... 043
+            frames[i] = new GreenfootImage("FireBall/tile" + num + ".png");
+            frames[i].scale(120, 120);
         }
     }
 
@@ -49,7 +47,7 @@ public class Fireball extends Actor
         {
             frame = (frame + 1) % frames.length;
             GreenfootImage img = new GreenfootImage(frames[frame]);
-            img.rotate(-90);
+            //img.rotate(90);
             setImage(img);
         }
     }
@@ -75,8 +73,8 @@ public class Fireball extends Actor
     {
         if(getWorld() == null) return;
         World w = getWorld();
-        if(getX() < -10 || getX() > w.getWidth() + 10 ||
-           getY() < -10 || getY() > w.getHeight() + 10)
+        // isAtEdge() 是 Greenfoot 内置方法，碰到边界就删除
+        if(isAtEdge())
         {
             w.removeObject(this);
         }
