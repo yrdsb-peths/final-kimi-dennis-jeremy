@@ -1,20 +1,15 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
-/**
- * Write a description of class LeonClovis here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
 public class LeonClovis extends Actor
 {
     public int hp = 70;
     public int xp = 0;
     public int coin = 0;
+
     int speed = 4;
     int gunDamage = 10;
 
-    GreenfootImage[] leonRight = new GreenfootImage[8];  
+    GreenfootImage[] leonRight = new GreenfootImage[8];
     GreenfootImage[] leonLeft = new GreenfootImage[8];
     GreenfootImage[] leonFront = new GreenfootImage[4];
     GreenfootImage[] leonBack = new GreenfootImage[4];
@@ -23,7 +18,9 @@ public class LeonClovis extends Actor
 
     SimpleTimer animationTimer = new SimpleTimer();
     SimpleTimer shootTimer = new SimpleTimer();
+
     int imageIndex = 0;
+
     public LeonClovis()
     {
         for(int i = 0; i < leonRight.length; i++)
@@ -50,6 +47,8 @@ public class LeonClovis extends Actor
             leonBack[i] = new GreenfootImage("images/leon_move_back/leonBack" + i + ".png");
             leonBack[i].scale(50,50);
         }
+
+        setImage(leonRight[0]);
     }
 
     public void act()
@@ -58,23 +57,26 @@ public class LeonClovis extends Actor
         animateLeon();
         autoShoot();
     }
-    
+
     public void autoShoot()
     {
         if(shootTimer.millisElapsed() > 500)
         {
-            java.util.list<Enemy> enemies = getWorld().getObject(Enemy.class);
-            
+            java.util.List<Enemy> enemies = getWorld().getObjects(Enemy.class);
+
             if(enemies.size() > 0)
             {
                 Enemy target = enemies.get(0);
+
                 Bullet bullet = new Bullet(target);
-                
-                getWorld().addObject(bullet, getX();, getY());
+
+                getWorld().addObject(bullet, getX(), getY());
+
                 shootTimer.mark();
             }
         }
     }
+
     public void movePlayer()
     {
         boolean moving = false;
