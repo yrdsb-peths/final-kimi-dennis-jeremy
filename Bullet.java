@@ -1,44 +1,58 @@
-import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.*;
 
-/**
- * Write a description of class Bullet here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
 public class Bullet extends Actor
 {
-    /**
-     * Act - do whatever the Bullet wants to do. This method is called whenever
-     * the 'Act' or 'Run' button gets pressed in the environment.
-     */
     Enemy target;
-    
+
     int speed = 8;
-    
+    int damage = 10;
+
     public Bullet(Enemy enemy)
     {
         target = enemy;
 
         GreenfootImage img = new GreenfootImage(10,10);
+
+        img.setColor(Color.YELLOW);
         img.fillOval(0,0,10,10);
+
         setImage(img);
     }
-    
+
     public void act()
     {
-        // Add your action code here.
+        if(getWorld() == null)
+        {
+            return;
+        }
+
         followEnemy();
+
+        if(getWorld() == null)
+        {
+            return;
+        }
+
         hitEnemy();
+
+        if(getWorld() == null)
+        {
+            return;
+        }
+
         removeAtEdge();
     }
-    
+
     public void followEnemy()
     {
-        if(target != null)
+        if(target != null && target.getWorld() != null)
         {
             turnTowards(target.getX(), target.getY());
             move(speed);
+        }
+        else
+        {
+            getWorld().removeObject(this);
         }
     }
 
@@ -48,11 +62,27 @@ public class Bullet extends Actor
 
         if(enemy != null)
         {
-            getWorld().removeObject(enemy);
-            getWorld().removeObject(this);
+            enemy.hp -= damage;
+            
+            getWorld().addObject(new HitEffect(), getX(), getY());
+            
+            if(enemy.hp <= 0)
+            {
+                if(enemy.getWorld() != null)
+                {
+                    enemy.getWorld().removeObject(enemy);
+                }
+            }
+
+            if(getWorld() != null)
+            {
+                getWorld().removeObject(this);
+            }
+
+            return;
         }
     }
-    
+
     public void removeAtEdge()
     {
         if(isAtEdge())
@@ -60,5 +90,4 @@ public class Bullet extends Actor
             getWorld().removeObject(this);
         }
     }
-    
 }
