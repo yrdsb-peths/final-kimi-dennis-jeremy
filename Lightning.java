@@ -2,11 +2,11 @@ import greenfoot.*;
 
 public class Lightning extends Actor
 {
-    static GreenfootImage[] frames = new GreenfootImage[5];
+    static GreenfootImage[] frames = new GreenfootImage[4];
 
     static
     {
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < 4; i++)
         {
             frames[i] = new GreenfootImage("lightning/tile00" + i + ".png");
             frames[i].scale(
@@ -19,18 +19,24 @@ public class Lightning extends Actor
     int frame = 0;
     int timer = 0;
     int damage;
+    boolean hasHit = false; 
 
-    public Lightning(int damage)
+    public double worldX;
+    public double worldY;
+
+    public Lightning(double worldX, double worldY, int damage)
     {
+        this.worldX = worldX;
+        this.worldY = worldY;
         this.damage = damage;
         setImage(frames[0]);
     }
 
     public void act()
     {
-        animate();
         if(getWorld() == null) return;
-        hitEnemy();
+        animate();
+        if(!hasHit) hitEnemy();
     }
 
     public void animate()
@@ -41,7 +47,7 @@ public class Lightning extends Actor
             frame++;
             if(frame >= frames.length)
             {
-                getWorld().removeObject(this);
+                if(getWorld() != null) getWorld().removeObject(this);
                 return;
             }
             setImage(frames[frame]);
@@ -50,16 +56,22 @@ public class Lightning extends Actor
 
     public void hitEnemy()
     {
-        Enemy enemy = (Enemy)getOneIntersectingObject(Enemy.class);
-        if(enemy != null)
+        GameWorld gw = (GameWorld)getWorld();
+        for(Enemy e : gw.getObjects(Enemy.class))
         {
-            GameWorld gw = (GameWorld)getWorld();
-            boolean died = enemy.takeDamage(damage);
-            if(died)
+            double dx = e.worldX - worldX;
+            double dy = e.worldY - worldY;
+            if(Math.sqrt(dx*dx + dy*dy) < 30)
             {
-                gw.aureaSolvine.gainXP(enemy.xpDrop);
-                gw.aureaSolvine.gainCoin(enemy.coinDrop);
-                gw.removeObject(enemy);
+                boolean died = e.takeDamage(damage);
+                if(died)
+                {
+                    gw.aureaSolvine.gainXP(e.xpDrop);
+                    gw.aureaSolvine.gainCoin(e.coinDrop);
+                    if(e.getWorld() != null) gw.removeObject(e);
+                }
+                hasHit = true;
+                return;
             }
         }
     }

@@ -8,36 +8,52 @@ public class Fireball extends Actor
     {
         for(int i = 0; i < 44; i++)
         {
-            String num = String.format("%03d", i); // 000, 001, ... 043
+            String num = String.format("%03d", i);
             frames[i] = new GreenfootImage("FireBall/tile" + num + ".png");
-            frames[i].scale(120, 120);
         }
     }
 
     int frame = 0;
     int animationTimer = 0;
-    int speed = 6;
-    int targetX, targetY;
+    double speed = 6;
 
-    public Fireball(int targetX, int targetY)
+    public double worldX;
+    public double worldY;
+    double velX;
+    double velY;
+
+    int damage;
+
+    public Fireball(double startX, double startY,
+                    double targetX, double targetY, int damage)
     {
-        this.targetX = targetX;
-        this.targetY = targetY;
+        this.worldX = startX;
+        this.worldY = startY;
+        this.damage = damage;
+
+        double dx = targetX - startX;
+        double dy = targetY - startY;
+        double dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist == 0) dist = 1;
+        velX = dx / dist * speed;
+        velY = dy / dist * speed;
+
         setImage(frames[0]);
-    }
 
-    protected void addedToWorld(World world)
-    {
-        turnTowards(targetX, targetY);
+        double angle = Math.toDegrees(Math.atan2(dy, dx));
+        setRotation((int)angle);
     }
 
     public void act()
     {
-        move(speed);
         if(getWorld() == null) return;
+
+        worldX += velX;
+        worldY += velY;
+
         animate();
-        hitEnemy();
-        removeIfOutOfBounds();
+        checkHitEnemy();
+        checkRange();
     }
 
     public void animate()
@@ -46,37 +62,41 @@ public class Fireball extends Actor
         if(animationTimer % 3 == 0)
         {
             frame = (frame + 1) % frames.length;
-            GreenfootImage img = new GreenfootImage(frames[frame]);
-            //img.rotate(90);
-            setImage(img);
+            int rot = getRotation();
+            setImage(new GreenfootImage(frames[frame]));
+            setRotation(rot);
         }
     }
 
-    public void hitEnemy()
+    public void checkHitEnemy()
     {
-        Enemy enemy = (Enemy)getOneIntersectingObject(Enemy.class);
-        if(enemy != null)
+        GameWorld gw = (GameWorld)getWorld();
+        for(Enemy e : gw.getObjects(Enemy.class))
         {
-            GameWorld gw = (GameWorld)getWorld();
-            boolean died = enemy.takeDamage(gw.aureaSolvine.getDamage());
-            if(died)
+            double dx = e.worldX - worldX;
+            double dy = e.worldY - worldY;
+            if(Math.sqrt(dx*dx + dy*dy) < 25)
             {
-                gw.aureaSolvine.gainXP(enemy.xpDrop);
-                gw.aureaSolvine.gainCoin(enemy.coinDrop);
-                if(enemy.getWorld() != null) gw.removeObject(enemy);
+                boolean died = e.takeDamage(damage);
+                if(died)
+                {
+                    gw.aureaSolvine.gainXP(e.xpDrop);
+                    gw.aureaSolvine.gainCoin(e.coinDrop);
+                    if(e.getWorld() != null) gw.removeObject(e);
+                }
+                if(getWorld() != null) gw.removeObject(this);
+                return;
             }
-            if(getWorld() != null) gw.removeObject(this);
         }
     }
 
-    public void removeIfOutOfBounds()
+    public void checkRange()
     {
         if(getWorld() == null) return;
-        World w = getWorld();
-        // isAtEdge() 是 Greenfoot 内置方法，碰到边界就删除
-        if(isAtEdge())
-        {
-            w.removeObject(this);
-        }
+        GameWorld gw = (GameWorld)getWorld();
+        double dx = worldX - gw.aureaSolvine.worldX;
+        double dy = worldY - gw.aureaSolvine.worldY;
+        if(Math.sqrt(dx*dx + dy*dy) > 1000)
+            gw.removeObject(this);
     }
 }
