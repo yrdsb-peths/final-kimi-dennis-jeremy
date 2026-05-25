@@ -11,11 +11,10 @@ public class Bullet extends Actor
     {
         target = enemy;
 
-        GreenfootImage img = new GreenfootImage(10,10);
+        GreenfootImage img = new GreenfootImage(40,8);
 
-        img.setColor(Color.YELLOW);
-        img.fillOval(0,0,10,10);
-
+        img.setColor(Color.RED);
+        img.fillOval(0,0,40,8);
         setImage(img);
     }
 

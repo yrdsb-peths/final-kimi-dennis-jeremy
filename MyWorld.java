@@ -1,20 +1,50 @@
 import greenfoot.*;
 
-public class MyWorld extends World {
-    public MyWorld() {
-        super(600, 400, 1);
-        
+public class MyWorld extends World
+{
+    SimpleTimer enemySpawnTimer = new SimpleTimer();
+
+    public MyWorld()
+    {    
+        super(800, 600, 1);
+
+        prepare();
+    }
+
+    public void act()
+    {
+        spawnEnemies();
+    }
+
+    public void prepare()
+    {
         LeonClovis leon = new LeonClovis();
         addObject(leon, 400, 300);
 
-        Enemy enemy1 = new Enemy();
-        addObject(enemy1, 600, 300);
+        for(int i = 0; i < 3; i++)
+        {
+            spawnEnemy();
+        }
+    }
 
-        Enemy enemy2 = new Enemy();
-        addObject(enemy2, 200, 200);
+    public void spawnEnemies()
+    {
+        if(enemySpawnTimer.millisElapsed() > 2000)
+        {
+            if(getObjects(Enemy.class).size() < 5)
+            {
+                spawnEnemy();
+            }
 
-        Enemy enemy3 = new Enemy();
-        addObject(enemy3, 500, 500);
-        
+            enemySpawnTimer.mark();
+        }
+    }
+
+    public void spawnEnemy()
+    {
+        int x = Greenfoot.getRandomNumber(getWidth());
+        int y = Greenfoot.getRandomNumber(getHeight());
+
+        addObject(new Enemy(), x, y);
     }
 }
