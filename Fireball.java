@@ -2,99 +2,101 @@ import greenfoot.*;
 
 public class Fireball extends Actor
 {
-    static GreenfootImage[] frames = new GreenfootImage[9];
+    static GreenfootImage[] frames = new GreenfootImage[44];
 
     static
     {
-        for(int i = 0; i < 9; i++)
+        for(int i = 0; i < 44; i++)
         {
-            frames[i] =
-                new GreenfootImage(
-                    "FireBall/tile00" + i + ".png"
-                );
-
-            frames[i].scale(
-                frames[i].getWidth() / 4,
-                frames[i].getHeight() / 4
-            );
+            String num = String.format("%03d", i);
+            frames[i] = new GreenfootImage("FireBall/tile" + num + ".png");
         }
     }
 
-    Enemy target;
-
     int frame = 0;
     int animationTimer = 0;
+    double speed = 6;
 
-    int speed = 12;
+    public double worldX;
+    public double worldY;
+    double velX;
+    double velY;
 
-    public Fireball(Enemy enemy)
+    int damage;
+
+    public Fireball(double startX, double startY,
+                    double targetX, double targetY, int damage)
     {
-        target = enemy;
+        this.worldX = startX;
+        this.worldY = startY;
+        this.damage = damage;
+
+        double dx = targetX - startX;
+        double dy = targetY - startY;
+        double dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist == 0) dist = 1;
+        velX = dx / dist * speed;
+        velY = dy / dist * speed;
 
         setImage(frames[0]);
+
+        double angle = Math.toDegrees(Math.atan2(dy, dx));
+        setRotation((int)angle);
     }
 
     public void act()
     {
-        moveToEnemy();
+        if(getWorld() == null) return;
 
-        if(getWorld() == null)
-        {
-            return;
-        }
+        worldX += velX;
+        worldY += velY;
 
         animate();
-
-        hitEnemy();
+        checkHitEnemy();
+        checkRange();
     }
-
-    public void moveToEnemy()
-{
-    if(target == null || target.getWorld() == null)
-    {
-        getWorld().removeObject(this);
-        return;
-    }
-
-    turnTowards(target.getX(), target.getY());
-
-    move(speed);
-}
 
     public void animate()
     {
         animationTimer++;
-
         if(animationTimer % 3 == 0)
         {
-            frame++;
-
-            if(frame >= frames.length)
-            {
-                frame = 0;
-            }
-
-            GreenfootImage img = new GreenfootImage(frames[frame]);
-
-            img.rotate(-90); // 或 -90（看你素材）
-            
-            setImage(img);
+            frame = (frame + 1) % frames.length;
+            int rot = getRotation();
+            setImage(new GreenfootImage(frames[frame]));
+            setRotation(rot);
         }
     }
 
-    public void hitEnemy()
+    public void checkHitEnemy()
     {
-      Enemy enemy =
-            (Enemy)getOneIntersectingObject(
-                Enemy.class
-            );
-
-        if(enemy != null)
+        GameWorld gw = (GameWorld)getWorld();
+        for(Enemy e : gw.getObjects(Enemy.class))
         {
-            World world = getWorld();
-
-            world.removeObject(enemy);
-            world.removeObject(this);
+            double dx = e.worldX - worldX;
+            double dy = e.worldY - worldY;
+            if(Math.sqrt(dx*dx + dy*dy) < 25)
+            {
+                boolean died = e.takeDamage(damage);
+                if(died)
+                {
+                    gw.aureaSolvine.gainXP(e.xpDrop);
+                    gw.aureaSolvine.gainCoin(e.coinDrop);
+                    if(e.getWorld() != null) gw.removeObject(e);
+                }
+                if(getWorld() != null) gw.removeObject(this);
+                return;
+            }
         }
+    }
+
+    public void checkRange()
+    {
+        if(getWorld() == null) return;
+        GameWorld gw = (GameWorld)getWorld();
+        double dx = worldX - gw.aureaSolvine.worldX;
+        double dy = worldY - gw.aureaSolvine.worldY;
+        if(Math.sqrt(dx*dx + dy*dy) > 1000)
+            gw.removeObject(this);
     }
 }
