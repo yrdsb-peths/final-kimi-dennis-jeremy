@@ -5,7 +5,7 @@ public class LeonClovis extends Actor
     public int hp = 70;
     public int xp = 0;
     public int coin = 0;
-
+    public int level = 1;
     int speed = 4;
     int gunDamage = 10;
 
@@ -77,8 +77,17 @@ public class LeonClovis extends Actor
 
     public void addReward()
     {
-        xp += 3;
-        coin += 2;
+        {
+            xp += 3;
+            coin += 2;
+        
+            if(xp >= 10)
+            {
+                level++;
+                xp = 0;
+                gunDamage+=5;
+            }
+        }
     }
 
     public void takeDamage(int damage)
@@ -95,20 +104,33 @@ public class LeonClovis extends Actor
     public void displayStats()
     {
         GreenfootImage bg = getWorld().getBackground();
-
+    
+        // clear UI area
+        bg.setColor(Color.BLACK);
+        bg.fillRect(0, 0, 380, 90);
+    
+        // HP BAR BACKGROUND
         bg.setColor(Color.WHITE);
-        bg.fillRect(10, 10, 120, 10);
+        bg.fillRect(10, 10, 200, 20);
+    
+        // HP BAR
         bg.setColor(Color.RED);
-        bg.fillRect(10, 10, hp * 120 / 70, 10);
-
+        bg.fillRect(10, 10, hp * 200 / 70, 20);
+    
+        // XP BAR BACKGROUND
         bg.setColor(Color.WHITE);
-        bg.fillRect(10, 30, 120, 10);
+        bg.fillRect(10, 40, 200, 20);
+    
+        // XP BAR
         bg.setColor(Color.BLUE);
-        bg.fillRect(10, 30, xp, 10);
-
-        getWorld().showText("HP", 150, 15);
-        getWorld().showText("XP", 150, 35);
-        getWorld().showText("Coin: " + coin, 60, 60);
+        bg.fillRect(10, 40, xp * 20, 20);
+    
+        // TEXT
+        getWorld().showText(hp + " HP", 250, 20);
+    
+        getWorld().showText("LV " + level + "  " + xp + "/10 XP", 290, 50);
+    
+        getWorld().showText("Coin: " + coin, 80, 75);
     }
 
     public void movePlayer()

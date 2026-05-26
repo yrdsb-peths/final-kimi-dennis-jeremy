@@ -12,26 +12,40 @@ public class Bullet extends Actor
     {
         target = enemy;
         player = leon;
-
+    
+        damage = leon.gunDamage;
+    
         GreenfootImage img = new GreenfootImage(40,8);
+    
         img.setColor(Color.WHITE);
         img.fillRect(0,0,40,8);
-        img.setColor(Color.CYAN);
+    
+        img.setColor(Color.RED);
         img.fillRect(2,2,36,4);
+    
         setImage(img);
     }
 
     public void act()
     {
-        if(getWorld() == null) return;
+        if(getWorld() == null)
+        {
+            return;
+        }
 
         followEnemy();
 
-        if(getWorld() == null) return;
+        if(getWorld() == null)
+        {
+            return;
+        }
 
         hitEnemy();
 
-        if(getWorld() == null) return;
+        if(getWorld() == null)
+        {
+            return;
+        }
 
         removeAtEdge();
     }
@@ -55,6 +69,9 @@ public class Bullet extends Actor
 
         if(enemy != null)
         {
+            // old hit effect
+            getWorld().addObject(new HitEffect(), getX(), getY());
+
             enemy.takeDamage(damage, player);
 
             if(getWorld() != null)

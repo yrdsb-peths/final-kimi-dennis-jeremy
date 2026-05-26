@@ -2,7 +2,7 @@ import greenfoot.*;
 
 public class Enemy extends Actor
 {
-    int hp = 30;
+    int hp = 20;
     int speed = 2;
 
     SimpleTimer damageTimer = new SimpleTimer();
