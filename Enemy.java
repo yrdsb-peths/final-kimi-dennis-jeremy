@@ -10,58 +10,71 @@ public class Enemy extends Actor
     public int xpDrop = 3;
     public int coinDrop = 2;
 
+    public double worldX;
+    public double worldY;
+
     SimpleTimer damageTimer = new SimpleTimer();
 
-    public Enemy()
+    public Enemy(double worldX, double worldY)
     {
+        this.worldX = worldX;
+        this.worldY = worldY;
+
         GreenfootImage img = new GreenfootImage(40, 40);
         img.setColor(Color.RED);
         img.fillOval(0, 0, 40, 40);
         setImage(img);
-
-        turn(Greenfoot.getRandomNumber(360));
     }
 
     public void act()
     {
-        moveAround();
-        touchLeon();
+        followPlayer();
+        touchPlayer();
     }
 
-    public void moveAround()
+    public void followPlayer()
     {
-        move(speed);
+        GameWorld gw = (GameWorld)getWorld();
 
-        if(isAtEdge())
-        {
-            turn(180);
-        }
+        double dx = gw.aureaSolvine.worldX - worldX;
+        double dy = gw.aureaSolvine.worldY - worldY;
 
-        if(Greenfoot.getRandomNumber(100) < 2)
+        double dist = Math.sqrt(dx * dx + dy * dy);
+
+        if(dist > 0)
         {
-            turn(Greenfoot.getRandomNumber(90) - 45);
+            worldX += dx / dist * speed;
+            worldY += dy / dist * speed;
         }
     }
 
-    public void takeDamage(int damage, LeonClovis player)
+    public void takeDamage(int damage)
     {
         hp -= damage;
 
         if(hp <= 0)
         {
-            player.addReward();
+            GameWorld gw = (GameWorld)getWorld();
+
+            gw.aureaSolvine.xp += xpDrop;
+            gw.aureaSolvine.coin += coinDrop;
+
             getWorld().removeObject(this);
         }
     }
 
-    public void touchLeon()
+    public void touchPlayer()
     {
-        LeonClovis leon =
-            (LeonClovis)getOneIntersectingObject(LeonClovis.class);
+        GameWorld gw = (GameWorld)getWorld();
 
-        if(leon != null && damageTimer.millisElapsed() > 1000)
+        double dx = gw.aureaSolvine.worldX - worldX;
+        double dy = gw.aureaSolvine.worldY - worldY;
+
+        double dist = Math.sqrt(dx * dx + dy * dy);
+
+        if(dist < 40 && damageTimer.millisElapsed() > 1000)
         {
-            leon.takeDamage(5);
+            gw.aureaSolvine.takeHit(5);
             damageTimer.mark();
         }
     }
