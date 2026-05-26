@@ -3,64 +3,66 @@ import greenfoot.*;
 public class Enemy extends Actor
 {
     int speed = 2;
+
     public int hp = 30;
     public int maxHp = 30;
+
     public int xpDrop = 3;
     public int coinDrop = 2;
 
-    
-    public double worldX;
-    public double worldY;
+    SimpleTimer damageTimer = new SimpleTimer();
 
-    int attackCooldown = 0;
-    static final int ATTACK_INTERVAL = 60;
-    static final int ATTACK_DAMAGE = 5;
-
-    public Enemy(double worldX, double worldY)
+    public Enemy()
     {
-        this.worldX = worldX;
-        this.worldY = worldY;
+        GreenfootImage img = new GreenfootImage(40, 40);
+        img.setColor(Color.RED);
+        img.fillOval(0, 0, 40, 40);
+        setImage(img);
+
+        turn(Greenfoot.getRandomNumber(360));
     }
 
     public void act()
     {
-        followPlayer();
-        attackPlayer();
+        moveAround();
+        touchLeon();
     }
 
-    public void followPlayer()
+    public void moveAround()
     {
-        GameWorld gw = (GameWorld)getWorld();
-        double dx = gw.aureaSolvine.worldX - worldX;
-        double dy = gw.aureaSolvine.worldY - worldY;
-        double dist = Math.sqrt(dx*dx + dy*dy);
-        if(dist > 0)
+        move(speed);
+
+        if(isAtEdge())
         {
-            worldX += dx / dist * speed;
-            worldY += dy / dist * speed;
+            turn(180);
+        }
+
+        if(Greenfoot.getRandomNumber(100) < 2)
+        {
+            turn(Greenfoot.getRandomNumber(90) - 45);
         }
     }
 
-    public void attackPlayer()
-    {
-        GameWorld gw = (GameWorld)getWorld();
-        AureaSolvine p = gw.aureaSolvine;
-        attackCooldown++;
-        if(attackCooldown >= ATTACK_INTERVAL)
-        {
-            double dx = p.worldX - worldX;
-            double dy = p.worldY - worldY;
-            if(Math.sqrt(dx*dx + dy*dy) < 30)
-            {
-                p.takeHit(ATTACK_DAMAGE);
-                attackCooldown = 0;
-            }
-        }
-    }
-
-    public boolean takeDamage(int damage)
+    public void takeDamage(int damage, LeonClovis player)
     {
         hp -= damage;
-        return hp <= 0;
+
+        if(hp <= 0)
+        {
+            player.addReward();
+            getWorld().removeObject(this);
+        }
+    }
+
+    public void touchLeon()
+    {
+        LeonClovis leon =
+            (LeonClovis)getOneIntersectingObject(LeonClovis.class);
+
+        if(leon != null && damageTimer.millisElapsed() > 1000)
+        {
+            leon.takeDamage(5);
+            damageTimer.mark();
+        }
     }
 }

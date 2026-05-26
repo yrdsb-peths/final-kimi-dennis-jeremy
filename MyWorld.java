@@ -1,63 +1,118 @@
 import greenfoot.*;
 
-public class MyWorld extends World {
-    private boolean playerChosen;
+public class MyWorld extends World
+{
+    private boolean playerChosen = false;
+    SimpleTimer enemySpawnTimer = new SimpleTimer();
 
-    public MyWorld() {
-        super(600, 400, 1);
+    public MyWorld()
+    {    
+        super(800, 600, 1);
         showTitleScreen();
     }
 
-    public void act() {
-        if (playerChosen) {
-            return;
+    public void act()
+    {
+        if(!playerChosen)
+        {
+            checkPlayerChoice();
         }
+        else
+        {
+            spawnEnemies();
+        }
+    }
 
+    public void checkPlayerChoice()
+    {
         String key = Greenfoot.getKey();
 
-        if (key == null) {
+        if(key == null)
+        {
             return;
         }
 
-        if (key.equalsIgnoreCase("k")) {
+        if(key.equalsIgnoreCase("k"))
+        {
             spawnKaine();
-        } else if (key.equalsIgnoreCase("l")) {
+        }
+        else if(key.equalsIgnoreCase("l"))
+        {
             spawnLeon();
         }
     }
 
-    private void showTitleScreen() {
-        showText("titlescreen", 300, 130);
-        showText("Press K for Kaine", 300, 170);
-        showText("Press L for Leon", 300, 200);
-        showText("Click the world, then press a key", 300, 230);
+    public void showTitleScreen()
+    {
+        showText("Title Screen", 400, 180);
+        showText("Press K for Kaine", 400, 230);
+        showText("Press L for Leon", 400, 260);
+        showText("Click the world, then press a key", 400, 300);
     }
 
-    private void clearTitleScreen() {
-        showText("", 300, 130);
-        showText("", 300, 170);
-        showText("", 300, 200);
-        showText("", 300, 230);
-        showText("", 300, 305);
-        showText("", 300, 330);
-        showText("", 300, 355);
+    public void clearTitleScreen()
+    {
+        showText("", 400, 180);
+        showText("", 400, 230);
+        showText("", 400, 260);
+        showText("", 400, 300);
+        showText("", 400, 520);
+        showText("", 400, 545);
+        showText("", 400, 570);
     }
 
-    private void spawnKaine() {
+    public void spawnKaine()
+    {
         KaineVelsarth kaine = new KaineVelsarth();
-        addObject(kaine, 300, 170);
+        addObject(kaine, 400, 300);
+
         playerChosen = true;
         clearTitleScreen();
-        showText(kaine.getStartingLoadoutText(), 300, 305);
-        showText(kaine.getInventoryText(), 300, 330);
-        showText(kaine.getEquippedText(), 300, 355);
+
+        showText(kaine.getStartingLoadoutText(), 400, 520);
+        showText(kaine.getInventoryText(), 400, 545);
+        showText(kaine.getEquippedText(), 400, 570);
+
+        spawnStartingEnemies();
     }
 
-    private void spawnLeon() {
+    public void spawnLeon()
+    {
         LeonClovis leon = new LeonClovis();
-        addObject(leon, 300, 170);
+        addObject(leon, 400, 300);
+
         playerChosen = true;
         clearTitleScreen();
-        showText("", 300, 355);
+
+        spawnStartingEnemies();
+    }
+
+    public void spawnStartingEnemies()
+    {
+        for(int i = 0; i < 3; i++)
+        {
+            spawnEnemy();
+        }
+    }
+
+    public void spawnEnemies()
+    {
+        if(enemySpawnTimer.millisElapsed() > 2000)
+        {
+            if(getObjects(Enemy.class).size() < 5)
+            {
+                spawnEnemy();
+            }
+
+            enemySpawnTimer.mark();
+        }
+    }
+
+    public void spawnEnemy()
+    {
+        int x = Greenfoot.getRandomNumber(getWidth());
+        int y = Greenfoot.getRandomNumber(getHeight());
+
+        addObject(new Enemy(), x, y);
     }
 }
