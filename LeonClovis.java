@@ -1,4 +1,4 @@
-import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.*;
 
 public class LeonClovis extends Actor
 {
@@ -56,6 +56,7 @@ public class LeonClovis extends Actor
         movePlayer();
         animateLeon();
         autoShoot();
+        displayStats();
     }
 
     public void autoShoot()
@@ -67,14 +68,47 @@ public class LeonClovis extends Actor
             if(enemies.size() > 0)
             {
                 Enemy target = enemies.get(0);
-
-                Bullet bullet = new Bullet(target);
-
+                Bullet bullet = new Bullet(target, this);
                 getWorld().addObject(bullet, getX(), getY());
-
                 shootTimer.mark();
             }
         }
+    }
+
+    public void addReward()
+    {
+        xp += 3;
+        coin += 2;
+    }
+
+    public void takeDamage(int damage)
+    {
+        hp -= damage;
+
+        if(hp <= 0)
+        {
+            hp = 0;
+            Greenfoot.stop();
+        }
+    }
+
+    public void displayStats()
+    {
+        GreenfootImage bg = getWorld().getBackground();
+
+        bg.setColor(Color.WHITE);
+        bg.fillRect(10, 10, 120, 10);
+        bg.setColor(Color.RED);
+        bg.fillRect(10, 10, hp * 120 / 70, 10);
+
+        bg.setColor(Color.WHITE);
+        bg.fillRect(10, 30, 120, 10);
+        bg.setColor(Color.BLUE);
+        bg.fillRect(10, 30, xp, 10);
+
+        getWorld().showText("HP", 150, 15);
+        getWorld().showText("XP", 150, 35);
+        getWorld().showText("Coin: " + coin, 60, 60);
     }
 
     public void movePlayer()

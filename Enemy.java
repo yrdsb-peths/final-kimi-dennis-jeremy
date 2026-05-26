@@ -5,13 +5,13 @@ public class Enemy extends Actor
     int hp = 30;
     int speed = 2;
 
+    SimpleTimer damageTimer = new SimpleTimer();
+
     public Enemy()
     {
-        GreenfootImage img = new GreenfootImage(40, 40);
-
+        GreenfootImage img = new GreenfootImage(40,40);
         img.setColor(Color.RED);
-        img.fillOval(0, 0, 40, 40);
-
+        img.fillOval(0,0,40,40);
         setImage(img);
 
         turn(Greenfoot.getRandomNumber(360));
@@ -20,7 +20,7 @@ public class Enemy extends Actor
     public void act()
     {
         moveAround();
-        checkBulletHit();
+        touchLeon();
     }
 
     public void moveAround()
@@ -38,20 +38,25 @@ public class Enemy extends Actor
         }
     }
 
-    public void checkBulletHit()
+    public void takeDamage(int damage, LeonClovis player)
     {
-        Bullet bullet = (Bullet)getOneIntersectingObject(Bullet.class);
+        hp -= damage;
 
-        if(bullet != null)
+        if(hp <= 0)
         {
-            hp -= 10;
+            player.addReward();
+            getWorld().removeObject(this);
+        }
+    }
 
-            getWorld().removeObject(bullet);
+    public void touchLeon()
+    {
+        LeonClovis leon = (LeonClovis)getOneIntersectingObject(LeonClovis.class);
 
-            if(hp <= 0)
-            {
-                getWorld().removeObject(this);
-            }
+        if(leon != null && damageTimer.millisElapsed() > 1000)
+        {
+            leon.takeDamage(5);
+            damageTimer.mark();
         }
     }
 }
