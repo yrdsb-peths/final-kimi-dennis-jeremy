@@ -1,13 +1,10 @@
 import greenfoot.*;
-
 public class Bullet extends Actor
 {
     Enemy target;
     LeonClovis player;
-
     int speed = 8;
     int damage = 10;
-
     public Bullet(Enemy enemy, LeonClovis leon)
     {
         target = enemy;
@@ -25,31 +22,24 @@ public class Bullet extends Actor
     
         setImage(img);
     }
-
     public void act()
     {
         if(getWorld() == null)
         {
             return;
         }
-
         followEnemy();
-
         if(getWorld() == null)
         {
             return;
         }
-
         hitEnemy();
-
         if(getWorld() == null)
         {
             return;
         }
-
         removeAtEdge();
     }
-
     public void followEnemy()
     {
         if(target != null && target.getWorld() != null)
@@ -62,27 +52,26 @@ public class Bullet extends Actor
             getWorld().removeObject(this);
         }
     }
-
     public void hitEnemy()
     {
         Enemy enemy = (Enemy)getOneIntersectingObject(Enemy.class);
-
         if(enemy != null)
         {
-            // old hit effect
+            MyWorld gw = (MyWorld)getWorld();
             getWorld().addObject(new HitEffect(), getX(), getY());
-
-            enemy.takeDamage(damage, player);
-
-            if(getWorld() != null)
+            boolean died = enemy.takeDamage(damage);
+            if(died)
             {
+                player.addReward();
+                if(enemy.getWorld() != null){
+                    gw.removeObject(enemy);
+                }
+            }
+            if(getWorld() != null){
                 getWorld().removeObject(this);
             }
-
-            return;
         }
     }
-
     public void removeAtEdge()
     {
         if(isAtEdge())
