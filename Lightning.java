@@ -36,6 +36,7 @@ public class Lightning extends Actor
     {
         if(getWorld() == null) return;
         animate();
+        if(getWorld() == null) return;
         if(!hasHit) hitEnemy();
     }
 
@@ -56,6 +57,7 @@ public class Lightning extends Actor
 
     public void hitEnemy()
     {
+        if(getWorld() == null) return; 
         GameWorld gw = (GameWorld)getWorld();
         for(Enemy e : gw.getObjects(Enemy.class))
         {
