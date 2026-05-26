@@ -32,6 +32,11 @@ public class GameWorld extends World
 
         aureaSolvine = new AureaSolvine();
         addObject(aureaSolvine, screenCX, screenCY);
+        
+        IceWave iceWave = new IceWave();
+        iceWave.worldX = aureaSolvine.worldX;
+        iceWave.worldY = aureaSolvine.worldY;
+        addObject(iceWave, screenCX, screenCY);
     }
 
     public void act()
@@ -80,6 +85,10 @@ public class GameWorld extends World
             int sy = (int)(screenCY + (l.worldY - camY));
             l.setLocation(sx, sy);
         }
+        for(IceWave iw : getObjects(IceWave.class))
+        {
+            iw.setLocation(screenCX, screenCY);
+        }
     }
 
     private void drawBackground(int offX, int offY)
@@ -118,8 +127,10 @@ public class GameWorld extends World
 
     public void checkPlayerDead()
     {
-        if(aureaSolvine.hp <= 0)
+        if(aureaSolvine.isDead && aureaSolvine.animFrame >= 6)
+        {
             Greenfoot.setWorld(new TitleScreen());
+        }
     }
 
     public void spawnFireball()
@@ -128,7 +139,7 @@ public class GameWorld extends World
         if(fireballTimer >= SKILL_INTERVAL)
         {
             fireballTimer = 0;
-            Enemy closest = getClosestEnemy();
+             Enemy closest = getClosestEnemy();
             if(closest != null)
             {
                 Fireball fb = new Fireball(

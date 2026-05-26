@@ -9,8 +9,14 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 public class LeonClovis extends Actor
 {
     int speed = 4;
-    String[] inventory;
-
+    public int hp = 70;
+    public int maxHp = 70;
+    public int xp = 0;
+    public int coin = 0;
+    public int level = 1;
+    public int xpToNextLevel = 10;
+    public int stamina = 3;
+    public int power = 3;
     GreenfootImage[] leonRight = new GreenfootImage[8];  
     GreenfootImage[] leonLeft = new GreenfootImage[8];
     GreenfootImage[] leonFront = new GreenfootImage[4];
@@ -23,8 +29,6 @@ public class LeonClovis extends Actor
     int imageIndex = 0;
     public LeonClovis()
     {
-        setUpInventory();
-
         for(int i = 0; i < leonRight.length; i++)
         {
             leonRight[i] = new GreenfootImage("images/leon_move/leon" + i + ".png");
@@ -55,6 +59,7 @@ public class LeonClovis extends Actor
     {
         movePlayer();
         animateLeon();
+        checkLevelUp();
     }
 
     public void movePlayer()
@@ -144,14 +149,21 @@ public class LeonClovis extends Actor
             imageIndex++;
         }
     }
+    public void gainXP(int amount) { xp += amount; }
+    public void gainCoin(int amount) { coin += amount; }
 
-    private void setUpInventory()
+    public void checkLevelUp()
     {
-        inventory = new String[0];
-    }
-
-    public String getInventoryText()
-    {
-        return "Inventory: no weapons yet";
+        if(xp >= xpToNextLevel)
+        {
+            xp -= xpToNextLevel;
+            level++;
+            xpToNextLevel = (int)(xpToNextLevel * 1.5);
+            speed  += 1;
+            stamina += 1;
+            power  += 1;
+            maxHp  += 10;
+            hp      = maxHp;
+        }
     }
 }

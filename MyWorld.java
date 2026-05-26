@@ -58,8 +58,6 @@ public class MyWorld extends World {
         addObject(leon, 300, 170);
         playerChosen = true;
         clearTitleScreen();
-        showText("Leon starts with no weapons equipped.", 300, 305);
-        showText(leon.getInventoryText(), 300, 330);
         showText("", 300, 355);
     }
 }

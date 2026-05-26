@@ -52,7 +52,7 @@ public class Enemy extends Actor
             double dy = p.worldY - worldY;
             if(Math.sqrt(dx*dx + dy*dy) < 30)
             {
-                p.hp -= ATTACK_DAMAGE;
+                p.takeHit(ATTACK_DAMAGE);
                 attackCooldown = 0;
             }
         }
