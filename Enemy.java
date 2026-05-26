@@ -1,4 +1,5 @@
 import greenfoot.*;
+
 public class Enemy extends Actor
 {
     int speed = 2;
@@ -9,59 +10,145 @@ public class Enemy extends Actor
     public double worldX;
     public double worldY;
     SimpleTimer damageTimer = new SimpleTimer();
+
     public Enemy(double worldX, double worldY)
     {
         this.worldX = worldX;
         this.worldY = worldY;
-        GreenfootImage img = new GreenfootImage(40, 40);
-        img.setColor(Color.RED);
-        img.fillOval(0, 0, 40, 40);
-        setImage(img);
+
+        GreenfootImage image = new GreenfootImage(40, 40);
+        image.setColor(Color.RED);
+        image.fillOval(0, 0, 40, 40);
+        setImage(image);
     }
+
     public void act()
     {
-        if(getWorld() == null) return;
+        if(getWorld() == null)
+        {
+            return;
+        }
+
         followPlayer();
-        if(getWorld() == null) return;
+
+        if(getWorld() == null)
+        {
+            return;
+        }
+
         touchPlayer();
     }
+
     public void followPlayer()
     {
-        MyWorld gw = (MyWorld)getWorld();
-        double playerX = gw.leon != null ? gw.leon.getX() : gw.kaine.getX();
-        double playerY = gw.leon != null ? gw.leon.getY() : gw.kaine.getY();
-        double dx = playerX - worldX;
-        double dy = playerY - worldY;
-        double dist = Math.sqrt(dx * dx + dy * dy);
-        if(dist > 0)
+        World currentWorld = getWorld();
+
+        if(currentWorld instanceof GameWorld)
         {
-            worldX += dx / dist * speed;
-            worldY += dy / dist * speed;
+            GameWorld world = (GameWorld)currentWorld;
+
+            if(world.aureaSolvine == null)
+            {
+                return;
+            }
+
+            moveToward(world.aureaSolvine.worldX, world.aureaSolvine.worldY);
+            return;
+        }
+
+        if(currentWorld instanceof MyWorld)
+        {
+            MyWorld world = (MyWorld)currentWorld;
+            Actor player = world.leon != null ? world.leon : world.kaine;
+
+            if(player != null)
+            {
+                moveToward(player.getX(), player.getY());
+            }
+
+            return;
         }
     }
+
+    private void moveToward(double targetX, double targetY)
+    {
+        double dx = targetX - worldX;
+        double dy = targetY - worldY;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+
+        if(distance > 0)
+        {
+            worldX += dx / distance * speed;
+            worldY += dy / distance * speed;
+        }
+    }
+
     public boolean takeDamage(int damage)
     {
         hp -= damage;
-        if(hp <= 0)
-        {
-            return true;
-        }
-        return false;
+        return hp <= 0;
     }
+
     public void touchPlayer()
     {
-        MyWorld gw = (MyWorld)getWorld();
-        double playerX = gw.leon != null ? gw.leon.getX() : gw.kaine.getX();
-        double playerY = gw.leon != null ? gw.leon.getY() : gw.kaine.getY();
-        double dx = playerX - worldX;
-        double dy = playerY - worldY;
-        double dist = Math.sqrt(dx * dx + dy * dy);
-        if(dist < 40 && damageTimer.millisElapsed() > 1000)
+        World currentWorld = getWorld();
+
+        if(currentWorld instanceof GameWorld)
         {
-            if(gw.leon != null)
+            GameWorld world = (GameWorld)currentWorld;
+
+            if(world.aureaSolvine == null)
             {
-                gw.leon.takeDamage(5);
+                return;
             }
+
+            damageAureaOnTouch(world);
+            return;
+        }
+
+        if(currentWorld instanceof MyWorld)
+        {
+            damageSelectedPlayerOnTouch((MyWorld)currentWorld);
+        }
+    }
+
+    private void damageAureaOnTouch(GameWorld world)
+    {
+        double dx = world.aureaSolvine.worldX - worldX;
+        double dy = world.aureaSolvine.worldY - worldY;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+
+        if(distance < 40 && damageTimer.millisElapsed() > 1000)
+        {
+            world.aureaSolvine.takeHit(5);
+            damageTimer.mark();
+        }
+    }
+
+    private void damageSelectedPlayerOnTouch(MyWorld world)
+    {
+        Actor player = world.leon != null ? world.leon : world.kaine;
+
+        if(player == null)
+        {
+            return;
+        }
+
+        double dx = player.getX() - worldX;
+        double dy = player.getY() - worldY;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+
+        if(distance < 40 && damageTimer.millisElapsed() > 1000)
+        {
+            if(world.leon != null)
+            {
+                world.leon.takeDamage(5);
+            }
+            else if(world.kaine != null)
+            {
+                world.kaine.takeDamage(5);
+            }
+
             damageTimer.mark();
         }
     }

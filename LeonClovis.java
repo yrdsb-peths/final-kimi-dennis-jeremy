@@ -8,7 +8,6 @@ public class LeonClovis extends Actor
     public int coin = 0;
     public int level = 1;
     public int xpToNextLevel = 10;
-
     int speed = 4;
     public int gunDamage = 10;
 
@@ -110,22 +109,21 @@ public class LeonClovis extends Actor
 
     public void displayStats()
     {
-        GreenfootImage bg = getWorld().getBackground();
+        GreenfootImage background = getWorld().getBackground();
+        background.setColor(Color.BLACK);
+        background.fillRect(0, 0, 500, 100);
 
-        bg.setColor(Color.BLACK);
-        bg.fillRect(0, 0, 500, 100);
+        background.setColor(Color.WHITE);
+        background.fillRect(10, 10, 300, 25);
 
-        bg.setColor(Color.WHITE);
-        bg.fillRect(10, 10, 300, 25);
+        background.setColor(Color.RED);
+        background.fillRect(10, 10, hp * 300 / maxHp, 25);
 
-        bg.setColor(Color.RED);
-        bg.fillRect(10, 10, hp * 300 / maxHp, 25);
+        background.setColor(Color.WHITE);
+        background.fillRect(10, 45, 300, 25);
 
-        bg.setColor(Color.WHITE);
-        bg.fillRect(10, 45, 300, 25);
-
-        bg.setColor(Color.BLUE);
-        bg.fillRect(10, 45, xp * 300 / xpToNextLevel, 25);
+        background.setColor(Color.BLUE);
+        background.fillRect(10, 45, xp * 300 / xpToNextLevel, 25);
 
         getWorld().showText(hp + " HP", 370, 23);
         getWorld().showText("LV " + level + "   " + xp + "/10 XP", 390, 58);
