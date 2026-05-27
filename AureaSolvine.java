@@ -204,6 +204,11 @@ public class AureaSolvine extends Actor
             power   += 1;
             maxHp   += 10;
             hp       = maxHp;
+    
+            if(getWorld() instanceof GameWorld)
+            {
+                ((GameWorld)getWorld()).addAttributePoint();
+            }
         }
     }
 

@@ -4,58 +4,130 @@ public class GameWorld extends World
 {
     public AureaSolvine aureaSolvine;
 
+    
+    public int round;
+    static final int TOTAL_ROUNDS    = 30;
+    static final int ROUND_DURATION  = 60 * 60;
+    int roundTimer = 0;
+
+    
+    int fireballLevel;
+    int lightningLevel;
+    int iceWaveLevel;
+
     int enemySpawnTimer = 0;
     int lightningTimer  = 0;
     int fireballTimer   = 0;
 
-    static final int ENEMY_SPAWN_INTERVAL = 60;
-    static final int SKILL_INTERVAL       = 90;
-    static final int MIN_SPAWN_DISTANCE   = 300;
-    static final int MAX_ENEMIES          = 30;
+    int ENEMY_SPAWN_INTERVAL;
+    static final int SKILL_INTERVAL     = 90;
+    static final int MIN_SPAWN_DISTANCE = 300;
+    static final int MAX_ENEMIES        = 30;
 
     GreenfootImage bgTile;
-    int bgOffX = 0;
-    int bgOffY = 0;
+    int bgOffX = 0, bgOffY = 0;
+    int screenCX, screenCY;
 
-    int screenCX; 
-    int screenCY; 
+    
+    int pendingAttributePoints = 0;
 
+    
     public GameWorld()
+    {
+        this(70, 70, 0, 0,   // hp, maxHp, xp, coin
+             1, 4, 3, 3, 10, // level, speed, stamina, power, xpToNextLevel
+             1,              // round
+             5, 5, 5);       // fireballLevel, lightningLevel, iceWaveLevel
+    }
+
+    
+    public GameWorld(
+        int hp, int maxHp, int xp, int coin,
+        int level, int speed, int stamina, int power,
+        int xpToNextLevel,
+        int round,
+        int fireballLevel, int lightningLevel, int iceWaveLevel)
     {
         super(1500, 750, 1);
         screenCX = getWidth()  / 2;
         screenCY = getHeight() / 2;
 
+        this.round          = round;
+        this.fireballLevel  = fireballLevel;
+        this.lightningLevel = lightningLevel;
+        this.iceWaveLevel   = iceWaveLevel;
+
         
+        ENEMY_SPAWN_INTERVAL = Math.max(20, 60 - (round - 1) * 2);
+
         bgTile = new GreenfootImage("background.png");
         drawBackground(0, 0);
 
         aureaSolvine = new AureaSolvine();
+        aureaSolvine.hp            = hp;
+        aureaSolvine.maxHp         = maxHp;
+        aureaSolvine.xp            = xp;
+        aureaSolvine.coin          = coin;
+        aureaSolvine.level         = level;
+        aureaSolvine.speed         = speed;
+        aureaSolvine.stamina       = stamina;
+        aureaSolvine.power         = power;
+        aureaSolvine.xpToNextLevel = xpToNextLevel;
         addObject(aureaSolvine, screenCX, screenCY);
-        
-        IceWave iceWave = new IceWave();
-        iceWave.worldX = aureaSolvine.worldX;
-        iceWave.worldY = aureaSolvine.worldY;
-        addObject(iceWave, screenCX, screenCY);
+
+        if(iceWaveLevel > 0)
+        {
+            IceWave iw = new IceWave();
+            iw.worldX = aureaSolvine.worldX;
+            iw.worldY = aureaSolvine.worldY;
+            addObject(iw, screenCX, screenCY);
+        }
     }
 
     public void act()
     {
+        roundTimer++;
 
         bgOffX = (int)((-aureaSolvine.worldX % bgTile.getWidth()
-                        + bgTile.getWidth()) % bgTile.getWidth());
+                        + bgTile.getWidth())  % bgTile.getWidth());
         bgOffY = (int)((-aureaSolvine.worldY % bgTile.getHeight()
                         + bgTile.getHeight()) % bgTile.getHeight());
         drawBackground(bgOffX, bgOffY);
 
-
         updateScreenPositions();
-
         spawnEnemy();
-        spawnFireball();
-        spawnLightning();
+        if(fireballLevel  > 0) spawnFireball();
+        if(lightningLevel > 0) spawnLightning();
+
         checkPlayerDead();
+        checkRoundEnd();
         drawHUD();
+    }
+
+    private void checkRoundEnd()
+    {
+        if(roundTimer >= ROUND_DURATION)
+        {
+            goToUpgradeScreen();
+        }
+    }
+
+    public void addAttributePoint()
+    {
+        pendingAttributePoints++;
+    }
+
+    private void goToUpgradeScreen()
+    {
+        AureaSolvine p = aureaSolvine;
+        Greenfoot.setWorld(new UpgradeScreen(
+            p.hp, p.maxHp, p.xp, p.coin,
+            p.level, p.speed, p.stamina, p.power,
+            p.xpToNextLevel,
+            pendingAttributePoints,
+            round + 1,
+            fireballLevel, lightningLevel, iceWaveLevel
+        ));
     }
 
     private void updateScreenPositions()
@@ -68,17 +140,14 @@ public class GameWorld extends World
             int sx = (int)(screenCX + (e.worldX - camX));
             int sy = (int)(screenCY + (e.worldY - camY));
             e.setLocation(sx, sy);
-
             e.turnTowards(screenCX, screenCY);
         }
-
         for(Fireball f : getObjects(Fireball.class))
         {
             int sx = (int)(screenCX + (f.worldX - camX));
             int sy = (int)(screenCY + (f.worldY - camY));
             f.setLocation(sx, sy);
         }
-
         for(Lightning l : getObjects(Lightning.class))
         {
             int sx = (int)(screenCX + (l.worldX - camX));
@@ -91,6 +160,7 @@ public class GameWorld extends World
         }
     }
 
+    
     private void drawBackground(int offX, int offY)
     {
         GreenfootImage bg = getBackground();
@@ -102,17 +172,30 @@ public class GameWorld extends World
             bg.drawImage(bgTile, x, y);
     }
 
+   
     public void drawHUD()
     {
         AureaSolvine p = aureaSolvine;
+        GreenfootImage bg = getBackground();
+
+        
         drawBar(30, 30, 200, 18, p.hp, p.maxHp,
             new Color(180,40,40), new Color(60,10,10));
+        
         drawBar(30, 56, 200, 14, p.xp, p.xpToNextLevel,
             new Color(50,120,220), new Color(15,40,80));
+
         showText("HP  " + p.hp + " / " + p.maxHp, 240, 39);
         showText("XP  " + p.xp + " / " + p.xpToNextLevel
                  + "   Lv." + p.level, 270, 63);
         showText("Coin: " + p.coin, 80, 90);
+
+        
+        int secondsLeft = (ROUND_DURATION - roundTimer) / 60;
+        showText("Round " + round + " / " + TOTAL_ROUNDS,
+                 getWidth()/2, 30);
+        showText(secondsLeft + " second left",
+                 getWidth()/2, 58);
     }
 
     private void drawBar(int x, int y, int w, int h,
@@ -125,29 +208,27 @@ public class GameWorld extends World
         c.setColor(Color.WHITE); c.drawRect(x, y, w, h);
     }
 
+    
     public void checkPlayerDead()
     {
         if(aureaSolvine.isDead && aureaSolvine.animFrame >= 6)
-        {
             Greenfoot.setWorld(new TitleScreen());
-        }
     }
 
+    
     public void spawnFireball()
     {
         fireballTimer++;
         if(fireballTimer >= SKILL_INTERVAL)
         {
             fireballTimer = 0;
-             Enemy closest = getClosestEnemy();
+            Enemy closest = getClosestEnemy();
             if(closest != null)
             {
                 Fireball fb = new Fireball(
-                    aureaSolvine.worldX,
-                    aureaSolvine.worldY,
-                    closest.worldX,
-                    closest.worldY,
-                    aureaSolvine.getDamage()
+                    aureaSolvine.worldX, aureaSolvine.worldY,
+                    closest.worldX,      closest.worldY,
+                    aureaSolvine.getDamage() + (fireballLevel-1) * 5
                 );
                 addObject(fb, screenCX, screenCY);
             }
@@ -168,7 +249,7 @@ public class GameWorld extends World
                 int sx = (int)(screenCX + (ex - aureaSolvine.worldX));
                 int sy = (int)(screenCY + (ey - aureaSolvine.worldY));
                 Lightning lt = new Lightning(ex, ey,
-                                             aureaSolvine.getDamage());
+                    aureaSolvine.getDamage() + (lightningLevel-1) * 5);
                 addObject(lt, sx, sy);
             }
         }
@@ -184,23 +265,21 @@ public class GameWorld extends World
 
             double x, y;
             do {
-                x = aureaSolvine.worldX
-                    + Greenfoot.getRandomNumber(1600) - 800;
-                y = aureaSolvine.worldY
-                    + Greenfoot.getRandomNumber(900)  - 450;
+                x = aureaSolvine.worldX + Greenfoot.getRandomNumber(1600) - 800;
+                y = aureaSolvine.worldY + Greenfoot.getRandomNumber(900)  - 450;
             }
             while(distanceBetween(x, y,
-                      aureaSolvine.worldX,
-                      aureaSolvine.worldY) < MIN_SPAWN_DISTANCE);
+                      aureaSolvine.worldX, aureaSolvine.worldY)
+                  < MIN_SPAWN_DISTANCE);
 
-            Enemy e = new Enemy(x, y);
-            
+            Enemy e = new Enemy(x, y, round); 
             int sx = (int)(screenCX + (x - aureaSolvine.worldX));
             int sy = (int)(screenCY + (y - aureaSolvine.worldY));
             addObject(e, sx, sy);
         }
     }
 
+    
     public Enemy getClosestEnemy()
     {
         java.util.List<Enemy> enemies = getObjects(Enemy.class);
