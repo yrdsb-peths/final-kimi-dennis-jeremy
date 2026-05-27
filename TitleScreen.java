@@ -1,21 +1,33 @@
-import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.*;
 
-/**
- * Write a description of class TitleScreen here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
 public class TitleScreen extends World
 {
-
-    /**
-     * Constructor for objects of class TitleScreen.
-     * 
-     */
     public TitleScreen()
-    {    
-        // Create a new world with 1500x750 cells
-        super(1500, 750, 1); 
+    {
+        super(1500, 750, 1);
+
+        showText("Choose Your Character", 750, 250);
+        showText("Press A for Aurea Solvine", 750, 330);
+        showText("Press L for Leon Clovis", 750, 380);
+        showText("Click the screen first, then press a key", 750, 450);
+    }
+
+    public void act()
+    {
+        String key = Greenfoot.getKey();
+
+        if(key == null)
+        {
+            return;
+        }
+
+        if(key.equalsIgnoreCase("a"))
+        {
+            Greenfoot.setWorld(new GameWorld("aurea"));
+        }
+        else if(key.equalsIgnoreCase("l"))
+        {
+            Greenfoot.setWorld(new GameWorld("leon"));
+        }
     }
 }

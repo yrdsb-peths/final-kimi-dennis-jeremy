@@ -8,6 +8,10 @@ public class LeonClovis extends Actor
     public int coin = 0;
     public int level = 1;
     public int xpToNextLevel = 10;
+
+    public double worldX;
+    public double worldY;
+
     int speed = 4;
     public int gunDamage = 10;
 
@@ -66,13 +70,19 @@ public class LeonClovis extends Actor
     {
         if(shootTimer.millisElapsed() > 500)
         {
-            java.util.List<Enemy> enemies = getWorld().getObjects(Enemy.class);
+            GameWorld world = (GameWorld)getWorld();
 
-            if(enemies.size() > 0)
+            if(world == null)
             {
-                Enemy target = enemies.get(0);
-                Bullet bullet = new Bullet(target, this);
-                getWorld().addObject(bullet, getX(), getY());
+                return;
+            }
+
+            Enemy target = world.getClosestEnemy();
+
+            if(target != null)
+            {
+                Bullet bullet = new Bullet(worldX, worldY, target.worldX, target.worldY, gunDamage);
+                world.addObject(bullet, world.screenCX, world.screenCY);
                 shootTimer.mark();
             }
         }
@@ -120,25 +130,31 @@ public class LeonClovis extends Actor
 
     public void displayStats()
     {
-        GreenfootImage background = getWorld().getBackground();
-        background.setColor(Color.BLACK);
-        background.fillRect(0, 0, 500, 100);
+        World world = getWorld();
 
+        if(world == null)
+        {
+            return;
+        }
+
+        GreenfootImage background = world.getBackground();
         background.setColor(Color.WHITE);
         background.fillRect(10, 10, 300, 25);
-
         background.setColor(Color.RED);
         background.fillRect(10, 10, hp * 300 / maxHp, 25);
 
         background.setColor(Color.WHITE);
         background.fillRect(10, 45, 300, 25);
-
         background.setColor(Color.BLUE);
         background.fillRect(10, 45, xp * 300 / xpToNextLevel, 25);
 
-        getWorld().showText(hp + " HP", 370, 23);
-        getWorld().showText("LV " + level + "   " + xp + "/10 XP", 390, 58);
-        getWorld().showText("Coin: " + coin, 80, 85);
+        background.setColor(Color.BLACK);
+        background.drawRect(10, 10, 300, 25);
+        background.drawRect(10, 45, 300, 25);
+
+        world.showText(hp + " / " + maxHp + " HP", 390, 23);
+        world.showText("LV " + level + "   " + xp + " / " + xpToNextLevel + " XP", 410, 58);
+        world.showText("Coin: " + coin, 90, 85);
     }
 
     public void movePlayer()
@@ -147,28 +163,28 @@ public class LeonClovis extends Actor
 
         if(Greenfoot.isKeyDown("w"))
         {
-            setLocation(getX(), getY() - speed);
+            worldY -= speed;
             facing = "back";
             moving = true;
         }
 
         if(Greenfoot.isKeyDown("s"))
         {
-            setLocation(getX(), getY() + speed);
+            worldY += speed;
             facing = "front";
             moving = true;
         }
 
         if(Greenfoot.isKeyDown("a"))
         {
-            setLocation(getX() - speed, getY());
+            worldX -= speed;
             facing = "left";
             moving = true;
         }
 
         if(Greenfoot.isKeyDown("d"))
         {
-            setLocation(getX() + speed, getY());
+            worldX += speed;
             facing = "right";
             moving = true;
         }

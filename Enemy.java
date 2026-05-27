@@ -8,19 +8,22 @@ public class Enemy extends Actor
     private static final int LEVEL_TEN_HEALTH_MULTIPLIER = 16;
 
     int speed = 2;
+
     public int hp = 30;
     public int maxHp = 30;
+
     public int xpDrop = 3;
     public int coinDrop = 2;
+
     public double worldX;
     public double worldY;
+
     SimpleTimer damageTimer = new SimpleTimer();
 
     public Enemy(double worldX, double worldY)
     {
         this.worldX = worldX;
         this.worldY = worldY;
-
         setBodySize(BASE_SIZE);
     }
 
@@ -46,10 +49,19 @@ public class Enemy extends Actor
 
     private void setBodySize(int size)
     {
-        GreenfootImage image = new GreenfootImage(size, size);
-        image.setColor(Color.RED);
-        image.fillOval(0, 0, size, size);
-        setImage(image);
+        try
+        {
+            GreenfootImage image = new GreenfootImage("enemy.png");
+            image.scale(size, size);
+            setImage(image);
+        }
+        catch(IllegalArgumentException exception)
+        {
+            GreenfootImage image = new GreenfootImage(size, size);
+            image.setColor(Color.RED);
+            image.fillOval(0, 0, size, size);
+            setImage(image);
+        }
     }
 
     public void act()
@@ -76,13 +88,7 @@ public class Enemy extends Actor
         if(currentWorld instanceof GameWorld)
         {
             GameWorld world = (GameWorld)currentWorld;
-
-            if(world.aureaSolvine == null)
-            {
-                return;
-            }
-
-            moveToward(world.aureaSolvine.worldX, world.aureaSolvine.worldY);
+            moveToward(world.getPlayerWorldX(), world.getPlayerWorldY());
             return;
         }
 
@@ -95,8 +101,6 @@ public class Enemy extends Actor
             {
                 moveToward(player.getX(), player.getY());
             }
-
-            return;
         }
     }
 
@@ -116,7 +120,21 @@ public class Enemy extends Actor
     public boolean takeDamage(int damage)
     {
         hp -= damage;
-        return hp <= 0;
+
+        if(hp <= 0)
+        {
+            World currentWorld = getWorld();
+
+            if(currentWorld instanceof GameWorld)
+            {
+                GameWorld world = (GameWorld)currentWorld;
+                world.givePlayerReward(xpDrop, coinDrop);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public void touchPlayer()
@@ -125,14 +143,7 @@ public class Enemy extends Actor
 
         if(currentWorld instanceof GameWorld)
         {
-            GameWorld world = (GameWorld)currentWorld;
-
-            if(world.aureaSolvine == null)
-            {
-                return;
-            }
-
-            damageAureaOnTouch(world);
+            damageGameWorldPlayer((GameWorld)currentWorld);
             return;
         }
 
@@ -142,15 +153,15 @@ public class Enemy extends Actor
         }
     }
 
-    private void damageAureaOnTouch(GameWorld world)
+    private void damageGameWorldPlayer(GameWorld world)
     {
-        double dx = world.aureaSolvine.worldX - worldX;
-        double dy = world.aureaSolvine.worldY - worldY;
+        double dx = world.getPlayerWorldX() - worldX;
+        double dy = world.getPlayerWorldY() - worldY;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
         if(distance < 40 && damageTimer.millisElapsed() > 1000)
         {
-            world.aureaSolvine.takeHit(5);
+            world.damagePlayer(5);
             damageTimer.mark();
         }
     }

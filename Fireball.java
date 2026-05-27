@@ -15,26 +15,33 @@ public class Fireball extends Actor
 
     int frame = 0;
     int animationTimer = 0;
+
     double speed = 6;
 
     public double worldX;
     public double worldY;
+
     double velX;
     double velY;
 
     int damage;
 
-    public Fireball(double startX, double startY,
-                    double targetX, double targetY, int damage)
+    public Fireball(double startX, double startY, double targetX, double targetY, int damage)
     {
-        this.worldX = startX;
-        this.worldY = startY;
+        worldX = startX;
+        worldY = startY;
         this.damage = damage;
 
         double dx = targetX - startX;
         double dy = targetY - startY;
-        double dist = Math.sqrt(dx*dx + dy*dy);
-        if(dist == 0) dist = 1;
+
+        double dist = Math.sqrt(dx * dx + dy * dy);
+
+        if(dist == 0)
+        {
+            dist = 1;
+        }
+
         velX = dx / dist * speed;
         velY = dy / dist * speed;
 
@@ -59,10 +66,13 @@ public class Fireball extends Actor
     public void animate()
     {
         animationTimer++;
+
         if(animationTimer % 3 == 0)
         {
             frame = (frame + 1) % frames.length;
+
             int rot = getRotation();
+
             setImage(new GreenfootImage(frames[frame]));
             setRotation(rot);
         }
@@ -70,21 +80,22 @@ public class Fireball extends Actor
 
     public void checkHitEnemy()
     {
-        GameWorld gw = (GameWorld)getWorld();
-        for(Enemy e : gw.getObjects(Enemy.class))
+        if(getWorld() == null) return;
+
+        for(Enemy e : getWorld().getObjects(Enemy.class))
         {
             double dx = e.worldX - worldX;
             double dy = e.worldY - worldY;
-            if(Math.sqrt(dx*dx + dy*dy) < 25)
+
+            if(Math.sqrt(dx * dx + dy * dy) < 25)
             {
-                boolean died = e.takeDamage(damage);
-                if(died)
+                e.takeDamage(damage);
+
+                if(getWorld() != null)
                 {
-                    gw.aureaSolvine.gainXP(e.xpDrop);
-                    gw.aureaSolvine.gainCoin(e.coinDrop);
-                    if(e.getWorld() != null) gw.removeObject(e);
+                    getWorld().removeObject(this);
                 }
-                if(getWorld() != null) gw.removeObject(this);
+
                 return;
             }
         }
@@ -93,10 +104,15 @@ public class Fireball extends Actor
     public void checkRange()
     {
         if(getWorld() == null) return;
+
         GameWorld gw = (GameWorld)getWorld();
-        double dx = worldX - gw.aureaSolvine.worldX;
-        double dy = worldY - gw.aureaSolvine.worldY;
-        if(Math.sqrt(dx*dx + dy*dy) > 1000)
+
+        double dx = worldX - gw.getPlayerWorldX();
+        double dy = worldY - gw.getPlayerWorldY();
+
+        if(Math.sqrt(dx * dx + dy * dy) > 1000)
+        {
             gw.removeObject(this);
+        }
     }
 }

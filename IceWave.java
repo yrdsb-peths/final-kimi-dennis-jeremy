@@ -1,77 +1,49 @@
 import greenfoot.*;
+
 public class IceWave extends Actor
 {
-    static GreenfootImage[] frames = new GreenfootImage[28];
-    static
-    {
-        for(int i = 0; i < 28; i++)
-        {
-            frames[i] = new GreenfootImage("IceWave/IceWave" + i + ".png");
-            frames[i].scale(
-                frames[i].getWidth() * 3,
-                frames[i].getHeight() * 3
-            );
-        }
-    }
-    int frame = 0;
-    int animationTimer = 0;
     public double worldX;
     public double worldY;
-    static final int RADIUS    = 160;  
-    static final int DAMAGE    = 8;   
-    static final int KNOCKBACK = 60; 
-    boolean damageDealtThisCycle = false;
+
+    int damage = 10;
+    int size = 100;
+
+    SimpleTimer hitTimer = new SimpleTimer();
+
     public IceWave()
     {
-        setImage(frames[0]);
+        GreenfootImage img = new GreenfootImage(size, size);
+        img.setColor(new Color(100, 200, 255, 100));
+        img.fillOval(0, 0, size, size);
+        img.setColor(Color.CYAN);
+        img.drawOval(0, 0, size - 1, size - 1);
+        setImage(img);
     }
+
     public void act()
     {
-        if(getWorld() == null) return;
-        MyWorld gw = (MyWorld)getWorld();
-        worldX = gw.leon != null ? gw.leon.getX() : gw.kaine.getX();
-        worldY = gw.leon != null ? gw.leon.getY() : gw.kaine.getY();
-        animate();
-        hitEnemies();
-    }
-    public void animate()
-    {
-        animationTimer++;
-        if(animationTimer % 3 == 0)
+        GameWorld gw = (GameWorld)getWorld();
+
+        worldX = gw.getPlayerWorldX();
+        worldY = gw.getPlayerWorldY();
+
+        if(hitTimer.millisElapsed() > 500)
         {
-            frame++;
-            if(frame >= frames.length)
-            {
-                frame = 0;
-                damageDealtThisCycle = false; 
-            }
-            setImage(frames[frame]);
+            hitEnemies();
+            hitTimer.mark();
         }
     }
+
     public void hitEnemies()
     {
-        if(frame != 10) return;
-        if(damageDealtThisCycle) return;
-        damageDealtThisCycle = true;
-        MyWorld gw = (MyWorld)getWorld();
-        for(Enemy e : gw.getObjects(Enemy.class))
+        for(Enemy e : getWorld().getObjects(Enemy.class))
         {
             double dx = e.worldX - worldX;
             double dy = e.worldY - worldY;
-            double dist = Math.sqrt(dx*dx + dy*dy);
-            if(dist < RADIUS && dist > 0)
+
+            if(Math.sqrt(dx * dx + dy * dy) < size / 2)
             {
-                boolean died = e.takeDamage(DAMAGE);
-                if(died)
-                {
-                    if(gw.leon != null) gw.leon.addReward();
-                    if(e.getWorld() != null) gw.removeObject(e);
-                }
-                else
-                {
-                    e.worldX += dx / dist * KNOCKBACK;
-                    e.worldY += dy / dist * KNOCKBACK;
-                }
+                e.takeDamage(damage);
             }
         }
     }
