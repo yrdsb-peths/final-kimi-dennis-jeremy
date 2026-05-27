@@ -8,6 +8,9 @@ public class LeonClovis extends Actor
     public int coin = 0;
     public int level = 1;
     public int xpToNextLevel = 10;
+    
+    public double worldX;
+    public double worldY;
 
     int speed = 4;
     public int gunDamage = 10;
@@ -67,13 +70,26 @@ public class LeonClovis extends Actor
     {
         if(shootTimer.millisElapsed() > 500)
         {
-            java.util.List<Enemy> enemies = getWorld().getObjects(Enemy.class);
-
-            if(enemies.size() > 0)
+            GameWorld gw = (GameWorld)getWorld();
+    
+            Enemy target = gw.getClosestEnemy();
+    
+            if(target != null)
             {
-                Enemy target = enemies.get(0);
-                Bullet bullet = new Bullet(target, this);
-                getWorld().addObject(bullet, getX(), getY());
+                Bullet bullet = new Bullet(
+                    worldX,
+                    worldY,
+                    target.worldX,
+                    target.worldY,
+                    gunDamage
+                );
+    
+                getWorld().addObject(
+                    bullet,
+                    gw.screenCX,
+                    gw.screenCY
+                );
+    
                 shootTimer.mark();
             }
         }
@@ -111,25 +127,51 @@ public class LeonClovis extends Actor
     public void displayStats()
     {
         GreenfootImage bg = getWorld().getBackground();
-
+    
+        // background
         bg.setColor(Color.BLACK);
         bg.fillRect(0, 0, 500, 100);
-
+    
+        // HP BAR BACKGROUND
         bg.setColor(Color.WHITE);
         bg.fillRect(10, 10, 300, 25);
-
+    
+        // HP BAR
         bg.setColor(Color.RED);
         bg.fillRect(10, 10, hp * 300 / maxHp, 25);
-
+    
+        // XP BAR BACKGROUND
         bg.setColor(Color.WHITE);
         bg.fillRect(10, 45, 300, 25);
-
+    
+        // XP BAR
         bg.setColor(Color.BLUE);
         bg.fillRect(10, 45, xp * 300 / xpToNextLevel, 25);
-
-        getWorld().showText(hp + " HP", 370, 23);
-        getWorld().showText("LV " + level + "   " + xp + "/10 XP", 390, 58);
-        getWorld().showText("Coin: " + coin, 80, 85);
+    
+        // outline
+        bg.setColor(Color.BLACK);
+        bg.drawRect(10, 10, 300, 25);
+        bg.drawRect(10, 45, 300, 25);
+    
+        // TEXT
+        getWorld().showText(
+            hp + " / " + maxHp + " HP",
+            390,
+            23
+        );
+    
+        getWorld().showText(
+            "LV " + level + "   " +
+            xp + " / " + xpToNextLevel + " XP",
+            410,
+            58
+        );
+    
+        getWorld().showText(
+            "Coin: " + coin,
+            90,
+            85
+        );
     }
 
     public void movePlayer()

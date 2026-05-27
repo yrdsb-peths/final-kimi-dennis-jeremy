@@ -70,21 +70,24 @@ public class Fireball extends Actor
 
     public void checkHitEnemy()
     {
+        if(getWorld() == null) return;
+    
         GameWorld gw = (GameWorld)getWorld();
+    
         for(Enemy e : gw.getObjects(Enemy.class))
         {
             double dx = e.worldX - worldX;
             double dy = e.worldY - worldY;
-            if(Math.sqrt(dx*dx + dy*dy) < 25)
+    
+            if(Math.sqrt(dx * dx + dy * dy) < 25)
             {
-                boolean died = e.takeDamage(damage);
-                if(died)
+                e.takeDamage(damage);
+    
+                if(getWorld() != null)
                 {
-                    gw.aureaSolvine.gainXP(e.xpDrop);
-                    gw.aureaSolvine.gainCoin(e.coinDrop);
-                    if(e.getWorld() != null) gw.removeObject(e);
+                    gw.removeObject(this);
                 }
-                if(getWorld() != null) gw.removeObject(this);
+    
                 return;
             }
         }

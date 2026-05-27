@@ -1,82 +1,84 @@
 import greenfoot.*;
+
 public class Bullet extends Actor
 {
-    Enemy target;
-    LeonClovis player;
-    int speed = 8;
-    int damage = 10;
-    public Bullet(Enemy enemy, LeonClovis leon)
+    Enemy enemy;
+
+    int damage;
+    int speed = 10;
+
+    public double worldX;
+    public double worldY;
+
+    double dx;
+    double dy;
+    double dist;
+
+    public Bullet(double startX, double startY,
+                  double targetX, double targetY,
+                  int damage)
     {
-        target = enemy;
-        player = leon;
-    
-        damage = leon.gunDamage;
-    
-        GreenfootImage img = new GreenfootImage(40,8);
-    
-        img.setColor(Color.WHITE);
-        img.fillRect(0,0,40,8);
-    
-        img.setColor(Color.RED);
-        img.fillRect(2,2,36,4);
-    
+        this.worldX = startX;
+        this.worldY = startY;
+
+        this.damage = damage;
+
+        GreenfootImage img = new GreenfootImage(12, 12);
+        img.setColor(Color.YELLOW);
+        img.fillOval(0, 0, 12, 12);
         setImage(img);
+
+        dx = targetX - startX;
+        dy = targetY - startY;
+
+        dist = Math.sqrt(dx * dx + dy * dy);
+
+        if(dist != 0)
+        {
+            dx /= dist;
+            dy /= dist;
+        }
     }
+
     public void act()
     {
-        if(getWorld() == null)
-        {
-            return;
-        }
-        followEnemy();
-        if(getWorld() == null)
-        {
-            return;
-        }
+        moveBullet();
         hitEnemy();
-        if(getWorld() == null)
-        {
-            return;
-        }
-        removeAtEdge();
     }
-    public void followEnemy()
+
+    public void moveBullet()
     {
-        if(target != null && target.getWorld() != null)
-        {
-            turnTowards(target.getX(), target.getY());
-            move(speed);
-        }
-        else
-        {
-            getWorld().removeObject(this);
-        }
+        worldX += dx * speed;
+        worldY += dy * speed;
+
+        GameWorld gw = (GameWorld)getWorld();
+
+        int sx = (int)(gw.screenCX + (worldX - gw.aureaSolvine.worldX));
+        int sy = (int)(gw.screenCY + (worldY - gw.aureaSolvine.worldY));
+
+        setLocation(sx, sy);
     }
+
     public void hitEnemy()
     {
-        Enemy enemy = (Enemy)getOneIntersectingObject(Enemy.class);
-        if(enemy != null)
+        java.util.List<Enemy> enemies =
+            getWorld().getObjects(Enemy.class);
+
+        for(Enemy enemy : enemies)
         {
-            MyWorld gw = (MyWorld)getWorld();
-            getWorld().addObject(new HitEffect(), getX(), getY());
-            boolean died = enemy.takeDamage(damage);
-            if(died)
+            double ex = enemy.worldX - worldX;
+            double ey = enemy.worldY - worldY;
+
+            double distance =
+                Math.sqrt(ex * ex + ey * ey);
+
+            if(distance < 25)
             {
-                player.addReward();
-                if(enemy.getWorld() != null){
-                    gw.removeObject(enemy);
-                }
-            }
-            if(getWorld() != null){
+                enemy.takeDamage(damage);
+
                 getWorld().removeObject(this);
+                return;
             }
-        }
-    }
-    public void removeAtEdge()
-    {
-        if(isAtEdge())
-        {
-            getWorld().removeObject(this);
         }
     }
 }

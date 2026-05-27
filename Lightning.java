@@ -57,21 +57,19 @@ public class Lightning extends Actor
 
     public void hitEnemy()
     {
-        if(getWorld() == null) return; 
+        if(getWorld() == null) return;
+    
         GameWorld gw = (GameWorld)getWorld();
+    
         for(Enemy e : gw.getObjects(Enemy.class))
         {
             double dx = e.worldX - worldX;
             double dy = e.worldY - worldY;
-            if(Math.sqrt(dx*dx + dy*dy) < 30)
+    
+            if(Math.sqrt(dx * dx + dy * dy) < 30)
             {
-                boolean died = e.takeDamage(damage);
-                if(died)
-                {
-                    gw.aureaSolvine.gainXP(e.xpDrop);
-                    gw.aureaSolvine.gainCoin(e.coinDrop);
-                    if(e.getWorld() != null) gw.removeObject(e);
-                }
+                e.takeDamage(damage);
+    
                 hasHit = true;
                 return;
             }
