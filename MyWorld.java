@@ -3,6 +3,8 @@ import greenfoot.*;
 public class MyWorld extends World
 {
     private static final int CENTER_X = 400;
+    private static final int BATTLE_TEXT_Y = 520;
+    private static final int ENEMY_BOTTOM_PADDING = 30;
     private static final String BACKGROUND_IMAGE = "images/Background .png";
 
     private boolean playerChosen = false;
@@ -145,7 +147,8 @@ public class MyWorld extends World
     public void spawnEnemy()
     {
         int x = Greenfoot.getRandomNumber(getWidth());
-        int y = Greenfoot.getRandomNumber(getHeight());
+        int maxSpawnY = BATTLE_TEXT_Y - ENEMY_BOTTOM_PADDING;
+        int y = Greenfoot.getRandomNumber(maxSpawnY);
         addObject(new Enemy(x, y), x, y);
     }
 }
