@@ -10,6 +10,7 @@ public class GameWorld extends World
 
     public AureaSolvine aureaSolvine;
     private final SimpleTimer enemySpawnTimer = new SimpleTimer();
+    private boolean gameOverShown = false;
 
     int lightningTimer = 0;
     int fireballTimer = 0;
@@ -131,9 +132,11 @@ public class GameWorld extends World
 
     public void checkPlayerDead()
     {
-        if(aureaSolvine.isDead && aureaSolvine.animFrame >= 6)
+        if(aureaSolvine.isDead && aureaSolvine.animFrame >= 6 && !gameOverShown)
         {
-            Greenfoot.setWorld(new TitleScreen());
+            gameOverShown = true;
+            addObject(new GameOver(), screenCX, screenCY);
+            Greenfoot.stop();
         }
     }
 

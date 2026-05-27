@@ -294,7 +294,18 @@ public class KaineVelsarth extends Actor
 
         if(hp == 0)
         {
+            showGameOver();
             Greenfoot.stop();
+        }
+    }
+
+    private void showGameOver()
+    {
+        World world = getWorld();
+
+        if(world != null)
+        {
+            world.addObject(new GameOver(), world.getWidth() / 2, world.getHeight() / 2);
         }
     }
 
