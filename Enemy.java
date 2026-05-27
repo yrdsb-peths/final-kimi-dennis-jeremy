@@ -127,28 +127,30 @@ public class Enemy extends Actor
 
     private void damageSelectedPlayerOnTouch(MyWorld world)
     {
-        Actor player = world.leon != null ? world.leon : world.kaine;
-
-        if(player == null)
+        if(world.leon != null && getOneIntersectingObject(LeonClovis.class) != null)
         {
-            return;
+            damageLeon(world.leon);
         }
-
-        double dx = player.getX() - worldX;
-        double dy = player.getY() - worldY;
-        double distance = Math.sqrt(dx * dx + dy * dy);
-
-        if(distance < 40 && damageTimer.millisElapsed() > 1000)
+        else if(world.kaine != null && getOneIntersectingObject(KaineVelsarth.class) != null)
         {
-            if(world.leon != null)
-            {
-                world.leon.takeDamage(5);
-            }
-            else if(world.kaine != null)
-            {
-                world.kaine.takeDamage(5);
-            }
+            damageKaine(world.kaine);
+        }
+    }
 
+    private void damageLeon(LeonClovis leon)
+    {
+        if(damageTimer.millisElapsed() > 1000)
+        {
+            leon.takeDamage(5);
+            damageTimer.mark();
+        }
+    }
+
+    private void damageKaine(KaineVelsarth kaine)
+    {
+        if(damageTimer.millisElapsed() > 1000)
+        {
+            kaine.takeDamage(5);
             damageTimer.mark();
         }
     }

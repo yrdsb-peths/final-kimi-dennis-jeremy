@@ -52,7 +52,6 @@ public class KaineVelsarth extends Actor
         moveKaine();
         updateSwordPosition();
         handleSwordInput();
-        hitEnemyWithSword();
         checkLevelUp();
         displayStats();
     }
@@ -137,6 +136,7 @@ public class KaineVelsarth extends Actor
         {
             swordRightMode = !swordRightMode;
             spawnActiveSword();
+            hitEnemyWithSword();
         }
     }
 
