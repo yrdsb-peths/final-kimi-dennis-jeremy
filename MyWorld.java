@@ -149,6 +149,23 @@ public class MyWorld extends World
         int x = Greenfoot.getRandomNumber(getWidth());
         int maxSpawnY = BATTLE_TEXT_Y - ENEMY_BOTTOM_PADDING;
         int y = Greenfoot.getRandomNumber(maxSpawnY);
-        addObject(new Enemy(x, y), x, y);
+        Enemy enemy = new Enemy(x, y);
+        enemy.applyLevelScaling(getCurrentHeroLevel());
+        addObject(enemy, x, y);
+    }
+
+    private int getCurrentHeroLevel()
+    {
+        if(leon != null)
+        {
+            return leon.level;
+        }
+
+        if(kaine != null)
+        {
+            return kaine.level;
+        }
+
+        return 1;
     }
 }

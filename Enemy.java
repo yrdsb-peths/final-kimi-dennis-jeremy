@@ -2,6 +2,11 @@ import greenfoot.*;
 
 public class Enemy extends Actor
 {
+    private static final int BASE_SIZE = 40;
+    private static final int LEVEL_FIVE_SIZE = 60;
+    private static final int LEVEL_FIVE_HEALTH_MULTIPLIER = 4;
+    private static final int LEVEL_TEN_HEALTH_MULTIPLIER = 16;
+
     int speed = 2;
     public int hp = 30;
     public int maxHp = 30;
@@ -16,9 +21,34 @@ public class Enemy extends Actor
         this.worldX = worldX;
         this.worldY = worldY;
 
-        GreenfootImage image = new GreenfootImage(40, 40);
+        setBodySize(BASE_SIZE);
+    }
+
+    public void applyLevelScaling(int heroLevel)
+    {
+        if(heroLevel >= 10)
+        {
+            setHealth(30 * LEVEL_TEN_HEALTH_MULTIPLIER);
+            setBodySize(LEVEL_FIVE_SIZE);
+        }
+        else if(heroLevel >= 5)
+        {
+            setHealth(30 * LEVEL_FIVE_HEALTH_MULTIPLIER);
+            setBodySize(LEVEL_FIVE_SIZE);
+        }
+    }
+
+    private void setHealth(int health)
+    {
+        maxHp = health;
+        hp = maxHp;
+    }
+
+    private void setBodySize(int size)
+    {
+        GreenfootImage image = new GreenfootImage(size, size);
         image.setColor(Color.RED);
-        image.fillOval(0, 0, 40, 40);
+        image.fillOval(0, 0, size, size);
         setImage(image);
     }
 

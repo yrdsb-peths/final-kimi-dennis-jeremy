@@ -206,6 +206,7 @@ public class GameWorld extends World
         while(distanceBetween(x, y, aureaSolvine.worldX, aureaSolvine.worldY) < MIN_SPAWN_DISTANCE);
 
         Enemy enemy = new Enemy(x, y);
+        enemy.applyLevelScaling(aureaSolvine.level);
         int screenX = (int)(screenCX + (x - aureaSolvine.worldX));
         int screenY = (int)(screenCY + (y - aureaSolvine.worldY));
         addObject(enemy, screenX, screenY);
