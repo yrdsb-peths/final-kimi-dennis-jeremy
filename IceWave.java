@@ -36,7 +36,8 @@ public class IceWave extends Actor
 
     public void hitEnemies()
     {
-        java.util.List<Enemy> enemies = getWorld().getObjects(Enemy.class);
+        java.util.List<Enemy> enemies =
+            getWorld().getObjects(Enemy.class);
 
         for(Enemy e : enemies)
         {

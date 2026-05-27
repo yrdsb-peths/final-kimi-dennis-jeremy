@@ -128,10 +128,6 @@ public class LeonClovis extends Actor
     {
         GreenfootImage bg = getWorld().getBackground();
     
-        // background
-        bg.setColor(Color.BLACK);
-        bg.fillRect(0, 0, 500, 100);
-    
         // HP BAR BACKGROUND
         bg.setColor(Color.WHITE);
         bg.fillRect(10, 10, 300, 25);

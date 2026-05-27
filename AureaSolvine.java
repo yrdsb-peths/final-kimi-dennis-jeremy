@@ -211,4 +211,61 @@ public class AureaSolvine extends Actor
     {
         return 10 + (power - 3) * 5;
     }
+    
+    public void displayStats()
+    {
+        GreenfootImage bg = getWorld().getBackground();
+    
+        // HP BAR BACKGROUND
+        bg.setColor(Color.WHITE);
+        bg.fillRect(10, 10, 300, 25);
+    
+        // HP BAR
+        bg.setColor(Color.RED);
+        bg.fillRect(
+            10,
+            10,
+            hp * 300 / maxHp,
+            25
+        );
+    
+        // XP BAR BACKGROUND
+        bg.setColor(Color.WHITE);
+        bg.fillRect(10, 45, 300, 25);
+    
+        // XP BAR
+        bg.setColor(Color.BLUE);
+        bg.fillRect(
+            10,
+            45,
+            xp * 300 / xpToNextLevel,
+            25
+        );
+    
+        // outline
+        bg.setColor(Color.BLACK);
+        bg.drawRect(10, 10, 300, 25);
+    
+        bg.drawRect(10, 45, 300, 25);
+    
+        // TEXT
+        getWorld().showText(
+            hp + " / " + maxHp + " HP",
+            390,
+            23
+        );
+    
+        getWorld().showText(
+            "LV " + level + "   " +
+            xp + " / " + xpToNextLevel + " XP",
+            410,
+            58
+        );
+    
+        getWorld().showText(
+            "Coin: " + coin,
+            90,
+            85
+        );
+    }
 }
