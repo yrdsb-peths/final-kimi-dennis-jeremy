@@ -14,12 +14,12 @@ public class lightningSword extends Actor
         if (lightningRightMode)
         {
             image = new GreenfootImage("Lightning sword. 90 Right.png");
-            image.scale(40, 40);
+            image.scale(70, 70);
         }
         else
         {
             image = new GreenfootImage("00.png");
-            image.scale(20, 40);
+            image.scale(40, 80);
             image.rotate(45);
         }
 
