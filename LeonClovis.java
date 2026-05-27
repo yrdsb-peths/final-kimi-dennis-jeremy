@@ -173,39 +173,39 @@ public class LeonClovis extends Actor
     public void movePlayer()
     {
         boolean moving = false;
-
+    
         if(Greenfoot.isKeyDown("w"))
         {
-            setLocation(getX(), getY() - speed);
+            worldY -= speed;
             facing = "back";
             moving = true;
         }
-
+    
         if(Greenfoot.isKeyDown("s"))
         {
-            setLocation(getX(), getY() + speed);
+            worldY += speed;
             facing = "front";
             moving = true;
         }
-
+    
         if(Greenfoot.isKeyDown("a"))
         {
-            setLocation(getX() - speed, getY());
+            worldX -= speed;
             facing = "left";
             moving = true;
         }
-
+    
         if(Greenfoot.isKeyDown("d"))
         {
-            setLocation(getX() + speed, getY());
+            worldX += speed;
             facing = "right";
             moving = true;
         }
-
+    
         if(!moving)
         {
             imageIndex = 0;
-
+    
             if(facing.equals("right"))
             {
                 setImage(leonRight[0]);

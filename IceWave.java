@@ -24,8 +24,8 @@ public class IceWave extends Actor
     {
         GameWorld gw = (GameWorld)getWorld();
 
-        worldX = gw.aureaSolvine.worldX;
-        worldY = gw.aureaSolvine.worldY;
+        worldX = gw.getPlayerWorldX();
+        worldY = gw.getPlayerWorldY();
 
         if(hitTimer.millisElapsed() > 500)
         {
@@ -36,17 +36,12 @@ public class IceWave extends Actor
 
     public void hitEnemies()
     {
-        java.util.List<Enemy> enemies =
-            getWorld().getObjects(Enemy.class);
-
-        for(Enemy e : enemies)
+        for(Enemy e : getWorld().getObjects(Enemy.class))
         {
             double dx = e.worldX - worldX;
             double dy = e.worldY - worldY;
 
-            double dist = Math.sqrt(dx * dx + dy * dy);
-
-            if(dist < size / 2)
+            if(Math.sqrt(dx * dx + dy * dy) < size / 2)
             {
                 e.takeDamage(damage);
             }

@@ -10,15 +10,11 @@ public class Bullet extends Actor
 
     double dx;
     double dy;
-    double dist;
 
-    public Bullet(double startX, double startY,
-                  double targetX, double targetY,
-                  int damage)
+    public Bullet(double startX, double startY, double targetX, double targetY, int damage)
     {
-        this.worldX = startX;
-        this.worldY = startY;
-
+        worldX = startX;
+        worldY = startY;
         this.damage = damage;
 
         GreenfootImage img = new GreenfootImage(12, 12);
@@ -29,12 +25,12 @@ public class Bullet extends Actor
         dx = targetX - startX;
         dy = targetY - startY;
 
-        dist = Math.sqrt(dx * dx + dy * dy);
+        double dist = Math.sqrt(dx * dx + dy * dy);
 
         if(dist != 0)
         {
-            dx /= dist;
-            dy /= dist;
+            dx = dx / dist;
+            dy = dy / dist;
         }
     }
 
@@ -51,29 +47,22 @@ public class Bullet extends Actor
 
         GameWorld gw = (GameWorld)getWorld();
 
-        int sx = (int)(gw.screenCX + (worldX - gw.aureaSolvine.worldX));
-        int sy = (int)(gw.screenCY + (worldY - gw.aureaSolvine.worldY));
+        int sx = (int)(gw.screenCX + (worldX - gw.getPlayerWorldX()));
+        int sy = (int)(gw.screenCY + (worldY - gw.getPlayerWorldY()));
 
         setLocation(sx, sy);
     }
 
     public void hitEnemy()
     {
-        java.util.List<Enemy> enemies =
-            getWorld().getObjects(Enemy.class);
-
-        for(Enemy enemy : enemies)
+        for(Enemy e : getWorld().getObjects(Enemy.class))
         {
-            double ex = enemy.worldX - worldX;
-            double ey = enemy.worldY - worldY;
+            double dx = e.worldX - worldX;
+            double dy = e.worldY - worldY;
 
-            double distance =
-                Math.sqrt(ex * ex + ey * ey);
-
-            if(distance < 25)
+            if(Math.sqrt(dx * dx + dy * dy) < 25)
             {
-                enemy.takeDamage(damage);
-
+                e.takeDamage(damage);
                 getWorld().removeObject(this);
                 return;
             }

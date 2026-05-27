@@ -21,7 +21,6 @@ public class Lightning extends Actor
     int timer = 0;
 
     int damage;
-
     boolean hasHit = false;
 
     public double worldX;
@@ -31,7 +30,6 @@ public class Lightning extends Actor
     {
         this.worldX = worldX;
         this.worldY = worldY;
-
         this.damage = damage;
 
         setImage(frames[0]);
@@ -77,9 +75,7 @@ public class Lightning extends Actor
     {
         if(getWorld() == null) return;
 
-        GameWorld gw = (GameWorld)getWorld();
-
-        for(Enemy e : gw.getObjects(Enemy.class))
+        for(Enemy e : getWorld().getObjects(Enemy.class))
         {
             double dx = e.worldX - worldX;
             double dy = e.worldY - worldY;
@@ -87,7 +83,6 @@ public class Lightning extends Actor
             if(Math.sqrt(dx * dx + dy * dy) < 30)
             {
                 e.takeDamage(damage);
-
                 hasHit = true;
                 return;
             }

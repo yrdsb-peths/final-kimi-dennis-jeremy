@@ -35,23 +35,8 @@ public class Enemy extends Actor
     {
         GameWorld gw = (GameWorld)getWorld();
 
-        double px = 0;
-        double py = 0;
-
-        if(gw.aureaSolvine != null)
-        {
-            px = gw.aureaSolvine.worldX;
-            py = gw.aureaSolvine.worldY;
-        }
-
-        if(gw.leonClovis != null)
-        {
-            px = gw.leonClovis.worldX;
-            py = gw.leonClovis.worldY;
-        }
-
-        double dx = px - worldX;
-        double dy = py - worldY;
+        double dx = gw.getPlayerWorldX() - worldX;
+        double dy = gw.getPlayerWorldY() - worldY;
 
         double dist = Math.sqrt(dx * dx + dy * dy);
 
@@ -69,19 +54,7 @@ public class Enemy extends Actor
         if(hp <= 0)
         {
             GameWorld gw = (GameWorld)getWorld();
-
-            if(gw.aureaSolvine != null)
-            {
-                gw.aureaSolvine.xp += xpDrop;
-                gw.aureaSolvine.coin += coinDrop;
-            }
-
-            if(gw.leonClovis != null)
-            {
-                gw.leonClovis.xp += xpDrop;
-                gw.leonClovis.coin += coinDrop;
-            }
-
+            gw.givePlayerReward(xpDrop, coinDrop);
             getWorld().removeObject(this);
         }
     }
@@ -90,38 +63,14 @@ public class Enemy extends Actor
     {
         GameWorld gw = (GameWorld)getWorld();
 
-        double px = 0;
-        double py = 0;
-
-        if(gw.aureaSolvine != null)
-        {
-            px = gw.aureaSolvine.worldX;
-            py = gw.aureaSolvine.worldY;
-        }
-
-        if(gw.leonClovis != null)
-        {
-            px = gw.leonClovis.worldX;
-            py = gw.leonClovis.worldY;
-        }
-
-        double dx = px - worldX;
-        double dy = py - worldY;
+        double dx = gw.getPlayerWorldX() - worldX;
+        double dy = gw.getPlayerWorldY() - worldY;
 
         double dist = Math.sqrt(dx * dx + dy * dy);
 
         if(dist < 40 && damageTimer.millisElapsed() > 1000)
         {
-            if(gw.aureaSolvine != null)
-            {
-                gw.aureaSolvine.takeHit(5);
-            }
-
-            if(gw.leonClovis != null)
-            {
-                gw.leonClovis.takeDamage(5);
-            }
-
+            gw.damagePlayer(5);
             damageTimer.mark();
         }
     }
