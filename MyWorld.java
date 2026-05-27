@@ -107,8 +107,6 @@ public class MyWorld extends World
         playerChosen = true;
         clearTitleScreen();
         showText(kaine.getStartingLoadoutText(), CENTER_X, 520);
-        showText(kaine.getInventoryText(), CENTER_X, 545);
-        showText(kaine.getEquippedText(), CENTER_X, 570);
         spawnStartingEnemies();
     }
 
