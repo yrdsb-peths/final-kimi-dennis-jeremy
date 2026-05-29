@@ -17,9 +17,14 @@ public class Bullet extends Actor
         worldY = startY;
         this.damage = damage;
 
-        GreenfootImage img = new GreenfootImage(12, 12);
-        img.setColor(Color.YELLOW);
-        img.fillOval(0, 0, 12, 12);
+        GreenfootImage img = new GreenfootImage(40, 8);
+
+        img.setColor(Color.CYAN);
+        img.fillRect(0, 0, 40, 8);
+        
+        img.setColor(Color.WHITE);
+        img.fillRect(0, 2, 40, 4);
+        
         setImage(img);
 
         dx = targetX - startX;
@@ -32,6 +37,9 @@ public class Bullet extends Actor
             dx = dx / dist;
             dy = dy / dist;
         }
+        
+        double angle = Math.toDegrees(Math.atan2(dy, dx));
+        setRotation((int)angle);
     }
 
     public void act()

@@ -35,13 +35,14 @@ public class KaineVelsarth extends Actor
     {
         setUpStats();
         setUpInventory();
+
         activeSwordIndex = -1;
         swordRightMode = false;
         activeSword = null;
 
         GreenfootImage image = getImage();
 
-        if (image != null)
+        if(image != null)
         {
             image.scale(72, 72);
             setImage(image);
@@ -55,11 +56,6 @@ public class KaineVelsarth extends Actor
         handleSwordInput();
         checkLevelUp();
         displayStats();
-    }
-
-    protected void addedToWorld(World world)
-    {
-        world.showText("", 300, 330);
     }
 
     private void setUpStats()
@@ -89,29 +85,29 @@ public class KaineVelsarth extends Actor
         int x = getX();
         int y = getY();
 
-        if (Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("left"))
+        if(Greenfoot.isKeyDown("a") || Greenfoot.isKeyDown("left"))
         {
             x -= speed;
         }
 
-        if (Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("right"))
+        if(Greenfoot.isKeyDown("d") || Greenfoot.isKeyDown("right"))
         {
             x += speed;
         }
 
-        if (Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("up"))
+        if(Greenfoot.isKeyDown("w") || Greenfoot.isKeyDown("up"))
         {
             y -= speed;
         }
 
-        if (Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("down"))
+        if(Greenfoot.isKeyDown("s") || Greenfoot.isKeyDown("down"))
         {
             y += speed;
         }
 
         World world = getWorld();
 
-        if (world != null)
+        if(world != null)
         {
             x = Math.max(36, Math.min(world.getWidth() - 36, x));
             y = Math.max(36, Math.min(world.getHeight() - 96, y));
@@ -124,16 +120,16 @@ public class KaineVelsarth extends Actor
     {
         String key = Greenfoot.getKey();
 
-        if (key == null)
+        if(key == null)
         {
             return;
         }
 
-        if (key.equalsIgnoreCase("space"))
+        if(key.equalsIgnoreCase("space"))
         {
             activateNextSword();
         }
-        else if (key.equalsIgnoreCase("tab") && activeSwordIndex >= 0)
+        else if(key.equalsIgnoreCase("tab") && activeSwordIndex >= 0)
         {
             swordRightMode = !swordRightMode;
             spawnActiveSword();
@@ -152,12 +148,12 @@ public class KaineVelsarth extends Actor
     {
         World world = getWorld();
 
-        if (world == null)
+        if(world == null)
         {
             return;
         }
 
-        if (activeSword == null || activeSword.getWorld() == null)
+        if(activeSword == null || activeSword.getWorld() == null)
         {
             activeSword = createSwordForCurrentIndex();
             world.addObject(activeSword, getX() + SWORD_X_OFFSET, getY() + SWORD_Y_OFFSET);
@@ -170,12 +166,12 @@ public class KaineVelsarth extends Actor
 
     private Actor createSwordForCurrentIndex()
     {
-        if (activeSwordIndex == 0)
+        if(activeSwordIndex == 0)
         {
             return new fireSword(swordRightMode);
         }
 
-        if (activeSwordIndex == 1)
+        if(activeSwordIndex == 1)
         {
             return new futuristicSword(swordRightMode);
         }
@@ -185,7 +181,7 @@ public class KaineVelsarth extends Actor
 
     private void updateSwordPosition()
     {
-        if (activeSword != null && activeSword.getWorld() != null)
+        if(activeSword != null && activeSword.getWorld() != null)
         {
             activeSword.setLocation(getX() + SWORD_X_OFFSET, getY() + SWORD_Y_OFFSET);
         }
@@ -212,18 +208,7 @@ public class KaineVelsarth extends Actor
 
         swordHitTimer.mark();
 
-        boolean died = enemy.takeDamage(swordDamage);
-
-        if(died)
-        {
-            gainXp(enemy.xpDrop);
-            gainCoin(enemy.coinDrop);
-
-            if(enemy.getWorld() != null)
-            {
-                enemy.getWorld().removeObject(enemy);
-            }
-        }
+        enemy.takeDamage(swordDamage);
     }
 
     private Enemy getSwordHitEnemy()
@@ -250,6 +235,7 @@ public class KaineVelsarth extends Actor
     {
         int dx = x1 - x2;
         int dy = y1 - y2;
+
         return Math.sqrt(dx * dx + dy * dy);
     }
 
@@ -266,26 +252,6 @@ public class KaineVelsarth extends Actor
     public String getStartingLoadoutText()
     {
         return "Player starts with all 3 swords equipped.";
-    }
-
-    public int getHp()
-    {
-        return hp;
-    }
-
-    public int getMaxHp()
-    {
-        return maxHp;
-    }
-
-    public int getXp()
-    {
-        return xp;
-    }
-
-    public int getCoin()
-    {
-        return coin;
     }
 
     public void takeDamage(int damage)
@@ -343,6 +309,7 @@ public class KaineVelsarth extends Actor
         }
 
         GreenfootImage background = world.getBackground();
+
         background.setColor(Color.BLACK);
         background.fillRect(0, 0, 500, 100);
 

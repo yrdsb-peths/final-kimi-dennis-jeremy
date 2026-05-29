@@ -47,7 +47,8 @@ public class MyWorld extends World
         else if(key.equalsIgnoreCase("l"))
         {
             spawnLeon();
-        }
+        } 
+        
     }
 
     public void showTitleScreen()

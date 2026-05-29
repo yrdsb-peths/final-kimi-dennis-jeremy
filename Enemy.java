@@ -24,6 +24,7 @@ public class Enemy extends Actor
     {
         this.worldX = worldX;
         this.worldY = worldY;
+
         setBodySize(BASE_SIZE);
     }
 
@@ -55,7 +56,7 @@ public class Enemy extends Actor
             image.scale(size, size);
             setImage(image);
         }
-        catch(IllegalArgumentException exception)
+        catch(Exception exception)
         {
             GreenfootImage image = new GreenfootImage(size, size);
             image.setColor(Color.RED);
@@ -88,27 +89,43 @@ public class Enemy extends Actor
         if(currentWorld instanceof GameWorld)
         {
             GameWorld world = (GameWorld)currentWorld;
-            moveToward(world.getPlayerWorldX(), world.getPlayerWorldY());
+
+            moveToward(
+                world.getPlayerWorldX(),
+                world.getPlayerWorldY()
+            );
+
             return;
         }
 
         if(currentWorld instanceof MyWorld)
         {
             MyWorld world = (MyWorld)currentWorld;
-            Actor player = world.leon != null ? world.leon : world.kaine;
+
+            Actor player =
+                world.leon != null
+                ? world.leon
+                : world.kaine;
 
             if(player != null)
             {
-                moveToward(player.getX(), player.getY());
+                moveToward(
+                    player.getX(),
+                    player.getY()
+                );
             }
         }
     }
 
-    private void moveToward(double targetX, double targetY)
+    private void moveToward(
+        double targetX,
+        double targetY)
     {
         double dx = targetX - worldX;
         double dy = targetY - worldY;
-        double distance = Math.sqrt(dx * dx + dy * dy);
+
+        double distance =
+            Math.sqrt(dx * dx + dy * dy);
 
         if(distance > 0)
         {
@@ -117,7 +134,7 @@ public class Enemy extends Actor
         }
     }
 
-    public boolean takeDamage(int damage)
+    public void takeDamage(int damage)
     {
         hp -= damage;
 
@@ -127,14 +144,20 @@ public class Enemy extends Actor
 
             if(currentWorld instanceof GameWorld)
             {
-                GameWorld world = (GameWorld)currentWorld;
-                world.givePlayerReward(xpDrop, coinDrop);
+                GameWorld world =
+                    (GameWorld)currentWorld;
+
+                world.givePlayerReward(
+                    xpDrop,
+                    coinDrop
+                );
             }
 
-            return true;
+            if(getWorld() != null)
+            {
+                getWorld().removeObject(this);
+            }
         }
-
-        return false;
     }
 
     public void touchPlayer()
@@ -143,42 +166,62 @@ public class Enemy extends Actor
 
         if(currentWorld instanceof GameWorld)
         {
-            damageGameWorldPlayer((GameWorld)currentWorld);
+            damageGameWorldPlayer(
+                (GameWorld)currentWorld
+            );
+
             return;
         }
 
         if(currentWorld instanceof MyWorld)
         {
-            damageSelectedPlayerOnTouch((MyWorld)currentWorld);
+            damageSelectedPlayerOnTouch(
+                (MyWorld)currentWorld
+            );
         }
     }
 
-    private void damageGameWorldPlayer(GameWorld world)
+    private void damageGameWorldPlayer(
+        GameWorld world)
     {
-        double dx = world.getPlayerWorldX() - worldX;
-        double dy = world.getPlayerWorldY() - worldY;
-        double distance = Math.sqrt(dx * dx + dy * dy);
+        double dx =
+            world.getPlayerWorldX()
+            - worldX;
 
-        if(distance < 40 && damageTimer.millisElapsed() > 1000)
+        double dy =
+            world.getPlayerWorldY()
+            - worldY;
+
+        double distance =
+            Math.sqrt(dx * dx + dy * dy);
+
+        if(distance < 40
+            && damageTimer.millisElapsed() > 1000)
         {
             world.damagePlayer(5);
             damageTimer.mark();
         }
     }
 
-    private void damageSelectedPlayerOnTouch(MyWorld world)
+    private void damageSelectedPlayerOnTouch(
+        MyWorld world)
     {
-        if(world.leon != null && getOneIntersectingObject(LeonClovis.class) != null)
+        if(world.leon != null
+            && getOneIntersectingObject(
+                LeonClovis.class) != null)
         {
             damageLeon(world.leon);
         }
-        else if(world.kaine != null && getOneIntersectingObject(KaineVelsarth.class) != null)
+        else if(world.kaine != null
+            && getOneIntersectingObject(
+                KaineVelsarth.class) != null)
         {
             damageKaine(world.kaine);
         }
     }
 
-    private void damageLeon(LeonClovis leon)
+    private void damageLeon(
+        LeonClovis leon)
     {
         if(damageTimer.millisElapsed() > 1000)
         {
@@ -187,7 +230,8 @@ public class Enemy extends Actor
         }
     }
 
-    private void damageKaine(KaineVelsarth kaine)
+    private void damageKaine(
+        KaineVelsarth kaine)
     {
         if(damageTimer.millisElapsed() > 1000)
         {

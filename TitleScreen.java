@@ -6,9 +6,16 @@ public class TitleScreen extends World
     {
         super(1500, 750, 1);
 
-        showText("Choose Your Character", 750, 250);
-        showText("Press A for Aurea Solvine", 750, 330);
-        showText("Press L for Leon Clovis", 750, 380);
+        addObject(new Label("CHOOSE YOUR HERO", 80), 750, 120);
+
+        addObject(new Label("AUREA SOLVINE", 50), 350, 300);
+        addObject(new Label("Press A", 40), 350, 380);
+
+        addObject(new Label("LEON CLOVIS", 50), 750, 300);
+        addObject(new Label("Press L", 40), 750, 380);
+
+        addObject(new Label("KAINE VELSARTH", 50), 1150, 300);
+        addObject(new Label("Press K", 40), 1150, 380);
     }
 
     public void act()
@@ -27,6 +34,10 @@ public class TitleScreen extends World
         else if(key.equalsIgnoreCase("l"))
         {
             Greenfoot.setWorld(new GameWorld("leon"));
+        }
+        else if(key.equalsIgnoreCase("k"))
+        {
+            Greenfoot.setWorld(new MyWorld("kaine"));
         }
     }
 }
