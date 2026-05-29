@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=Enemy
+comment1.params=worldX\ worldY
+comment1.target=Enemy(double,\ double)
+comment2.params=
+comment2.target=void\ act()
+comment3.params=
+comment3.target=void\ followPlayer()
+comment4.params=damage
+comment4.target=void\ takeDamage(int)
+comment5.params=
+comment5.target=void\ touchPlayer()
+numComments=6

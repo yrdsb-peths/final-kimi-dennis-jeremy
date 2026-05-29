@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=fireSword
+comment1.params=
+comment1.target=fireSword()
+comment2.params=swordRightMode
+comment2.target=fireSword(boolean)
+comment3.params=
+comment3.target=void\ act()
+numComments=4

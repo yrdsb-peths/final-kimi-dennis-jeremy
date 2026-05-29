@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=Fireball
+comment1.params=startX\ startY\ targetX\ targetY\ damage
+comment1.target=Fireball(double,\ double,\ double,\ double,\ int)
+comment2.params=
+comment2.target=void\ act()
+comment3.params=
+comment3.target=void\ animate()
+comment4.params=
+comment4.target=void\ checkHitEnemy()
+comment5.params=
+comment5.target=void\ checkRange()
+numComments=6
