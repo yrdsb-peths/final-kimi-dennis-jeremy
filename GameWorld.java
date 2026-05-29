@@ -2,17 +2,19 @@ import greenfoot.*;
 
 public class GameWorld extends World
 {
+    private static final String BACKGROUND_IMAGE = "background.png";
+    private static final int ENEMY_SPAWN_INTERVAL = 60;
+    private static final int SKILL_INTERVAL = 90;
+    private static final int MIN_SPAWN_DISTANCE = 300;
+    private static final int MAX_ENEMIES = 30;
+
     public AureaSolvine aureaSolvine;
     public LeonClovis leonClovis;
 
     int enemySpawnTimer = 0;
     int lightningTimer = 0;
     int fireballTimer = 0;
-
-    static final int ENEMY_SPAWN_INTERVAL = 60;
-    static final int SKILL_INTERVAL = 90;
-    static final int MIN_SPAWN_DISTANCE = 300;
-    static final int MAX_ENEMIES = 30;
+    private boolean gameOverShown = false;
 
     GreenfootImage bgTile;
     int bgOffX = 0;
@@ -33,7 +35,7 @@ public class GameWorld extends World
         screenCX = getWidth() / 2;
         screenCY = getHeight() / 2;
 
-        bgTile = new GreenfootImage("background.png");
+        setUpBackgroundTile();
         drawBackground(0, 0);
 
         if(character.equals("leon"))
@@ -45,14 +47,31 @@ public class GameWorld extends World
         {
             aureaSolvine = new AureaSolvine();
             addObject(aureaSolvine, screenCX, screenCY);
+            addObject(new IceWave(), screenCX, screenCY);
+        }
+    }
 
-            IceWave iceWave = new IceWave();
-            addObject(iceWave, screenCX, screenCY);
+    private void setUpBackgroundTile()
+    {
+        try
+        {
+            bgTile = new GreenfootImage(BACKGROUND_IMAGE);
+        }
+        catch(IllegalArgumentException exception)
+        {
+            bgTile = new GreenfootImage(getWidth(), getHeight());
+            bgTile.setColor(Color.BLACK);
+            bgTile.fill();
         }
     }
 
     public void act()
     {
+        if(gameOverShown)
+        {
+            return;
+        }
+
         updateCamera();
         drawBackground(bgOffX, bgOffY);
         updateScreenPositions();
@@ -62,6 +81,7 @@ public class GameWorld extends World
         {
             spawnFireball();
             spawnLightning();
+            checkPlayerDead();
         }
 
         drawHUD();
@@ -74,7 +94,12 @@ public class GameWorld extends World
             return aureaSolvine.worldX;
         }
 
-        return leonClovis.worldX;
+        if(leonClovis != null)
+        {
+            return leonClovis.worldX;
+        }
+
+        return 0;
     }
 
     public double getPlayerWorldY()
@@ -84,7 +109,12 @@ public class GameWorld extends World
             return aureaSolvine.worldY;
         }
 
-        return leonClovis.worldY;
+        if(leonClovis != null)
+        {
+            return leonClovis.worldY;
+        }
+
+        return 0;
     }
 
     public int getPlayerDamage()
@@ -95,6 +125,21 @@ public class GameWorld extends World
         }
 
         return leonClovis.gunDamage;
+    }
+
+    public int getCurrentPlayerLevel()
+    {
+        if(aureaSolvine != null)
+        {
+            return aureaSolvine.level;
+        }
+
+        if(leonClovis != null)
+        {
+            return leonClovis.level;
+        }
+
+        return 1;
     }
 
     public void damagePlayer(int damage)
@@ -114,8 +159,8 @@ public class GameWorld extends World
     {
         if(aureaSolvine != null)
         {
-            aureaSolvine.xp += xp;
-            aureaSolvine.coin += coin;
+            aureaSolvine.gainXP(xp);
+            aureaSolvine.gainCoin(coin);
         }
 
         if(leonClovis != null)
@@ -130,13 +175,8 @@ public class GameWorld extends World
         double px = getPlayerWorldX();
         double py = getPlayerWorldY();
 
-        bgOffX = (int)((-px % bgTile.getWidth()
-                + bgTile.getWidth())
-                % bgTile.getWidth());
-
-        bgOffY = (int)((-py % bgTile.getHeight()
-                + bgTile.getHeight())
-                % bgTile.getHeight());
+        bgOffX = (int)((-px % bgTile.getWidth() + bgTile.getWidth()) % bgTile.getWidth());
+        bgOffY = (int)((-py % bgTile.getHeight() + bgTile.getHeight()) % bgTile.getHeight());
     }
 
     public void updateScreenPositions()
@@ -154,55 +194,56 @@ public class GameWorld extends World
             leonClovis.setLocation(screenCX, screenCY);
         }
 
-        for(Enemy e : getObjects(Enemy.class))
+        for(Enemy enemy : getObjects(Enemy.class))
         {
-            int sx = (int)(screenCX + (e.worldX - camX));
-            int sy = (int)(screenCY + (e.worldY - camY));
-            e.setLocation(sx, sy);
+            int screenX = (int)(screenCX + (enemy.worldX - camX));
+            int screenY = (int)(screenCY + (enemy.worldY - camY));
+            enemy.setLocation(screenX, screenY);
+            enemy.turnTowards(screenCX, screenCY);
         }
 
-        for(Bullet b : getObjects(Bullet.class))
+        for(Bullet bullet : getObjects(Bullet.class))
         {
-            int sx = (int)(screenCX + (b.worldX - camX));
-            int sy = (int)(screenCY + (b.worldY - camY));
-            b.setLocation(sx, sy);
+            int screenX = (int)(screenCX + (bullet.worldX - camX));
+            int screenY = (int)(screenCY + (bullet.worldY - camY));
+            bullet.setLocation(screenX, screenY);
         }
 
-        for(Fireball f : getObjects(Fireball.class))
+        for(Fireball fireball : getObjects(Fireball.class))
         {
-            int sx = (int)(screenCX + (f.worldX - camX));
-            int sy = (int)(screenCY + (f.worldY - camY));
-            f.setLocation(sx, sy);
+            int screenX = (int)(screenCX + (fireball.worldX - camX));
+            int screenY = (int)(screenCY + (fireball.worldY - camY));
+            fireball.setLocation(screenX, screenY);
         }
 
-        for(Lightning l : getObjects(Lightning.class))
+        for(Lightning lightning : getObjects(Lightning.class))
         {
-            int sx = (int)(screenCX + (l.worldX - camX));
-            int sy = (int)(screenCY + (l.worldY - camY));
-            l.setLocation(sx, sy);
+            int screenX = (int)(screenCX + (lightning.worldX - camX));
+            int screenY = (int)(screenCY + (lightning.worldY - camY));
+            lightning.setLocation(screenX, screenY);
         }
 
-        for(IceWave iw : getObjects(IceWave.class))
+        for(IceWave iceWave : getObjects(IceWave.class))
         {
-            iw.worldX = getPlayerWorldX();
-            iw.worldY = getPlayerWorldY();
-            iw.setLocation(screenCX, screenCY);
+            iceWave.worldX = getPlayerWorldX();
+            iceWave.worldY = getPlayerWorldY();
+            iceWave.setLocation(screenCX, screenCY);
         }
     }
 
     public void drawBackground(int offX, int offY)
     {
-        GreenfootImage bg = getBackground();
-        bg.clear();
+        GreenfootImage background = getBackground();
+        background.clear();
 
-        int tw = bgTile.getWidth();
-        int th = bgTile.getHeight();
+        int tileWidth = bgTile.getWidth();
+        int tileHeight = bgTile.getHeight();
 
-        for(int x = offX - tw; x < getWidth() + tw; x += tw)
+        for(int x = offX - tileWidth; x < getWidth() + tileWidth; x += tileWidth)
         {
-            for(int y = offY - th; y < getHeight() + th; y += th)
+            for(int y = offY - tileHeight; y < getHeight() + tileHeight; y += tileHeight)
             {
-                bg.drawImage(bgTile, x, y);
+                background.drawImage(bgTile, x, y);
             }
         }
     }
@@ -220,39 +261,49 @@ public class GameWorld extends World
         }
     }
 
+    public void checkPlayerDead()
+    {
+        if(aureaSolvine.isDead && aureaSolvine.animFrame >= 6 && !gameOverShown)
+        {
+            gameOverShown = true;
+            addObject(new GameOver(), screenCX, screenCY);
+            Greenfoot.stop();
+        }
+    }
+
     public void spawnEnemy()
     {
         enemySpawnTimer++;
 
-        if(enemySpawnTimer >= ENEMY_SPAWN_INTERVAL)
+        if(enemySpawnTimer < ENEMY_SPAWN_INTERVAL)
         {
-            enemySpawnTimer = 0;
-
-            if(getObjects(Enemy.class).size() >= MAX_ENEMIES)
-            {
-                return;
-            }
-
-            double px = getPlayerWorldX();
-            double py = getPlayerWorldY();
-
-            double x;
-            double y;
-
-            do
-            {
-                x = px + Greenfoot.getRandomNumber(1600) - 800;
-                y = py + Greenfoot.getRandomNumber(900) - 450;
-            }
-            while(distanceBetween(x, y, px, py) < MIN_SPAWN_DISTANCE);
-
-            Enemy e = new Enemy(x, y);
-
-            int sx = (int)(screenCX + (x - px));
-            int sy = (int)(screenCY + (y - py));
-
-            addObject(e, sx, sy);
+            return;
         }
+
+        enemySpawnTimer = 0;
+
+        if(getObjects(Enemy.class).size() >= MAX_ENEMIES)
+        {
+            return;
+        }
+
+        double px = getPlayerWorldX();
+        double py = getPlayerWorldY();
+        double x;
+        double y;
+
+        do
+        {
+            x = px + Greenfoot.getRandomNumber(1600) - 800;
+            y = py + Greenfoot.getRandomNumber(900) - 450;
+        }
+        while(distanceBetween(x, y, px, py) < MIN_SPAWN_DISTANCE);
+
+        Enemy enemy = new Enemy(x, y);
+        enemy.applyLevelScaling(getCurrentPlayerLevel());
+        int screenX = (int)(screenCX + (x - px));
+        int screenY = (int)(screenCY + (y - py));
+        addObject(enemy, screenX, screenY);
     }
 
     public void spawnFireball()
@@ -262,20 +313,18 @@ public class GameWorld extends World
         if(fireballTimer >= SKILL_INTERVAL)
         {
             fireballTimer = 0;
+            Enemy closest = getClosestEnemy();
 
-            Enemy target = getClosestEnemy();
-
-            if(target != null)
+            if(closest != null && aureaSolvine.hasEquippedFireball())
             {
-                Fireball fb = new Fireball(
+                Fireball fireball = new Fireball(
                     getPlayerWorldX(),
                     getPlayerWorldY(),
-                    target.worldX,
-                    target.worldY,
+                    closest.worldX,
+                    closest.worldY,
                     getPlayerDamage()
                 );
-
-                addObject(fb, screenCX, screenCY);
+                addObject(fireball, screenCX, screenCY);
             }
         }
     }
@@ -287,21 +336,14 @@ public class GameWorld extends World
         if(lightningTimer >= SKILL_INTERVAL)
         {
             lightningTimer = 0;
+            Enemy closest = getClosestEnemy();
 
-            Enemy target = getClosestEnemy();
-
-            if(target != null)
+            if(closest != null)
             {
-                Lightning lt = new Lightning(
-                    target.worldX,
-                    target.worldY,
-                    getPlayerDamage()
-                );
-
-                int sx = (int)(screenCX + (target.worldX - getPlayerWorldX()));
-                int sy = (int)(screenCY + (target.worldY - getPlayerWorldY()));
-
-                addObject(lt, sx, sy);
+                Lightning lightning = new Lightning(closest.worldX, closest.worldY, getPlayerDamage());
+                int screenX = (int)(screenCX + (closest.worldX - getPlayerWorldX()));
+                int screenY = (int)(screenCY + (closest.worldY - getPlayerWorldY()));
+                addObject(lightning, screenX, screenY);
             }
         }
     }
@@ -316,19 +358,18 @@ public class GameWorld extends World
         }
 
         Enemy closest = null;
-        double minD = Double.MAX_VALUE;
-
+        double minDistance = Double.MAX_VALUE;
         double px = getPlayerWorldX();
         double py = getPlayerWorldY();
 
-        for(Enemy e : enemies)
+        for(Enemy enemy : enemies)
         {
-            double d = distanceBetween(e.worldX, e.worldY, px, py);
+            double distance = distanceBetween(enemy.worldX, enemy.worldY, px, py);
 
-            if(d < minD)
+            if(distance < minDistance)
             {
-                minD = d;
-                closest = e;
+                minDistance = distance;
+                closest = enemy;
             }
         }
 
@@ -339,7 +380,6 @@ public class GameWorld extends World
     {
         double dx = x1 - x2;
         double dy = y1 - y2;
-
         return Math.sqrt(dx * dx + dy * dy);
     }
 }

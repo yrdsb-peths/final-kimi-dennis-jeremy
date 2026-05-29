@@ -14,12 +14,12 @@ public class fireSword extends Actor
         if (swordRightMode)
         {
             image = new GreenfootImage("FireSword.90 right.png");
-            image.scale(40, 40);
+            image.scale(70, 70);
         }
         else
         {
             image = new GreenfootImage("10.png");
-            image.scale(20, 40);
+            image.scale(40, 80);
         }
 
         setImage(image);

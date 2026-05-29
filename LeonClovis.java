@@ -8,7 +8,7 @@ public class LeonClovis extends Actor
     public int coin = 0;
     public int level = 1;
     public int xpToNextLevel = 10;
-    
+
     public double worldX;
     public double worldY;
 
@@ -70,26 +70,19 @@ public class LeonClovis extends Actor
     {
         if(shootTimer.millisElapsed() > 500)
         {
-            GameWorld gw = (GameWorld)getWorld();
-    
-            Enemy target = gw.getClosestEnemy();
-    
+            GameWorld world = (GameWorld)getWorld();
+
+            if(world == null)
+            {
+                return;
+            }
+
+            Enemy target = world.getClosestEnemy();
+
             if(target != null)
             {
-                Bullet bullet = new Bullet(
-                    worldX,
-                    worldY,
-                    target.worldX,
-                    target.worldY,
-                    gunDamage
-                );
-    
-                getWorld().addObject(
-                    bullet,
-                    gw.screenCX,
-                    gw.screenCY
-                );
-    
+                Bullet bullet = new Bullet(worldX, worldY, target.worldX, target.worldY, gunDamage);
+                world.addObject(bullet, world.screenCX, world.screenCY);
                 shootTimer.mark();
             }
         }
@@ -108,7 +101,18 @@ public class LeonClovis extends Actor
         if(hp <= 0)
         {
             hp = 0;
+            showGameOver();
             Greenfoot.stop();
+        }
+    }
+
+    private void showGameOver()
+    {
+        World world = getWorld();
+
+        if(world != null)
+        {
+            world.addObject(new GameOver(), world.getWidth() / 2, world.getHeight() / 2);
         }
     }
 
@@ -126,86 +130,69 @@ public class LeonClovis extends Actor
 
     public void displayStats()
     {
-        GreenfootImage bg = getWorld().getBackground();
-    
-        // HP BAR BACKGROUND
-        bg.setColor(Color.WHITE);
-        bg.fillRect(10, 10, 300, 25);
-    
-        // HP BAR
-        bg.setColor(Color.RED);
-        bg.fillRect(10, 10, hp * 300 / maxHp, 25);
-    
-        // XP BAR BACKGROUND
-        bg.setColor(Color.WHITE);
-        bg.fillRect(10, 45, 300, 25);
-    
-        // XP BAR
-        bg.setColor(Color.BLUE);
-        bg.fillRect(10, 45, xp * 300 / xpToNextLevel, 25);
-    
-        // outline
-        bg.setColor(Color.BLACK);
-        bg.drawRect(10, 10, 300, 25);
-        bg.drawRect(10, 45, 300, 25);
-    
-        // TEXT
-        getWorld().showText(
-            hp + " / " + maxHp + " HP",
-            390,
-            23
-        );
-    
-        getWorld().showText(
-            "LV " + level + "   " +
-            xp + " / " + xpToNextLevel + " XP",
-            410,
-            58
-        );
-    
-        getWorld().showText(
-            "Coin: " + coin,
-            90,
-            85
-        );
+        World world = getWorld();
+
+        if(world == null)
+        {
+            return;
+        }
+
+        GreenfootImage background = world.getBackground();
+        background.setColor(Color.WHITE);
+        background.fillRect(10, 10, 300, 25);
+        background.setColor(Color.RED);
+        background.fillRect(10, 10, hp * 300 / maxHp, 25);
+
+        background.setColor(Color.WHITE);
+        background.fillRect(10, 45, 300, 25);
+        background.setColor(Color.BLUE);
+        background.fillRect(10, 45, xp * 300 / xpToNextLevel, 25);
+
+        background.setColor(Color.BLACK);
+        background.drawRect(10, 10, 300, 25);
+        background.drawRect(10, 45, 300, 25);
+
+        world.showText(hp + " / " + maxHp + " HP", 390, 23);
+        world.showText("LV " + level + "   " + xp + " / " + xpToNextLevel + " XP", 410, 58);
+        world.showText("Coin: " + coin, 90, 85);
     }
 
     public void movePlayer()
     {
         boolean moving = false;
-    
+
         if(Greenfoot.isKeyDown("w"))
         {
             worldY -= speed;
             facing = "back";
             moving = true;
         }
-    
+
         if(Greenfoot.isKeyDown("s"))
         {
             worldY += speed;
             facing = "front";
             moving = true;
         }
-    
+
         if(Greenfoot.isKeyDown("a"))
         {
             worldX -= speed;
             facing = "left";
             moving = true;
         }
-    
+
         if(Greenfoot.isKeyDown("d"))
         {
             worldX += speed;
             facing = "right";
             moving = true;
         }
-    
+
         if(!moving)
         {
             imageIndex = 0;
-    
+
             if(facing.equals("right"))
             {
                 setImage(leonRight[0]);
