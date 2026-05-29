@@ -87,7 +87,7 @@ public class UpgradeScreen extends World
 
         if(coin < cost)
         {
-            showMsg("Not enough coin！Need " + cost + " $");
+            showMsg("Not enough coin. Need " + cost + " $");
             return;
         }
 
@@ -148,12 +148,12 @@ public class UpgradeScreen extends World
         bg.fillRect(0, 0, getWidth(), getHeight());
         bg.setColor(Color.WHITE);
         bg.setFont(new Font("Arial", true, false, 36));
-        drawCenteredText(bg, "Round " + (nextRound-1) + " end！", getWidth()/2, 60);
+        drawCenteredText(bg, "Round " + (nextRound-1) + " end ", getWidth()/2, 60);
 
         if(nextRound > 30)
             drawCenteredText(bg, "Congratulations！Press blank to the titlescreen.", getWidth()/2, 120);
         else
-            drawCenteredText(bg, "When you're ready, press the spacebar to enter the " + nextRound + " round", getWidth()/2, 120);
+            drawCenteredText(bg, "When you're ready, press the spacebar to enter the round" + nextRound, getWidth()/2, 120);
 
         
         bg.setFont(new Font("Arial", false, false, 22));
