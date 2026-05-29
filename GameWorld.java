@@ -3,7 +3,6 @@ import greenfoot.*;
 public class GameWorld extends World
 {
     public AureaSolvine aureaSolvine;
-
     
     public int round;
     static final int TOTAL_ROUNDS    = 30;
@@ -31,39 +30,57 @@ public class GameWorld extends World
     
     int pendingAttributePoints = 0;
 
+// 在 GameWorld.java 最上方加一个字段
+    public String heroType = "aurea";
     
-    public GameWorld()
+    // 新增：从标题界面直接开始的构造器
+    public GameWorld(String heroType)
     {
-        this(70, 70, 0, 0,   // hp, maxHp, xp, coin
-             1, 4, 3, 3, 10, // level, speed, stamina, power, xpToNextLevel
-             1,              // round
-             5, 5, 5);       // fireballLevel, lightningLevel, iceWaveLevel
+        this(70, 70, 0, 0,
+             1, 4, 3, 3, 10,
+             1,
+             0, 0, 0);
+        this.heroType = heroType;
+        HeroData.heroType = heroType;
     }
 
-    
     public GameWorld(
-        int hp, int maxHp, int xp, int coin,
-        int level, int speed, int stamina, int power,
-        int xpToNextLevel,
-        int round,
-        int fireballLevel, int lightningLevel, int iceWaveLevel)
+    int hp, int maxHp, int xp, int coin,
+    int level, int speed, int stamina, int power,
+    int xpToNextLevel,
+    int round,
+    int fireballLevel, int lightningLevel, int iceWaveLevel)
     {
         super(1500, 750, 1);
         screenCX = getWidth()  / 2;
         screenCY = getHeight() / 2;
-
+    
         this.round          = round;
         this.fireballLevel  = fireballLevel;
         this.lightningLevel = lightningLevel;
         this.iceWaveLevel   = iceWaveLevel;
-
-        
+        this.heroType       = HeroData.heroType; // 从全局读取
+    
         ENEMY_SPAWN_INTERVAL = Math.max(20, 60 - (round - 1) * 2);
-
+    
         bgTile = new GreenfootImage("background.png");
         drawBackground(0, 0);
-
-        aureaSolvine = new AureaSolvine();
+    
+        // 根据英雄类型创建不同角色
+        if(heroType.equals("leon"))
+        {
+            // Leon 用 AureaSolvine 的数据但换动画（共用系统）
+            aureaSolvine = new AureaSolvine("leon");
+        }
+        else if(heroType.equals("kaine"))
+        {
+            aureaSolvine = new AureaSolvine("kaine");
+        }
+        else
+        {
+            aureaSolvine = new AureaSolvine("aurea");
+        }
+    
         aureaSolvine.hp            = hp;
         aureaSolvine.maxHp         = maxHp;
         aureaSolvine.xp            = xp;
@@ -74,13 +91,20 @@ public class GameWorld extends World
         aureaSolvine.power         = power;
         aureaSolvine.xpToNextLevel = xpToNextLevel;
         addObject(aureaSolvine, screenCX, screenCY);
-
+    
         if(iceWaveLevel > 0)
         {
             IceWave iw = new IceWave();
             iw.worldX = aureaSolvine.worldX;
             iw.worldY = aureaSolvine.worldY;
             addObject(iw, screenCX, screenCY);
+        }
+    
+        // Kaine 自带剑
+        if(heroType.equals("kaine"))
+        {
+            KaineCompanionSword sword = new KaineCompanionSword();
+            addObject(sword, screenCX + 22, screenCY - 6);
         }
     }
 
@@ -123,8 +147,7 @@ public class GameWorld extends World
         Greenfoot.setWorld(new UpgradeScreen(
             p.hp, p.maxHp, p.xp, p.coin,
             p.level, p.speed, p.stamina, p.power,
-            p.xpToNextLevel,
-            pendingAttributePoints,
+            p.xpToNextLevel, pendingAttributePoints,
             round + 1,
             fireballLevel, lightningLevel, iceWaveLevel
         ));

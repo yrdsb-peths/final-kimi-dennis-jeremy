@@ -2,6 +2,7 @@ import greenfoot.*;
 
 public class UpgradeScreen extends World
 {
+    String heroType;
     int hp, maxHp, xp, coin, level, speed, stamina, power;
     int xpToNextLevel;
     int attributePoints; 
@@ -41,7 +42,7 @@ public class UpgradeScreen extends World
         this.fireballLevel  = fireballLevel;
         this.lightningLevel = lightningLevel;
         this.iceWaveLevel   = iceWaveLevel;
-
+        this.heroType = heroType;
         drawUI();
     }
 
@@ -129,12 +130,11 @@ public class UpgradeScreen extends World
             Greenfoot.setWorld(new TitleScreen());
             return;
         }
-
+        HeroData.heroType = heroType;
         GameWorld gw = new GameWorld(
             hp, maxHp, xp, coin,
             level, speed, stamina, power,
-            xpToNextLevel,
-            nextRound,
+            xpToNextLevel, nextRound,
             fireballLevel, lightningLevel, iceWaveLevel
         );
         Greenfoot.setWorld(gw);
