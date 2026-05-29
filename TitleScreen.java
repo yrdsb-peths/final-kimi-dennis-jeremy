@@ -9,7 +9,6 @@ public class TitleScreen extends World
         showText("Choose Your Character", 750, 250);
         showText("Press A for Aurea Solvine", 750, 330);
         showText("Press L for Leon Clovis", 750, 380);
-        showText("Click the screen first, then press a key", 750, 450);
     }
 
     public void act()
