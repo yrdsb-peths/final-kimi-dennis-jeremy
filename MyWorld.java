@@ -143,10 +143,7 @@ public class MyWorld extends World
 
     public void spawnStartingEnemies()
     {
-        for(int i = 0; i < 3; i++)
-        {
-            spawnEnemy();
-        }
+        spawnEnemy();
     }
 
     public void spawnEnemies()
