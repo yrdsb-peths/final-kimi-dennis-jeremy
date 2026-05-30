@@ -105,6 +105,7 @@ public class Enemy extends Actor
             if(player != null)
             {
                 moveToward(player.getX(), player.getY());
+                setLocation((int)worldX, (int)worldY);
             }
         }
     }
