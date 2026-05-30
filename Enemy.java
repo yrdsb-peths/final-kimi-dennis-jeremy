@@ -97,6 +97,11 @@ public class Enemy extends Actor
             MyWorld world = (MyWorld)currentWorld;
             Actor player = world.leon != null ? world.leon : world.kaine;
 
+            if(player == null)
+            {
+                player = world.aurea;
+            }
+
             if(player != null)
             {
                 moveToward(player.getX(), player.getY());
@@ -176,6 +181,10 @@ public class Enemy extends Actor
         {
             damageKaine(world.kaine);
         }
+        else if(world.aurea != null && getOneIntersectingObject(AureaSolvine.class) != null)
+        {
+            damageAurea(world.aurea);
+        }
     }
 
     private void damageLeon(LeonClovis leon)
@@ -192,6 +201,15 @@ public class Enemy extends Actor
         if(damageTimer.millisElapsed() > 1000)
         {
             kaine.takeDamage(5);
+            damageTimer.mark();
+        }
+    }
+
+    private void damageAurea(AureaSolvine aurea)
+    {
+        if(damageTimer.millisElapsed() > 1000)
+        {
+            aurea.takeHit(5);
             damageTimer.mark();
         }
     }

@@ -12,6 +12,7 @@ public class MyWorld extends World
 
     public LeonClovis leon;
     public KaineVelsarth kaine;
+    public AureaSolvine aurea;
 
     public MyWorld()
     {
@@ -48,6 +49,10 @@ public class MyWorld extends World
         {
             spawnLeon();
         }
+        else if(key.equalsIgnoreCase("a"))
+        {
+            spawnAurea();
+        }
     }
 
     public void showTitleScreen()
@@ -69,7 +74,8 @@ public class MyWorld extends World
 
         showText("Press K for Kaine", CENTER_X, 230);
         showText("Press L for Leon", CENTER_X, 260);
-        showText("Click the world, then press a key", CENTER_X, 300);
+        showText("Press A for Aurea", CENTER_X, 290);
+        showText("Click the world, then press a key", CENTER_X, 330);
     }
 
     public void clearTitleScreen()
@@ -77,7 +83,8 @@ public class MyWorld extends World
         drawWorldBackground();
         showText("", CENTER_X, 230);
         showText("", CENTER_X, 260);
-        showText("", CENTER_X, 300);
+        showText("", CENTER_X, 290);
+        showText("", CENTER_X, 330);
         showText("", CENTER_X, 520);
         showText("", CENTER_X, 545);
         showText("", CENTER_X, 570);
@@ -109,6 +116,16 @@ public class MyWorld extends World
         playerChosen = true;
         clearTitleScreen();
         showText(kaine.getStartingLoadoutText(), CENTER_X, 520);
+        spawnStartingEnemies();
+    }
+
+    public void spawnAurea()
+    {
+        aurea = new AureaSolvine();
+        addObject(aurea, CENTER_X, 300);
+        playerChosen = true;
+        clearTitleScreen();
+        showText(aurea.getStartingLoadoutText(), CENTER_X, 520);
         spawnStartingEnemies();
     }
 
@@ -164,6 +181,11 @@ public class MyWorld extends World
         if(kaine != null)
         {
             return kaine.level;
+        }
+
+        if(aurea != null)
+        {
+            return aurea.level;
         }
 
         return 1;
