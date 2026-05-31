@@ -37,6 +37,12 @@ public class Bullet extends Actor
     public void act()
     {
         moveBullet();
+
+        if(getWorld() == null)
+        {
+            return;
+        }
+
         hitEnemy();
     }
 
@@ -45,12 +51,31 @@ public class Bullet extends Actor
         worldX += dx * speed;
         worldY += dy * speed;
 
-        GameWorld gw = (GameWorld)getWorld();
+        World world = getWorld();
 
-        int sx = (int)(gw.screenCX + (worldX - gw.getPlayerWorldX()));
-        int sy = (int)(gw.screenCY + (worldY - gw.getPlayerWorldY()));
+        if(world instanceof GameWorld)
+        {
+            GameWorld gw = (GameWorld)world;
+            int sx = (int)(gw.screenCX + (worldX - gw.getPlayerWorldX()));
+            int sy = (int)(gw.screenCY + (worldY - gw.getPlayerWorldY()));
+            setLocation(sx, sy);
+            return;
+        }
 
-        setLocation(sx, sy);
+        if(world instanceof MyWorld)
+        {
+            setLocation((int)worldX, (int)worldY);
+
+            if(isOutsideWorld(world))
+            {
+                world.removeObject(this);
+            }
+        }
+    }
+
+    private boolean isOutsideWorld(World world)
+    {
+        return getX() < 0 || getX() > world.getWidth() || getY() < 0 || getY() > world.getHeight();
     }
 
     public void hitEnemy()

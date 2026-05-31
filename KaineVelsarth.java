@@ -212,18 +212,7 @@ public class KaineVelsarth extends Actor
 
         swordHitTimer.mark();
 
-        boolean died = enemy.takeDamage(swordDamage);
-
-        if(died)
-        {
-            gainXp(enemy.xpDrop);
-            gainCoin(enemy.coinDrop);
-
-            if(enemy.getWorld() != null)
-            {
-                enemy.getWorld().removeObject(enemy);
-            }
-        }
+        enemy.takeDamage(swordDamage);
     }
 
     private Enemy getSwordHitEnemy()

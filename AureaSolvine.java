@@ -109,6 +109,17 @@ public class AureaSolvine extends Actor
 
         worldX += moveX;
         worldY += moveY;
+
+        World world = getWorld();
+
+        if(world instanceof MyWorld)
+        {
+            int x = Math.max(25, Math.min(world.getWidth() - 25, getX() + (int)moveX));
+            int y = Math.max(25, Math.min(world.getHeight() - 80, getY() + (int)moveY));
+            setLocation(x, y);
+            worldX = x;
+            worldY = y;
+        }
     }
 
     public void takeHit(int damage)

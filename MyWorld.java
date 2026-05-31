@@ -14,6 +14,7 @@ public class MyWorld extends World
     private boolean playerChosen = false;
     private final SimpleTimer enemySpawnTimer = new SimpleTimer();
     private final SimpleTimer nextWaveTimer = new SimpleTimer();
+    private final SimpleTimer aureaSkillTimer = new SimpleTimer();
     private int waveNumber = 1;
     private int enemiesThisWave = 1;
     private int enemiesSpawnedThisWave = 0;
@@ -38,6 +39,7 @@ public class MyWorld extends World
         else
         {
             spawnEnemies();
+            spawnAureaSkill();
         }
     }
 
@@ -229,6 +231,83 @@ public class MyWorld extends World
         enemy.applyLevelScaling(getCurrentHeroLevel());
         enemy.applyWaveScaling(waveNumber);
         addObject(enemy, x, y);
+    }
+
+    private void spawnAureaSkill()
+    {
+        if(aurea == null || aureaSkillTimer.millisElapsed() <= 900)
+        {
+            return;
+        }
+
+        Enemy closest = getClosestEnemy(aurea.getX(), aurea.getY());
+
+        if(closest != null && aurea.hasEquippedFireball())
+        {
+            Fireball fireball = new Fireball(
+                aurea.getX(),
+                aurea.getY(),
+                closest.getX(),
+                closest.getY(),
+                aurea.getDamage()
+            );
+            addObject(fireball, aurea.getX(), aurea.getY());
+            aureaSkillTimer.mark();
+        }
+    }
+
+    public Enemy getClosestEnemy(double x, double y)
+    {
+        java.util.List<Enemy> enemies = getObjects(Enemy.class);
+
+        if(enemies.isEmpty())
+        {
+            return null;
+        }
+
+        Enemy closest = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for(Enemy enemy : enemies)
+        {
+            double distance = distanceBetween(enemy.getX(), enemy.getY(), x, y);
+
+            if(distance < minDistance)
+            {
+                minDistance = distance;
+                closest = enemy;
+            }
+        }
+
+        return closest;
+    }
+
+    public void giveSelectedPlayerReward(int xp, int coin)
+    {
+        if(leon != null)
+        {
+            leon.xp += xp;
+            leon.coin += coin;
+        }
+
+        if(kaine != null)
+        {
+            kaine.gainXp(xp);
+            kaine.gainCoin(coin);
+        }
+
+        if(aurea != null)
+        {
+            aurea.gainXP(xp);
+            aurea.gainCoin(coin);
+        }
+    }
+
+    private double distanceBetween(double x1, double y1, double x2, double y2)
+    {
+        double dx = x1 - x2;
+        double dy = y1 - y2;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     private int getCurrentHeroLevel()

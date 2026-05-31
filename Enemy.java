@@ -151,6 +151,11 @@ public class Enemy extends Actor
                 GameWorld world = (GameWorld)currentWorld;
                 world.givePlayerReward(xpDrop, coinDrop);
             }
+            else if(currentWorld instanceof MyWorld)
+            {
+                MyWorld world = (MyWorld)currentWorld;
+                world.giveSelectedPlayerReward(xpDrop, coinDrop);
+            }
 
             if(currentWorld != null)
             {
