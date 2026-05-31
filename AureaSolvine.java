@@ -75,6 +75,7 @@ public class AureaSolvine extends Actor
         updateState();
         animate();
         checkDead();
+        displayStats();
     }
 
     private void setUpInventory()
@@ -243,17 +244,17 @@ public class AureaSolvine extends Actor
 
     public void gainXP(int amount)
     {
-        xp += amount;
+        xp += Math.max(0, amount);
     }
 
     public void gainCoin(int amount)
     {
-        coin += amount;
+        coin += Math.max(0, amount);
     }
 
     public void checkLevelUp()
     {
-        if(xp >= xpToNextLevel)
+        while(xp >= xpToNextLevel)
         {
             xp -= xpToNextLevel;
             level++;
