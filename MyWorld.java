@@ -40,6 +40,7 @@ public class MyWorld extends World
         {
             spawnEnemies();
             spawnAureaSkill();
+            updateWaveText();
         }
     }
 
@@ -187,6 +188,7 @@ public class MyWorld extends World
             waitingForNextWave = true;
             nextWaveTimer.mark();
             showText("Wave " + waveNumber + " starts soon", CENTER_X, 545);
+            showText("Enemies left: 0 / " + enemiesThisWave, CENTER_X, 570);
         }
     }
 
@@ -195,7 +197,7 @@ public class MyWorld extends World
         enemiesThisWave = getEnemiesForWave();
         enemiesSpawnedThisWave = 0;
         waitingForNextWave = false;
-        showText("Wave " + waveNumber, CENTER_X, 545);
+        updateWaveText();
         enemySpawnTimer.mark();
     }
 
@@ -215,11 +217,27 @@ public class MyWorld extends World
     {
         spawnEnemy();
         enemiesSpawnedThisWave++;
-        showText(
-            "Spiders: " + enemiesSpawnedThisWave + " / " + enemiesThisWave,
-            CENTER_X,
-            570
-        );
+        updateWaveText();
+    }
+
+    private void updateWaveText()
+    {
+        if(waitingForNextWave)
+        {
+            showText("Wave " + waveNumber + " starts soon", CENTER_X, 545);
+            showText("Enemies left: 0 / " + enemiesThisWave, CENTER_X, 570);
+            return;
+        }
+
+        showText("Wave " + waveNumber, CENTER_X, 545);
+        showText("Enemies left: " + getEnemiesLeftInWave() + " / " + enemiesThisWave, CENTER_X, 570);
+    }
+
+    private int getEnemiesLeftInWave()
+    {
+        int enemiesDefeated = enemiesSpawnedThisWave - getObjects(Enemy.class).size();
+        int enemiesLeft = enemiesThisWave - enemiesDefeated;
+        return Math.max(0, enemiesLeft);
     }
 
     public void spawnEnemy()
