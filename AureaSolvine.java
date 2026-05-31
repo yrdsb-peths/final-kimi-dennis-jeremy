@@ -2,6 +2,8 @@ import greenfoot.*;
 
 public class AureaSolvine extends Actor
 {
+    private static final double SKILL_DAMAGE_LEVEL_MULTIPLIER = 1.6;
+
     public int hp = 70;
     public int maxHp = 70;
     public int xp = 0;
@@ -10,6 +12,7 @@ public class AureaSolvine extends Actor
     public int speed = 4;
     public int stamina = 3;
     public int power = 3;
+    public int skillDamage = 10;
     public int xpToNextLevel = 10;
 
     public double worldX = 0;
@@ -262,6 +265,7 @@ public class AureaSolvine extends Actor
             speed += 1;
             stamina += 1;
             power += 1;
+            skillDamage = (int)Math.round(skillDamage * SKILL_DAMAGE_LEVEL_MULTIPLIER);
             maxHp += 10;
             hp = maxHp;
         }
@@ -269,7 +273,7 @@ public class AureaSolvine extends Actor
 
     public int getDamage()
     {
-        return 10 + (power - 3) * 5;
+        return skillDamage;
     }
 
     public String getInventoryText()
