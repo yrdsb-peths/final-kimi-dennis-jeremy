@@ -144,6 +144,7 @@ public class MyWorld extends World
     public void spawnStartingEnemies()
     {
         spawnEnemy();
+        enemySpawnTimer.mark();
     }
 
     public void spawnEnemies()
