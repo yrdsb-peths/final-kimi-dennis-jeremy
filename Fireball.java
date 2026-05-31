@@ -58,6 +58,13 @@ public class Fireball extends Actor
         worldX += velX;
         worldY += velY;
 
+        World world = getWorld();
+
+        if(world instanceof MyWorld)
+        {
+            setLocation((int)worldX, (int)worldY);
+        }
+
         animate();
         checkHitEnemy();
         checkRange();
@@ -104,6 +111,18 @@ public class Fireball extends Actor
     public void checkRange()
     {
         if(getWorld() == null) return;
+
+        if(getWorld() instanceof MyWorld)
+        {
+            World world = getWorld();
+
+            if(getX() < 0 || getX() > world.getWidth() || getY() < 0 || getY() > world.getHeight())
+            {
+                world.removeObject(this);
+            }
+
+            return;
+        }
 
         GameWorld gw = (GameWorld)getWorld();
 
