@@ -5,10 +5,19 @@ public class MyWorld extends World
     private static final int CENTER_X = 400;
     private static final int BATTLE_TEXT_Y = 520;
     private static final int ENEMY_BOTTOM_PADDING = 30;
+    private static final int ENEMY_SPAWN_DELAY = 2000;
+    private static final int NEXT_WAVE_DELAY = 2000;
+    private static final int MAX_ENEMIES_ON_SCREEN = 5;
+    private static final int WAVE_SIZE_MULTIPLIER = 4;
     private static final String BACKGROUND_IMAGE = "images/Background .png";
 
     private boolean playerChosen = false;
     private final SimpleTimer enemySpawnTimer = new SimpleTimer();
+    private final SimpleTimer nextWaveTimer = new SimpleTimer();
+    private int waveNumber = 1;
+    private int enemiesThisWave = 1;
+    private int enemiesSpawnedThisWave = 0;
+    private boolean waitingForNextWave = false;
 
     public LeonClovis leon;
     public KaineVelsarth kaine;
@@ -143,20 +152,72 @@ public class MyWorld extends World
 
     public void spawnStartingEnemies()
     {
-        spawnEnemy();
+        startWave();
+        spawnEnemyInWave();
         enemySpawnTimer.mark();
     }
 
     public void spawnEnemies()
     {
-        if(enemySpawnTimer.millisElapsed() > 2000)
+        if(waitingForNextWave)
         {
-            if(getObjects(Enemy.class).size() < 5)
+            if(nextWaveTimer.millisElapsed() > NEXT_WAVE_DELAY)
             {
-                spawnEnemy();
+                startWave();
+                spawnEnemyInWave();
+                enemySpawnTimer.mark();
             }
+
+            return;
+        }
+
+        if(enemiesSpawnedThisWave < enemiesThisWave
+            && getObjects(Enemy.class).size() < MAX_ENEMIES_ON_SCREEN
+            && enemySpawnTimer.millisElapsed() > ENEMY_SPAWN_DELAY)
+        {
+            spawnEnemyInWave();
             enemySpawnTimer.mark();
         }
+
+        if(enemiesSpawnedThisWave >= enemiesThisWave && getObjects(Enemy.class).isEmpty())
+        {
+            waveNumber++;
+            waitingForNextWave = true;
+            nextWaveTimer.mark();
+            showText("Wave " + waveNumber + " starts soon", CENTER_X, 545);
+        }
+    }
+
+    private void startWave()
+    {
+        enemiesThisWave = getEnemiesForWave();
+        enemiesSpawnedThisWave = 0;
+        waitingForNextWave = false;
+        showText("Wave " + waveNumber, CENTER_X, 545);
+        enemySpawnTimer.mark();
+    }
+
+    private int getEnemiesForWave()
+    {
+        int enemies = WAVE_SIZE_MULTIPLIER;
+
+        for(int i = 1; i < waveNumber; i++)
+        {
+            enemies *= WAVE_SIZE_MULTIPLIER;
+        }
+
+        return enemies;
+    }
+
+    private void spawnEnemyInWave()
+    {
+        spawnEnemy();
+        enemiesSpawnedThisWave++;
+        showText(
+            "Spiders: " + enemiesSpawnedThisWave + " / " + enemiesThisWave,
+            CENTER_X,
+            570
+        );
     }
 
     public void spawnEnemy()
@@ -166,6 +227,7 @@ public class MyWorld extends World
         int y = Greenfoot.getRandomNumber(maxSpawnY);
         Enemy enemy = new Enemy(x, y);
         enemy.applyLevelScaling(getCurrentHeroLevel());
+        enemy.applyWaveScaling(waveNumber);
         addObject(enemy, x, y);
     }
 
