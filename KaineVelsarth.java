@@ -40,13 +40,14 @@ public class KaineVelsarth extends Actor
         swordRightMode = false;
         activeSword = null;
 
-        GreenfootImage image = getImage();
+        GreenfootImage image = new GreenfootImage("Kaine.png");
+        image.scale(72, 72);
+        setImage(image);
+    }
 
-        if(image != null)
-        {
-            image.scale(72, 72);
-            setImage(image);
-        }
+    protected void addedToWorld(World world)
+    {
+        activateNextSword();
     }
 
     public void act()
@@ -127,13 +128,16 @@ public class KaineVelsarth extends Actor
 
         if(key.equalsIgnoreCase("space"))
         {
-            activateNextSword();
+            if(activeSwordIndex < 0)
+            {
+                activateNextSword();
+            }
+
+            hitEnemyWithSword();
         }
         else if(key.equalsIgnoreCase("tab") && activeSwordIndex >= 0)
         {
-            swordRightMode = !swordRightMode;
-            spawnActiveSword();
-            hitEnemyWithSword();
+            activateNextSword();
         }
     }
 
