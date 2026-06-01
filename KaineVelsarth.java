@@ -299,7 +299,10 @@ public class KaineVelsarth extends Actor
             maxHp += 10;
             hp = maxHp;
             speed++;
-            swordDamage = (int)Math.round(swordDamage * SWORD_DAMAGE_LEVEL_MULTIPLIER);
+            if(level % 5 == 0)
+            {
+                swordDamage = (int)Math.round(swordDamage * SWORD_DAMAGE_LEVEL_MULTIPLIER);
+            }
         }
     }
 

@@ -265,7 +265,10 @@ public class AureaSolvine extends Actor
             speed += 1;
             stamina += 1;
             power += 1;
-            skillDamage = (int)Math.round(skillDamage * SKILL_DAMAGE_LEVEL_MULTIPLIER);
+            if(level % 5 == 0)
+            {
+                skillDamage = (int)Math.round(skillDamage * SKILL_DAMAGE_LEVEL_MULTIPLIER);
+            }
             maxHp += 10;
             hp = maxHp;
         }

@@ -148,7 +148,10 @@ public class LeonClovis extends Actor
         {
             level++;
             xp = 0;
-            gunDamage = (int)Math.round(gunDamage * GUN_DAMAGE_LEVEL_MULTIPLIER);
+            if(level % 5 == 0)
+            {
+                gunDamage = (int)Math.round(gunDamage * GUN_DAMAGE_LEVEL_MULTIPLIER);
+            }
             maxHp += 10;
             hp = maxHp;
         }
