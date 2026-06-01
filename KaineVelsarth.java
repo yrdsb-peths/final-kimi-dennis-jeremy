@@ -13,7 +13,7 @@ public class KaineVelsarth extends Actor
     private static final int STARTING_SWORD_DAMAGE = 10;
     private static final double SWORD_DAMAGE_LEVEL_MULTIPLIER = 1.6;
     private static final int SWORD_HIT_COOLDOWN_MS = 400;
-    private static final int SWORD_HIT_RANGE = 50;
+    private static final int SWORD_HIT_RANGE = 80;
 
     public int hp;
     public int maxHp;
@@ -226,7 +226,7 @@ public class KaineVelsarth extends Actor
 
         for(Enemy enemy : world.getObjects(Enemy.class))
         {
-            if(distanceBetween(activeSword.getX(), activeSword.getY(), enemy.getX(), enemy.getY()) <= SWORD_HIT_RANGE)
+            if(distanceBetween(getX(), getY(), enemy.getX(), enemy.getY()) <= SWORD_HIT_RANGE)
             {
                 return enemy;
             }
@@ -282,6 +282,7 @@ public class KaineVelsarth extends Actor
     public void gainXp(int amount)
     {
         xp += Math.max(0, amount);
+        checkLevelUp();
     }
 
     public void gainCoin(int amount)
@@ -313,21 +314,22 @@ public class KaineVelsarth extends Actor
         }
 
         GreenfootImage background = world.getBackground();
-
-        background.setColor(Color.BLACK);
-        background.fillRect(0, 0, 500, 100);
+        int hpBarWidth = Math.max(0, Math.min(300, hp * 300 / maxHp));
+        int xpBarWidth = Math.max(0, Math.min(300, xp * 300 / xpToNextLevel));
 
         background.setColor(Color.WHITE);
         background.fillRect(10, 10, 300, 25);
-
         background.setColor(Color.RED);
-        background.fillRect(10, 10, hp * 300 / maxHp, 25);
+        background.fillRect(10, 10, hpBarWidth, 25);
 
         background.setColor(Color.WHITE);
         background.fillRect(10, 45, 300, 25);
-
         background.setColor(Color.BLUE);
-        background.fillRect(10, 45, xp * 300 / xpToNextLevel, 25);
+        background.fillRect(10, 45, xpBarWidth, 25);
+
+        background.setColor(Color.BLACK);
+        background.drawRect(10, 10, 300, 25);
+        background.drawRect(10, 45, 300, 25);
 
         world.showText(hp + " / " + maxHp + " HP", 390, 23);
         world.showText("LV " + level + "   " + xp + " / " + xpToNextLevel + " XP", 410, 58);
