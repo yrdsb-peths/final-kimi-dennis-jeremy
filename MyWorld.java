@@ -30,6 +30,12 @@ public class MyWorld extends World
         showTitleScreen();
     }
 
+    public MyWorld(String character)
+    {
+        this();
+        choosePlayer(character);
+    }
+
     public void act()
     {
         if(!playerChosen)
@@ -53,15 +59,20 @@ public class MyWorld extends World
             return;
         }
 
-        if(key.equalsIgnoreCase("k"))
+        choosePlayer(key);
+    }
+
+    private void choosePlayer(String character)
+    {
+        if(character.equalsIgnoreCase("k") || character.equalsIgnoreCase("kaine"))
         {
             spawnKaine();
         }
-        else if(key.equalsIgnoreCase("l"))
+        else if(character.equalsIgnoreCase("l") || character.equalsIgnoreCase("leon"))
         {
             spawnLeon();
         }
-        else if(key.equalsIgnoreCase("a"))
+        else if(character.equalsIgnoreCase("a") || character.equalsIgnoreCase("aurea"))
         {
             spawnAurea();
         }

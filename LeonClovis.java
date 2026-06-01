@@ -33,26 +33,26 @@ public class LeonClovis extends Actor
     {
         for(int i = 0; i < leonRight.length; i++)
         {
-            leonRight[i] = new GreenfootImage("images/leon_move/leon" + i + ".png");
+            leonRight[i] = new GreenfootImage("Leon_move/leon" + i + ".png");
             leonRight[i].scale(50, 50);
         }
 
         for(int i = 0; i < leonLeft.length; i++)
         {
-            leonLeft[i] = new GreenfootImage("images/leon_move/leon" + i + ".png");
+            leonLeft[i] = new GreenfootImage("Leon_move/leon" + i + ".png");
             leonLeft[i].mirrorHorizontally();
             leonLeft[i].scale(50, 50);
         }
 
         for(int i = 0; i < leonFront.length; i++)
         {
-            leonFront[i] = new GreenfootImage("images/leon_move_front/leon" + i + ".png");
+            leonFront[i] = new GreenfootImage("Leon_move_front/leon" + i + ".png");
             leonFront[i].scale(50, 50);
         }
 
         for(int i = 0; i < leonBack.length; i++)
         {
-            leonBack[i] = new GreenfootImage("images/leon_move_back/leonBack" + i + ".png");
+            leonBack[i] = new GreenfootImage("Leon_move_back/leonBack" + i + ".png");
             leonBack[i].scale(50, 50);
         }
 
