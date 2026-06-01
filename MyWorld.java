@@ -221,14 +221,7 @@ public class MyWorld extends World
 
     private int getEnemiesForWave()
     {
-        int enemies = WAVE_SIZE_MULTIPLIER;
-
-        for(int i = 1; i < waveNumber; i++)
-        {
-            enemies *= WAVE_SIZE_MULTIPLIER;
-        }
-
-        return enemies;
+        return waveNumber * WAVE_SIZE_MULTIPLIER;
     }
 
     private void spawnEnemyInWave()

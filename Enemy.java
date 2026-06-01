@@ -7,9 +7,8 @@ public class Enemy extends Actor
     private static final int LEVEL_FIVE_HEALTH_MULTIPLIER = 4;
     private static final int LEVEL_TEN_HEALTH_MULTIPLIER = 16;
     private static final int STRONG_WAVE = 5;
-    private static final int STRONG_WAVE_HEALTH_MULTIPLIER = 3;
-    private static final int STRONG_WAVE_DAMAGE = 10;
-    private static final int STRONG_WAVE_SPEED = 3;
+    private static final int STRONG_WAVE_SIZE = BASE_SIZE * 2;
+    private static final int STRONG_WAVE_HEALTH_MULTIPLIER = 2;
     private static final int TOUCH_DAMAGE_RANGE = 45;
 
     int speed = 2;
@@ -53,8 +52,7 @@ public class Enemy extends Actor
         if(waveNumber >= STRONG_WAVE)
         {
             setHealth(maxHp * STRONG_WAVE_HEALTH_MULTIPLIER);
-            speed = STRONG_WAVE_SPEED;
-            damage = STRONG_WAVE_DAMAGE;
+            setBodySize(STRONG_WAVE_SIZE);
         }
     }
 
