@@ -19,6 +19,7 @@ public class MyWorld extends World
     private int enemiesThisWave = 1;
     private int enemiesSpawnedThisWave = 0;
     private boolean waitingForNextWave = false;
+    private boolean needsStartingEnemies = false;
 
     public LeonClovis leon;
     public KaineVelsarth kaine;
@@ -44,6 +45,12 @@ public class MyWorld extends World
         }
         else
         {
+            if(needsStartingEnemies)
+            {
+                spawnStartingEnemies();
+                needsStartingEnemies = false;
+            }
+
             spawnEnemies();
             spawnAureaSkill();
             updateWaveText();
@@ -139,7 +146,7 @@ public class MyWorld extends World
         playerChosen = true;
         clearTitleScreen();
         showText(kaine.getStartingLoadoutText(), CENTER_X, 520);
-        spawnStartingEnemies();
+        needsStartingEnemies = true;
     }
 
     public void spawnAurea()
@@ -149,7 +156,7 @@ public class MyWorld extends World
         playerChosen = true;
         clearTitleScreen();
         showText(aurea.getStartingLoadoutText(), CENTER_X, 520);
-        spawnStartingEnemies();
+        needsStartingEnemies = true;
     }
 
     public void spawnLeon()
@@ -161,7 +168,7 @@ public class MyWorld extends World
         showText("Leon starts with ranged attacks.", CENTER_X, 520);
         showText("", CENTER_X, 545);
         showText("", CENTER_X, 570);
-        spawnStartingEnemies();
+        needsStartingEnemies = true;
     }
 
     public void spawnStartingEnemies()
