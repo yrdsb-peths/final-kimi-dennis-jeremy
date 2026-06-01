@@ -20,7 +20,7 @@ public class Enemy extends Actor
         this.worldX = worldX;
         this.worldY = worldY;
 
-        // 每轮提升属性
+        // Stats scale with round number
         speed        = 2  + round / 5;
         hp           = 30 + (round - 1) * 8;
         maxHp        = hp;
@@ -39,8 +39,8 @@ public class Enemy extends Actor
     {
         if(getWorld() == null) return;
         GameWorld gw = (GameWorld)getWorld();
-        double dx = gw.aureaSolvine.worldX - worldX;
-        double dy = gw.aureaSolvine.worldY - worldY;
+        double dx = gw.player.worldX - worldX;
+        double dy = gw.player.worldY - worldY;
         double dist = Math.sqrt(dx*dx + dy*dy);
         if(dist > 0)
         {
@@ -53,7 +53,7 @@ public class Enemy extends Actor
     {
         if(getWorld() == null) return;
         GameWorld gw = (GameWorld)getWorld();
-        AureaSolvine p = gw.aureaSolvine;
+        Hero p = gw.player;
         attackCooldown++;
         if(attackCooldown >= ATTACK_INTERVAL)
         {

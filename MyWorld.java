@@ -48,9 +48,7 @@ public class MyWorld extends World {
         addObject(kaine, 300, 170);
         playerChosen = true;
         clearTitleScreen();
-        showText(kaine.getStartingLoadoutText(), 300, 305);
-        showText(kaine.getInventoryText(), 300, 330);
-        showText(kaine.getEquippedText(), 300, 355);
+        showText("Kaine selected — use TitleScreen (A/K/L) for full game", 300, 305);
     }
 
     private void spawnLeon() {

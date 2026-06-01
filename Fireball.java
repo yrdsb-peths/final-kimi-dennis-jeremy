@@ -1,6 +1,6 @@
 import greenfoot.*;
 
-public class Fireball extends Actor
+public class Fireball extends Weapon
 {
     static GreenfootImage[] frames = new GreenfootImage[44];
 
@@ -10,23 +10,24 @@ public class Fireball extends Actor
         {
             String num = String.format("%03d", i);
             frames[i] = new GreenfootImage("FireBall/tile" + num + ".png");
+            if(frames[i].getWidth() <= 0)
+            {
+                frames[i] = new GreenfootImage(12, 12);
+                frames[i].setColor(new Color(255, 120, 40));
+                frames[i].fillOval(0, 0, 12, 12);
+            }
         }
     }
 
     int frame = 0;
     int animationTimer = 0;
     double speed = 6;
-
-    public double worldX;
-    public double worldY;
-    double velX;
-    double velY;
-
-    int damage;
+    double velX, velY;
 
     public Fireball(double startX, double startY,
                     double targetX, double targetY, int damage)
     {
+        super();
         this.worldX = startX;
         this.worldY = startY;
         this.damage = damage;
@@ -39,11 +40,11 @@ public class Fireball extends Actor
         velY = dy / dist * speed;
 
         setImage(frames[0]);
-
         double angle = Math.toDegrees(Math.atan2(dy, dx));
         setRotation((int)angle);
     }
 
+    @Override
     public void act()
     {
         if(getWorld() == null) return;
@@ -52,11 +53,11 @@ public class Fireball extends Actor
         worldY += velY;
 
         animate();
-        checkHitEnemy();
+        checkHitEnemy(worldX, worldY, 25);
         checkRange();
     }
 
-    public void animate()
+    private void animate()
     {
         animationTimer++;
         if(animationTimer % 3 == 0)
@@ -68,34 +69,26 @@ public class Fireball extends Actor
         }
     }
 
-    public void checkHitEnemy()
+    @Override
+    protected void onHitEnemy(Enemy e, double dx, double dy, double dist)
     {
         GameWorld gw = (GameWorld)getWorld();
-        for(Enemy e : gw.getObjects(Enemy.class))
+        boolean died = e.takeDamage(damage);
+        if(died)
         {
-            double dx = e.worldX - worldX;
-            double dy = e.worldY - worldY;
-            if(Math.sqrt(dx*dx + dy*dy) < 25)
-            {
-                boolean died = e.takeDamage(damage);
-                if(died)
-                {
-                    gw.aureaSolvine.gainXP(e.xpDrop);
-                    gw.aureaSolvine.gainCoin(e.coinDrop);
-                    if(e.getWorld() != null) gw.removeObject(e);
-                }
-                if(getWorld() != null) gw.removeObject(this);
-                return;
-            }
+            gw.player.gainXP(e.xpDrop);
+            gw.player.gainCoin(e.coinDrop);
+            if(e.getWorld() != null) gw.removeObject(e);
         }
+        if(getWorld() != null) gw.removeObject(this);
     }
 
-    public void checkRange()
+    private void checkRange()
     {
         if(getWorld() == null) return;
         GameWorld gw = (GameWorld)getWorld();
-        double dx = worldX - gw.aureaSolvine.worldX;
-        double dy = worldY - gw.aureaSolvine.worldY;
+        double dx = worldX - gw.player.worldX;
+        double dy = worldY - gw.player.worldY;
         if(Math.sqrt(dx*dx + dy*dy) > 1000)
             gw.removeObject(this);
     }

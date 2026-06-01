@@ -2,7 +2,7 @@ import greenfoot.*;
 
 public class KaineCompanionSword extends Actor
 {
-    public double worldOffX = 22; // 相对玩家的偏移
+    public double worldOffX = 22; // Offset from player
     public double worldOffY = -6;
 
     int activeSwordIndex = 0;
@@ -22,7 +22,7 @@ public class KaineCompanionSword extends Actor
 
         handleInput();
 
-        // 跟随玩家屏幕位置
+        // Follow player on screen
         GameWorld gw = (GameWorld)getWorld();
         int px = gw.screenCX;
         int py = gw.screenCY;
@@ -68,8 +68,11 @@ public class KaineCompanionSword extends Actor
                 ? new GreenfootImage("Lightning sword. 90 Right.png")
                 : new GreenfootImage("00.png");
         }
-        img.scale(rightMode ? 40 : 20, 40);
-        if(!rightMode && index == 0) img.rotate(45);
-        setImage(img);
+        if(img.getWidth() > 0)
+        {
+            img.scale(rightMode ? 40 : 20, 40);
+            if(!rightMode && index == 0) img.rotate(45);
+            setImage(img);
+        }
     }
 }

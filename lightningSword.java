@@ -1,32 +1,26 @@
 import greenfoot.*;
 
-public class lightningSword extends Actor
+public class LightningSword extends Sword
 {
-    public lightningSword()
+    public LightningSword()
     {
-        this(false);
+        super();
+        swordType = 2;
+        loadSwordImage(false);
     }
 
-    public lightningSword(boolean lightningRightMode)
+    @Override
+    protected GreenfootImage getSwordImage(boolean rightMode)
     {
-        GreenfootImage image;
-
-        if (lightningRightMode)
+        GreenfootImage img;
+        if(rightMode)
         {
-            image = new GreenfootImage("Lightning sword. 90 Right.png");
-            image.scale(40, 40);
+            img = new GreenfootImage("Lightning sword. 90 Right.png");
         }
         else
         {
-            image = new GreenfootImage("00.png");
-            image.scale(20, 40);
-            image.rotate(45);
+            img = new GreenfootImage("00.png");
         }
-
-        setImage(image);
-    }
-
-    public void act()
-    {
+        return img;
     }
 }

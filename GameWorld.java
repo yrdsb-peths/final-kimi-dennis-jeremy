@@ -2,7 +2,7 @@ import greenfoot.*;
 
 public class GameWorld extends World
 {
-    public AureaSolvine aureaSolvine;
+    public Hero player;
     
     public int round;
     static final int TOTAL_ROUNDS    = 30;
@@ -13,10 +13,16 @@ public class GameWorld extends World
     int fireballLevel;
     int lightningLevel;
     int iceWaveLevel;
+    int gunLevel;
+    int swordLevel;
 
     int enemySpawnTimer = 0;
     int lightningTimer  = 0;
     int fireballTimer   = 0;
+    int gunTimer        = 0;
+    int swordTimer      = 0;
+
+    static final int SWORD_MELEE_RADIUS = 75;
 
     int ENEMY_SPAWN_INTERVAL;
     static final int SKILL_INTERVAL     = 90;
@@ -29,19 +35,21 @@ public class GameWorld extends World
 
     
     int pendingAttributePoints = 0;
+    boolean gameOverHandled = false;
+    boolean roundEndHandled = false;
 
-// 在 GameWorld.java 最上方加一个字段
     public String heroType = "aurea";
     
-    // 新增：从标题界面直接开始的构造器
     public GameWorld(String heroType)
     {
         this(70, 70, 0, 0,
              1, 4, 3, 3, 10,
-             1,
-             0, 0, 0);
-        this.heroType = heroType;
-        HeroData.heroType = heroType;
+             1, heroType,
+             HeroData.startingWeapon(heroType, 0),
+             HeroData.startingWeapon(heroType, 1),
+             HeroData.startingWeapon(heroType, 2),
+             HeroData.startingWeapon(heroType, 3),
+             HeroData.startingWeapon(heroType, 4));
     }
 
     public GameWorld(
@@ -49,59 +57,56 @@ public class GameWorld extends World
     int level, int speed, int stamina, int power,
     int xpToNextLevel,
     int round,
-    int fireballLevel, int lightningLevel, int iceWaveLevel)
+    String heroType,
+    int fireballLevel, int lightningLevel, int iceWaveLevel,
+    int gunLevel, int swordLevel)
     {
         super(1500, 750, 1);
         screenCX = getWidth()  / 2;
         screenCY = getHeight() / 2;
     
         this.round          = round;
+        this.heroType       = heroType;
+        HeroData.heroType   = heroType;
         this.fireballLevel  = fireballLevel;
         this.lightningLevel = lightningLevel;
         this.iceWaveLevel   = iceWaveLevel;
-        this.heroType       = HeroData.heroType; // 从全局读取
+        this.gunLevel       = gunLevel;
+        this.swordLevel     = swordLevel;
     
         ENEMY_SPAWN_INTERVAL = Math.max(20, 60 - (round - 1) * 2);
     
         bgTile = new GreenfootImage("background.png");
+        if(bgTile.getWidth() <= 0)
+        {
+            bgTile = new GreenfootImage(128, 128);
+            bgTile.setColor(new Color(35, 50, 35));
+            bgTile.fill();
+        }
         drawBackground(0, 0);
     
-        // 根据英雄类型创建不同角色
-        if(heroType.equals("leon"))
-        {
-            // Leon 用 AureaSolvine 的数据但换动画（共用系统）
-            aureaSolvine = new AureaSolvine("leon");
-        }
-        else if(heroType.equals("kaine"))
-        {
-            aureaSolvine = new AureaSolvine("kaine");
-        }
-        else
-        {
-            aureaSolvine = new AureaSolvine("aurea");
-        }
+        player = createHero(heroType);
     
-        aureaSolvine.hp            = hp;
-        aureaSolvine.maxHp         = maxHp;
-        aureaSolvine.xp            = xp;
-        aureaSolvine.coin          = coin;
-        aureaSolvine.level         = level;
-        aureaSolvine.speed         = speed;
-        aureaSolvine.stamina       = stamina;
-        aureaSolvine.power         = power;
-        aureaSolvine.xpToNextLevel = xpToNextLevel;
-        addObject(aureaSolvine, screenCX, screenCY);
+        player.hp            = hp;
+        player.maxHp         = maxHp;
+        player.xp            = xp;
+        player.coin          = coin;
+        player.level         = level;
+        player.speed         = speed;
+        player.stamina       = stamina;
+        player.power         = power;
+        player.xpToNextLevel = xpToNextLevel;
+        addObject(player, screenCX, screenCY);
     
         if(iceWaveLevel > 0)
         {
             IceWave iw = new IceWave();
-            iw.worldX = aureaSolvine.worldX;
-            iw.worldY = aureaSolvine.worldY;
+            iw.worldX = player.worldX;
+            iw.worldY = player.worldY;
             addObject(iw, screenCX, screenCY);
         }
     
-        // Kaine 自带剑
-        if(heroType.equals("kaine"))
+        if("kaine".equals(heroType) && swordLevel > 0)
         {
             KaineCompanionSword sword = new KaineCompanionSword();
             addObject(sword, screenCX + 22, screenCY - 6);
@@ -112,9 +117,9 @@ public class GameWorld extends World
     {
         roundTimer++;
 
-        bgOffX = (int)((-aureaSolvine.worldX % bgTile.getWidth()
+        bgOffX = (int)((-player.worldX % bgTile.getWidth()
                         + bgTile.getWidth())  % bgTile.getWidth());
-        bgOffY = (int)((-aureaSolvine.worldY % bgTile.getHeight()
+        bgOffY = (int)((-player.worldY % bgTile.getHeight()
                         + bgTile.getHeight()) % bgTile.getHeight());
         drawBackground(bgOffX, bgOffY);
 
@@ -122,6 +127,8 @@ public class GameWorld extends World
         spawnEnemy();
         if(fireballLevel  > 0) spawnFireball();
         if(lightningLevel > 0) spawnLightning();
+        if(gunLevel       > 0) spawnGun();
+        if(swordLevel     > 0) spawnSwordMelee();
 
         checkPlayerDead();
         checkRoundEnd();
@@ -130,10 +137,9 @@ public class GameWorld extends World
 
     private void checkRoundEnd()
     {
-        if(roundTimer >= ROUND_DURATION)
-        {
-            goToUpgradeScreen();
-        }
+        if(roundEndHandled || roundTimer < ROUND_DURATION) return;
+        roundEndHandled = true;
+        goToUpgradeScreen();
     }
 
     public void addAttributePoint()
@@ -143,20 +149,22 @@ public class GameWorld extends World
 
     private void goToUpgradeScreen()
     {
-        AureaSolvine p = aureaSolvine;
+        HeroData.heroType = heroType;
+        Hero p = player;
         Greenfoot.setWorld(new UpgradeScreen(
             p.hp, p.maxHp, p.xp, p.coin,
             p.level, p.speed, p.stamina, p.power,
             p.xpToNextLevel, pendingAttributePoints,
             round + 1,
-            fireballLevel, lightningLevel, iceWaveLevel
+            fireballLevel, lightningLevel, iceWaveLevel,
+            gunLevel, swordLevel
         ));
     }
 
     private void updateScreenPositions()
     {
-        double camX = aureaSolvine.worldX;
-        double camY = aureaSolvine.worldY;
+        double camX = player.worldX;
+        double camY = player.worldY;
 
         for(Enemy e : getObjects(Enemy.class))
         {
@@ -176,6 +184,12 @@ public class GameWorld extends World
             int sx = (int)(screenCX + (l.worldX - camX));
             int sy = (int)(screenCY + (l.worldY - camY));
             l.setLocation(sx, sy);
+        }
+        for(Gun g : getObjects(Gun.class))
+        {
+            int sx = (int)(screenCX + (g.worldX - camX));
+            int sy = (int)(screenCY + (g.worldY - camY));
+            g.setLocation(sx, sy);
         }
         for(IceWave iw : getObjects(IceWave.class))
         {
@@ -198,7 +212,7 @@ public class GameWorld extends World
    
     public void drawHUD()
     {
-        AureaSolvine p = aureaSolvine;
+        Hero p = player;
         GreenfootImage bg = getBackground();
 
         
@@ -212,6 +226,8 @@ public class GameWorld extends World
         showText("XP  " + p.xp + " / " + p.xpToNextLevel
                  + "   Lv." + p.level, 270, 63);
         showText("Coin: " + p.coin, 80, 90);
+        showText("Weapon: " + HeroData.signatureWeaponName(heroType)
+                 + " Lv." + getSignatureWeaponLevel(), 80, 115);
 
         
         int secondsLeft = (ROUND_DURATION - roundTimer) / 60;
@@ -234,8 +250,10 @@ public class GameWorld extends World
     
     public void checkPlayerDead()
     {
-        if(aureaSolvine.isDead && aureaSolvine.animFrame >= 6)
-            Greenfoot.setWorld(new TitleScreen());
+        if(gameOverHandled || !player.isDead) return;
+        if(player instanceof AureaSolvine && player.animFrame < 6) return;
+        gameOverHandled = true;
+        Greenfoot.setWorld(new TitleScreen());
     }
 
     
@@ -249,9 +267,9 @@ public class GameWorld extends World
             if(closest != null)
             {
                 Fireball fb = new Fireball(
-                    aureaSolvine.worldX, aureaSolvine.worldY,
+                    player.worldX, player.worldY,
                     closest.worldX,      closest.worldY,
-                    aureaSolvine.getDamage() + (fireballLevel-1) * 5
+                    player.getDamage() + (fireballLevel-1) * 5
                 );
                 addObject(fb, screenCX, screenCY);
             }
@@ -269,13 +287,68 @@ public class GameWorld extends World
             {
                 double ex = closest.worldX;
                 double ey = closest.worldY;
-                int sx = (int)(screenCX + (ex - aureaSolvine.worldX));
-                int sy = (int)(screenCY + (ey - aureaSolvine.worldY));
+                int sx = (int)(screenCX + (ex - player.worldX));
+                int sy = (int)(screenCY + (ey - player.worldY));
                 Lightning lt = new Lightning(ex, ey,
-                    aureaSolvine.getDamage() + (lightningLevel-1) * 5);
+                    player.getDamage() + (lightningLevel-1) * 5);
                 addObject(lt, sx, sy);
             }
         }
+    }
+
+    public void spawnGun()
+    {
+        gunTimer++;
+        if(gunTimer >= SKILL_INTERVAL)
+        {
+            gunTimer = 0;
+            Enemy closest = getClosestEnemy();
+            if(closest != null)
+            {
+                Gun bullet = new Gun(
+                    player.worldX, player.worldY,
+                    closest.worldX, closest.worldY,
+                    player.getDamage() + (gunLevel - 1) * 5
+                );
+                addObject(bullet, screenCX, screenCY);
+            }
+        }
+    }
+
+    public void spawnSwordMelee()
+    {
+        swordTimer++;
+        if(swordTimer >= SKILL_INTERVAL)
+        {
+            swordTimer = 0;
+            int dmg = player.getDamage() + (swordLevel - 1) * 5;
+            java.util.List<Enemy> enemies =
+                new java.util.ArrayList<>(getObjects(Enemy.class));
+            java.util.List<Enemy> defeated = new java.util.ArrayList<>();
+
+            for(Enemy e : enemies)
+            {
+                if(distanceBetween(e.worldX, e.worldY,
+                                  player.worldX, player.worldY) > SWORD_MELEE_RADIUS)
+                    continue;
+
+                if(e.takeDamage(dmg))
+                {
+                    player.gainXP(e.xpDrop);
+                    player.gainCoin(e.coinDrop);
+                    defeated.add(e);
+                }
+            }
+            for(Enemy e : defeated)
+                removeObject(e);
+        }
+    }
+
+    private int getSignatureWeaponLevel()
+    {
+        if("leon".equals(heroType)) return gunLevel;
+        if("kaine".equals(heroType)) return swordLevel;
+        return lightningLevel;
     }
 
     public void spawnEnemy()
@@ -288,16 +361,16 @@ public class GameWorld extends World
 
             double x, y;
             do {
-                x = aureaSolvine.worldX + Greenfoot.getRandomNumber(1600) - 800;
-                y = aureaSolvine.worldY + Greenfoot.getRandomNumber(900)  - 450;
+                x = player.worldX + Greenfoot.getRandomNumber(1600) - 800;
+                y = player.worldY + Greenfoot.getRandomNumber(900)  - 450;
             }
             while(distanceBetween(x, y,
-                      aureaSolvine.worldX, aureaSolvine.worldY)
+                      player.worldX, player.worldY)
                   < MIN_SPAWN_DISTANCE);
 
             Enemy e = new Enemy(x, y, round); 
-            int sx = (int)(screenCX + (x - aureaSolvine.worldX));
-            int sy = (int)(screenCY + (y - aureaSolvine.worldY));
+            int sx = (int)(screenCX + (x - player.worldX));
+            int sy = (int)(screenCY + (y - player.worldY));
             addObject(e, sx, sy);
         }
     }
@@ -313,7 +386,7 @@ public class GameWorld extends World
         {
             double d = distanceBetween(
                 e.worldX, e.worldY,
-                aureaSolvine.worldX, aureaSolvine.worldY);
+                player.worldX, player.worldY);
             if(d < minD) { minD = d; closest = e; }
         }
         return closest;
@@ -324,5 +397,14 @@ public class GameWorld extends World
     {
         double dx = x1-x2, dy = y1-y2;
         return Math.sqrt(dx*dx + dy*dy);
+    }
+
+    private Hero createHero(String type)
+    {
+        if("leon".equals(type))
+            return new LeonClovis();
+        if("kaine".equals(type))
+            return new KaineVelsarth();
+        return new AureaSolvine();
     }
 }

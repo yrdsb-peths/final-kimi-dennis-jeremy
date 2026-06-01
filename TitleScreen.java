@@ -10,13 +10,23 @@ public class TitleScreen extends World
 
     public void act()
     {
-        if(Greenfoot.isKeyDown("k"))
+        String key = Greenfoot.getKey();
+        if(key == null) return;
+
+        if(key.equalsIgnoreCase("k"))
         {
+            HeroData.heroType = "kaine";
             Greenfoot.setWorld(new GameWorld("kaine"));
         }
-        if(Greenfoot.isKeyDown("l"))
+        else if(key.equalsIgnoreCase("l"))
         {
+            HeroData.heroType = "leon";
             Greenfoot.setWorld(new GameWorld("leon"));
+        }
+        else if(key.equalsIgnoreCase("a"))
+        {
+            HeroData.heroType = "aurea";
+            Greenfoot.setWorld(new GameWorld("aurea"));
         }
     }
 
@@ -28,16 +38,22 @@ public class TitleScreen extends World
 
         bg.setColor(Color.WHITE);
         bg.setFont(new Font("Arial", true, false, 48));
-        bg.drawString("CHOOSE YOUR HERO", 450, 150);
+        bg.drawString("CHOOSE YOUR HERO", 400, 120);
 
-        bg.setFont(new Font("Arial", false, false, 28));
-        bg.setColor(new Color(255, 180, 80));
-        bg.drawString("[ K ]  Kaine Velsarth", 500, 320);
+        bg.setFont(new Font("Arial", false, false, 32));
+        
+        bg.setColor(new Color(255, 150, 80));
+        bg.drawString("[ K ]  Kaine Velsarth", 450, 280);
+        
         bg.setColor(new Color(100, 180, 255));
-        bg.drawString("[ L ]  Leon Clovis  /  Aurea Solvine", 500, 390);
+        bg.drawString("[ L ]  Leon Clovis", 450, 380);
+        
+        bg.setColor(new Color(200, 100, 255));
+        bg.drawString("[ A ]  Aurea Solvine", 450, 480);
 
         bg.setColor(new Color(160, 160, 160));
         bg.setFont(new Font("Arial", false, false, 20));
-        bg.drawString("Press the key to start", 620, 500);
+        bg.drawString("Aurea: Lightning   Leon: Gun   Kaine: Sword", 420, 560);
+        bg.drawString("Press the key to start", 570, 600);
     }
 }

@@ -11,6 +11,8 @@ public class UpgradeScreen extends World
     int fireballLevel;
     int lightningLevel;
     int iceWaveLevel;
+    int gunLevel;
+    int swordLevel;
 
     
     static final int WEAPON_BUY_COST    = 10;
@@ -19,13 +21,15 @@ public class UpgradeScreen extends World
     
     String message = "";
     int messageTimer = 0;
+    boolean spaceKeyWasDown = false;
 
     public UpgradeScreen(
         int hp, int maxHp, int xp, int coin,
         int level, int speed, int stamina, int power,
         int xpToNextLevel, int attributePoints,
         int nextRound,
-        int fireballLevel, int lightningLevel, int iceWaveLevel)
+        int fireballLevel, int lightningLevel, int iceWaveLevel,
+        int gunLevel, int swordLevel)
     {
         super(1500, 750, 1);
         this.hp             = hp;
@@ -42,7 +46,9 @@ public class UpgradeScreen extends World
         this.fireballLevel  = fireballLevel;
         this.lightningLevel = lightningLevel;
         this.iceWaveLevel   = iceWaveLevel;
-        this.heroType = heroType;
+        this.gunLevel       = gunLevel;
+        this.swordLevel     = swordLevel;
+        this.heroType       = HeroData.heroType;
         drawUI();
     }
 
@@ -74,11 +80,26 @@ public class UpgradeScreen extends World
         if(Greenfoot.isKeyDown("w")) { buyOrUpgrade("lightning"); waitRelease(); }
         if(Greenfoot.isKeyDown("e")) { buyOrUpgrade("icewave");   waitRelease(); }
 
-        
-        if(Greenfoot.isKeyDown("space"))
-        {
+        if(isAdvanceKeyPressed())
             startNextRound();
-        }
+    }
+
+ 
+    private boolean isAdvanceKeyPressed()
+    {
+        String key = Greenfoot.getKey();
+        boolean keyPress = key != null
+            && (key.equalsIgnoreCase("space") || key.equals(" "));
+
+        boolean spaceDown = Greenfoot.isKeyDown("space");
+        boolean edgePress = spaceDown && !spaceKeyWasDown;
+
+        if(keyPress || spaceDown)
+            spaceKeyWasDown = true;
+        else
+            spaceKeyWasDown = false;
+
+        return keyPress || edgePress;
     }
 
     private void buyOrUpgrade(String weapon)
@@ -135,7 +156,9 @@ public class UpgradeScreen extends World
             hp, maxHp, xp, coin,
             level, speed, stamina, power,
             xpToNextLevel, nextRound,
-            fireballLevel, lightningLevel, iceWaveLevel
+            heroType,
+            fireballLevel, lightningLevel, iceWaveLevel,
+            gunLevel, swordLevel
         );
         Greenfoot.setWorld(gw);
     }
@@ -151,9 +174,9 @@ public class UpgradeScreen extends World
         drawCenteredText(bg, "Round " + (nextRound-1) + " end ", getWidth()/2, 60);
 
         if(nextRound > 30)
-            drawCenteredText(bg, "Congratulations！Press blank to the titlescreen.", getWidth()/2, 120);
+            drawCenteredText(bg, "Congratulations! Press SPACE for title screen.", getWidth()/2, 120);
         else
-            drawCenteredText(bg, "When you're ready, press the spacebar to enter the round" + nextRound, getWidth()/2, 120);
+            drawCenteredText(bg, "Press SPACE to start round " + nextRound, getWidth()/2, 120);
 
         
         bg.setFont(new Font("Arial", false, false, 22));
@@ -168,6 +191,9 @@ public class UpgradeScreen extends World
         bg.drawString("Speed:   " + speed,                      sx, sy+155);
         bg.drawString("Stamina: " + stamina,                    sx, sy+185);
         bg.drawString("Power:   " + power,                      sx, sy+215);
+        bg.setColor(new Color(160, 220, 255));
+        bg.drawString("Signature: " + HeroData.signatureWeaponName(heroType)
+            + " Lv." + getSignatureWeaponLevel(), sx, sy+245);
 
         
         bg.setColor(new Color(255, 220, 80));
@@ -219,6 +245,13 @@ public class UpgradeScreen extends World
             bg.setColor(new Color(100, 220, 100));
             bg.drawString("Lv." + lv + "  damage +" + (lv * 5), x, y+28);
         }
+    }
+
+    private int getSignatureWeaponLevel()
+    {
+        if("leon".equals(heroType)) return gunLevel;
+        if("kaine".equals(heroType)) return swordLevel;
+        return lightningLevel;
     }
 
     private void drawCenteredText(GreenfootImage bg, String text, int cx, int y)
