@@ -10,7 +10,6 @@ public class GameWorld extends World
 
     public AureaSolvine aureaSolvine;
     public LeonClovis leonClovis;
-    public KaineVelsarth kaineVelsarth;
 
     int enemySpawnTimer = 0;
     int lightningTimer = 0;
@@ -43,12 +42,6 @@ public class GameWorld extends World
         {
             leonClovis = new LeonClovis();
             addObject(leonClovis, screenCX, screenCY);
-        }
-        else if(character.equals("kaine"))
-        {
-            kaineVelsarth = new KaineVelsarth();
-            addObject(kaineVelsarth, screenCX, screenCY);
-            addObject(new fireSword(), screenCX, screenCY);
         }
         else
         {
