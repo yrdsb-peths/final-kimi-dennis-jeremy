@@ -7,6 +7,8 @@ public class GameWorld extends World
     private static final int SKILL_INTERVAL = 90;
     private static final int MIN_SPAWN_DISTANCE = 300;
     private static final int MAX_ENEMIES = 30;
+    private static final int SHOP_UPGRADE_COST = 10;
+    private static final int SHOP_DAMAGE_BONUS = 5;
 
     public AureaSolvine aureaSolvine;
     public LeonClovis leonClovis;
@@ -14,6 +16,7 @@ public class GameWorld extends World
     int enemySpawnTimer = 0;
     int lightningTimer = 0;
     int fireballTimer = 0;
+    private SimpleTimer shopTimer = new SimpleTimer();
     private boolean gameOverShown = false;
 
     GreenfootImage bgTile;
@@ -76,6 +79,7 @@ public class GameWorld extends World
         drawBackground(bgOffX, bgOffY);
         updateScreenPositions();
         spawnEnemy();
+        handleShop();
 
         if(aureaSolvine != null)
         {
@@ -85,6 +89,28 @@ public class GameWorld extends World
         }
 
         drawHUD();
+    }
+
+    private void handleShop()
+    {
+        if(!Greenfoot.isKeyDown("u") || shopTimer.millisElapsed() <= 300)
+        {
+            return;
+        }
+
+        if(aureaSolvine != null && aureaSolvine.coin >= SHOP_UPGRADE_COST)
+        {
+            aureaSolvine.coin -= SHOP_UPGRADE_COST;
+            aureaSolvine.skillDamage += SHOP_DAMAGE_BONUS;
+            shopTimer.mark();
+        }
+
+        if(leonClovis != null && leonClovis.coin >= SHOP_UPGRADE_COST)
+        {
+            leonClovis.coin -= SHOP_UPGRADE_COST;
+            leonClovis.gunDamage += SHOP_DAMAGE_BONUS;
+            shopTimer.mark();
+        }
     }
 
     public double getPlayerWorldX()
@@ -259,6 +285,9 @@ public class GameWorld extends World
         {
             leonClovis.displayStats();
         }
+
+        showText("Shop: Press U - Upgrade weapon (" + SHOP_UPGRADE_COST + " coins)", getWidth() - 230, 25);
+        showText("Damage +" + SHOP_DAMAGE_BONUS, getWidth() - 230, 55);
     }
 
     public void checkPlayerDead()
