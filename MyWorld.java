@@ -9,7 +9,7 @@ public class MyWorld extends World
     private static final int NEXT_WAVE_DELAY = 2000;
     private static final int MAX_ENEMIES_ON_SCREEN = 5;
     private static final int WAVE_SIZE_MULTIPLIER = 4;
-    private static final String BACKGROUND_IMAGE = "images/Background .png";
+    private static final String BACKGROUND_IMAGE = "background.png";
 
     private boolean playerChosen = false;
     private final SimpleTimer enemySpawnTimer = new SimpleTimer();
