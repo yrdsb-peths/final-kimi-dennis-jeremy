@@ -121,17 +121,7 @@ public class KaineVelsarth extends Actor
 
     private void handleSwordInput()
     {
-        if(Greenfoot.isKeyDown("space"))
-        {
-            if(activeSwordIndex < 0)
-            {
-                activateNextSword();
-            }
-
-            hitEnemyWithSword();
-        }
-
-        if(Greenfoot.isKeyDown("tab")
+        if(Greenfoot.isKeyDown("space")
             && activeSwordIndex >= 0
             && swordSwitchTimer.millisElapsed() > 250)
         {
