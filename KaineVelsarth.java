@@ -128,6 +128,15 @@ public class KaineVelsarth extends Actor
             activateNextSword();
             swordSwitchTimer.mark();
         }
+
+        if(Greenfoot.isKeyDown("tab")
+            && activeSwordIndex >= 0
+            && swordSwitchTimer.millisElapsed() > 250)
+        {
+            swordRightMode = !swordRightMode;
+            spawnActiveSword();
+            swordSwitchTimer.mark();
+        }
     }
 
     private void activateNextSword()
