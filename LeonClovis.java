@@ -28,6 +28,7 @@ public class LeonClovis extends Hero
 
     boolean facingBack = false;
     SimpleTimer leonAnimTimer = new SimpleTimer();
+    public int gunDamage = 10;
 
     public LeonClovis()
     {

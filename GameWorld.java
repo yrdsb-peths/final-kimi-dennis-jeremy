@@ -185,12 +185,6 @@ public class GameWorld extends World
             int sy = (int)(screenCY + (l.worldY - camY));
             l.setLocation(sx, sy);
         }
-        for(Gun g : getObjects(Gun.class))
-        {
-            int sx = (int)(screenCX + (g.worldX - camX));
-            int sy = (int)(screenCY + (g.worldY - camY));
-            g.setLocation(sx, sy);
-        }
         for(IceWave iw : getObjects(IceWave.class))
         {
             iw.setLocation(screenCX, screenCY);
@@ -303,15 +297,12 @@ public class GameWorld extends World
         {
             gunTimer = 0;
             Enemy closest = getClosestEnemy();
-            if(closest != null)
-            {
-                Gun bullet = new Gun(
-                    player.worldX, player.worldY,
-                    closest.worldX, closest.worldY,
-                    player.getDamage() + (gunLevel - 1) * 5
-                );
-                addObject(bullet, screenCX, screenCY);
-            }
+            if(closest == null || !(player instanceof LeonClovis)) return;
+
+            LeonClovis leon = (LeonClovis)player;
+            leon.gunDamage = player.getDamage() + (gunLevel - 1) * 5;
+            Bullet bullet = new Bullet(closest, leon, leon.gunDamage);
+            addObject(bullet, screenCX, screenCY);
         }
     }
 

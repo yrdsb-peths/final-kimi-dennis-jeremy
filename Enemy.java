@@ -72,4 +72,17 @@ public class Enemy extends Actor
         hp -= damage;
         return hp <= 0;
     }
+
+    public boolean takeDamage(int damage, Hero source)
+    {
+        boolean died = takeDamage(damage);
+        if(died && source != null)
+        {
+            source.gainXP(xpDrop);
+            source.gainCoin(coinDrop);
+            if(getWorld() != null)
+                getWorld().removeObject(this);
+        }
+        return died;
+    }
 }
