@@ -11,7 +11,6 @@ public class KaineVelsarth extends Actor
     private static final int STARTING_LEVEL = 1;
     private static final int STARTING_XP_TO_NEXT_LEVEL = 10;
     private static final int STARTING_SWORD_DAMAGE = 10;
-    private static final double SWORD_DAMAGE_LEVEL_MULTIPLIER = 1.6;
     private static final int SWORD_HIT_COOLDOWN_MS = 400;
     private static final int SWORD_HIT_RANGE = 80;
 
@@ -298,10 +297,6 @@ public class KaineVelsarth extends Actor
             maxHp += 10;
             hp = maxHp;
             speed++;
-            if(level % 5 == 0)
-            {
-                swordDamage = (int)Math.round(swordDamage * SWORD_DAMAGE_LEVEL_MULTIPLIER);
-            }
         }
     }
 

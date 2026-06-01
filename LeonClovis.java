@@ -2,8 +2,6 @@ import greenfoot.*;
 
 public class LeonClovis extends Actor
 {
-    private static final double GUN_DAMAGE_LEVEL_MULTIPLIER = 1.6;
-
     public int hp = 70;
     public int maxHp = 70;
     public int xp = 0;
@@ -148,10 +146,6 @@ public class LeonClovis extends Actor
         {
             level++;
             xp = 0;
-            if(level % 5 == 0)
-            {
-                gunDamage = (int)Math.round(gunDamage * GUN_DAMAGE_LEVEL_MULTIPLIER);
-            }
             maxHp += 10;
             hp = maxHp;
         }

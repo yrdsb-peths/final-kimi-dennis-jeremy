@@ -2,8 +2,6 @@ import greenfoot.*;
 
 public class AureaSolvine extends Actor
 {
-    private static final double SKILL_DAMAGE_LEVEL_MULTIPLIER = 1.6;
-
     public int hp = 70;
     public int maxHp = 70;
     public int xp = 0;
@@ -265,10 +263,6 @@ public class AureaSolvine extends Actor
             speed += 1;
             stamina += 1;
             power += 1;
-            if(level % 5 == 0)
-            {
-                skillDamage = (int)Math.round(skillDamage * SKILL_DAMAGE_LEVEL_MULTIPLIER);
-            }
             maxHp += 10;
             hp = maxHp;
         }
