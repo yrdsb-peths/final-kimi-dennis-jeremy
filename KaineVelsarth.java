@@ -30,6 +30,7 @@ public class KaineVelsarth extends Actor
     private boolean swordRightMode;
     private Actor activeSword;
     private SimpleTimer swordHitTimer = new SimpleTimer();
+    private SimpleTimer swordSwitchTimer = new SimpleTimer();
 
     public KaineVelsarth()
     {
@@ -119,14 +120,7 @@ public class KaineVelsarth extends Actor
 
     private void handleSwordInput()
     {
-        String key = Greenfoot.getKey();
-
-        if(key == null)
-        {
-            return;
-        }
-
-        if(key.equalsIgnoreCase("space"))
+        if(Greenfoot.isKeyDown("space"))
         {
             if(activeSwordIndex < 0)
             {
@@ -135,9 +129,13 @@ public class KaineVelsarth extends Actor
 
             hitEnemyWithSword();
         }
-        else if(key.equalsIgnoreCase("tab") && activeSwordIndex >= 0)
+
+        if(Greenfoot.isKeyDown("tab")
+            && activeSwordIndex >= 0
+            && swordSwitchTimer.millisElapsed() > 250)
         {
             activateNextSword();
+            swordSwitchTimer.mark();
         }
     }
 

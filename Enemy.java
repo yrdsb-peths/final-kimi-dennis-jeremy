@@ -10,6 +10,7 @@ public class Enemy extends Actor
     private static final int STRONG_WAVE_HEALTH_MULTIPLIER = 3;
     private static final int STRONG_WAVE_DAMAGE = 10;
     private static final int STRONG_WAVE_SPEED = 3;
+    private static final int TOUCH_DAMAGE_RANGE = 45;
 
     int speed = 2;
     int damage = 5;
@@ -238,21 +239,26 @@ public class Enemy extends Actor
         MyWorld world)
     {
         if(world.leon != null
-            && getOneIntersectingObject(
-                LeonClovis.class) != null)
+            && isCloseTo(world.leon))
         {
             damageLeon(world.leon);
         }
         else if(world.kaine != null
-            && getOneIntersectingObject(
-                KaineVelsarth.class) != null)
+            && isCloseTo(world.kaine))
         {
             damageKaine(world.kaine);
         }
-        else if(world.aurea != null && getOneIntersectingObject(AureaSolvine.class) != null)
+        else if(world.aurea != null && isCloseTo(world.aurea))
         {
             damageAurea(world.aurea);
         }
+    }
+
+    private boolean isCloseTo(Actor actor)
+    {
+        int dx = getX() - actor.getX();
+        int dy = getY() - actor.getY();
+        return Math.sqrt(dx * dx + dy * dy) < TOUCH_DAMAGE_RANGE;
     }
 
     private void damageLeon(
