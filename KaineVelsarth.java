@@ -56,6 +56,7 @@ public class KaineVelsarth extends Actor
         moveKaine();
         updateSwordPosition();
         handleSwordInput();
+        hitEnemyWithSword();
         checkLevelUp();
         displayStats();
     }

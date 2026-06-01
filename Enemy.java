@@ -241,16 +241,16 @@ public class Enemy extends Actor
         if(world.leon != null
             && isCloseTo(world.leon))
         {
-            damageLeon(world.leon);
+            damageSelectedPlayer(world);
         }
         else if(world.kaine != null
             && isCloseTo(world.kaine))
         {
-            damageKaine(world.kaine);
+            damageSelectedPlayer(world);
         }
         else if(world.aurea != null && isCloseTo(world.aurea))
         {
-            damageAurea(world.aurea);
+            damageSelectedPlayer(world);
         }
     }
 
@@ -261,31 +261,12 @@ public class Enemy extends Actor
         return Math.sqrt(dx * dx + dy * dy) < TOUCH_DAMAGE_RANGE;
     }
 
-    private void damageLeon(
-        LeonClovis leon)
+    private void damageSelectedPlayer(
+        MyWorld world)
     {
         if(damageTimer.millisElapsed() > 1000)
         {
-            leon.takeDamage(damage);
-            damageTimer.mark();
-        }
-    }
-
-    private void damageKaine(
-        KaineVelsarth kaine)
-    {
-        if(damageTimer.millisElapsed() > 1000)
-        {
-            kaine.takeDamage(damage);
-            damageTimer.mark();
-        }
-    }
-
-    private void damageAurea(AureaSolvine aurea)
-    {
-        if(damageTimer.millisElapsed() > 1000)
-        {
-            aurea.takeHit(damage);
+            world.damageSelectedPlayer(damage);
             damageTimer.mark();
         }
     }

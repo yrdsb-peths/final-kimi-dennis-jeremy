@@ -324,6 +324,7 @@ public class MyWorld extends World
         {
             leon.xp += xp;
             leon.coin += coin;
+            leon.checkLevelUp();
         }
 
         if(kaine != null)
@@ -336,6 +337,24 @@ public class MyWorld extends World
         {
             aurea.gainXP(xp);
             aurea.gainCoin(coin);
+        }
+    }
+
+    public void damageSelectedPlayer(int damage)
+    {
+        if(leon != null)
+        {
+            leon.takeDamage(damage);
+        }
+
+        if(kaine != null)
+        {
+            kaine.takeDamage(damage);
+        }
+
+        if(aurea != null)
+        {
+            aurea.takeHit(damage);
         }
     }
 
