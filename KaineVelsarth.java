@@ -1,4 +1,5 @@
 import greenfoot.*;
+import java.util.HashSet;
 
 public class KaineVelsarth extends Actor
 {
@@ -13,6 +14,9 @@ public class KaineVelsarth extends Actor
     private static final int STARTING_SWORD_DAMAGE = 10;
     private static final int SWORD_HIT_COOLDOWN_MS = 400;
     private static final int SWORD_HIT_RANGE = 80;
+    private static final String FIRE_SWORD_SOUND = "fire sword sound effect.mp3";
+    private static final String FUTURISTIC_SWORD_SOUND = "Ufo sound.mp3";
+    private static final String LIGHTNING_SWORD_SOUND = "lightning sound.mp3";
 
     public int hp;
     public int maxHp;
@@ -30,6 +34,7 @@ public class KaineVelsarth extends Actor
     private Actor activeSword;
     private SimpleTimer swordHitTimer = new SimpleTimer();
     private SimpleTimer swordSwitchTimer = new SimpleTimer();
+    private HashSet<Enemy> swordHitEnemies = new HashSet<Enemy>();
 
     public KaineVelsarth()
     {
@@ -209,7 +214,25 @@ public class KaineVelsarth extends Actor
 
         swordHitTimer.mark();
 
+        swordHitEnemies.add(enemy);
         enemy.takeDamage(swordDamage);
+        playActiveSwordSound();
+    }
+
+    private void playActiveSwordSound()
+    {
+        if(activeSwordIndex == 0)
+        {
+            Greenfoot.playSound(FIRE_SWORD_SOUND);
+        }
+        else if(activeSwordIndex == 1)
+        {
+            Greenfoot.playSound(FUTURISTIC_SWORD_SOUND);
+        }
+        else
+        {
+            Greenfoot.playSound(LIGHTNING_SWORD_SOUND);
+        }
     }
 
     private Enemy getSwordHitEnemy()
@@ -223,7 +246,8 @@ public class KaineVelsarth extends Actor
 
         for(Enemy enemy : world.getObjects(Enemy.class))
         {
-            if(distanceBetween(getX(), getY(), enemy.getX(), enemy.getY()) <= SWORD_HIT_RANGE)
+            if(!swordHitEnemies.contains(enemy)
+                && distanceBetween(getX(), getY(), enemy.getX(), enemy.getY()) <= SWORD_HIT_RANGE)
             {
                 return enemy;
             }
