@@ -36,7 +36,7 @@ public class TitleScreen extends World
         }
         else if(key.equalsIgnoreCase("k"))
         {
-            Greenfoot.setWorld(new MyWorld());
+            Greenfoot.setWorld(new GameWorld("kaine"));
         }
     }
 }
