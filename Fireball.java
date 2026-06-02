@@ -21,11 +21,11 @@ public class Fireball extends Weapon
 
     int frame = 0;
     int animationTimer = 0;
+
     double speed = 6;
     double velX, velY;
 
-    public Fireball(double startX, double startY,
-                    double targetX, double targetY, int damage)
+    public Fireball(double startX, double startY, double targetX, double targetY, int damage)
     {
         super();
         this.worldX = startX;
@@ -34,8 +34,14 @@ public class Fireball extends Weapon
 
         double dx = targetX - startX;
         double dy = targetY - startY;
-        double dist = Math.sqrt(dx*dx + dy*dy);
-        if(dist == 0) dist = 1;
+
+        double dist = Math.sqrt(dx * dx + dy * dy);
+
+        if(dist == 0)
+        {
+            dist = 1;
+        }
+
         velX = dx / dist * speed;
         velY = dy / dist * speed;
 
@@ -52,6 +58,13 @@ public class Fireball extends Weapon
         worldX += velX;
         worldY += velY;
 
+        World world = getWorld();
+
+        if(world instanceof MyWorld)
+        {
+            setLocation((int)worldX, (int)worldY);
+        }
+
         animate();
         checkHitEnemy(worldX, worldY, 25);
         checkRange();
@@ -60,10 +73,13 @@ public class Fireball extends Weapon
     private void animate()
     {
         animationTimer++;
+
         if(animationTimer % 3 == 0)
         {
             frame = (frame + 1) % frames.length;
+
             int rot = getRotation();
+
             setImage(new GreenfootImage(frames[frame]));
             setRotation(rot);
         }
@@ -86,10 +102,24 @@ public class Fireball extends Weapon
     private void checkRange()
     {
         if(getWorld() == null) return;
+
+        if(getWorld() instanceof MyWorld)
+        {
+            World world = getWorld();
+
+            if(getX() < 0 || getX() > world.getWidth() || getY() < 0 || getY() > world.getHeight())
+            {
+                world.removeObject(this);
+            }
+
+            return;
+        }
+
         GameWorld gw = (GameWorld)getWorld();
         double dx = worldX - gw.player.worldX;
         double dy = worldY - gw.player.worldY;
         if(Math.sqrt(dx*dx + dy*dy) > 1000)
             gw.removeObject(this);
+        }
     }
 }

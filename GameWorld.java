@@ -61,8 +61,14 @@ public class GameWorld extends World
     int fireballLevel, int lightningLevel, int iceWaveLevel,
     int gunLevel, int swordLevel)
     {
+        this("aurea");
+    }
+
+    public GameWorld(String character)
+    {
         super(1500, 750, 1);
-        screenCX = getWidth()  / 2;
+
+        screenCX = getWidth() / 2;
         screenCY = getHeight() / 2;
     
         this.round          = round;
@@ -166,7 +172,7 @@ public class GameWorld extends World
         double camX = player.worldX;
         double camY = player.worldY;
 
-        for(Enemy e : getObjects(Enemy.class))
+        if(leonClovis != null)
         {
             int sx = (int)(screenCX + (e.worldX - camX));
             int sy = (int)(screenCY + (e.worldY - camY));
@@ -175,32 +181,43 @@ public class GameWorld extends World
         }
         for(Fireball f : getObjects(Fireball.class))
         {
-            int sx = (int)(screenCX + (f.worldX - camX));
-            int sy = (int)(screenCY + (f.worldY - camY));
-            f.setLocation(sx, sy);
+            return leonClovis.worldY;
         }
         for(Lightning l : getObjects(Lightning.class))
         {
-            int sx = (int)(screenCX + (l.worldX - camX));
-            int sy = (int)(screenCY + (l.worldY - camY));
-            l.setLocation(sx, sy);
+            return aureaSolvine.getDamage();
         }
-        for(IceWave iw : getObjects(IceWave.class))
+
+        return leonClovis.gunDamage;
+    }
+
+    public int getCurrentPlayerLevel()
+    {
+        if(aureaSolvine != null)
         {
-            iw.setLocation(screenCX, screenCY);
+            return aureaSolvine.level;
         }
+
+        if(leonClovis != null)
+        {
+            return leonClovis.level;
+        }
+
+        return 1;
     }
 
     
     private void drawBackground(int offX, int offY)
     {
-        GreenfootImage bg = getBackground();
-        bg.clear();
-        int tw = bgTile.getWidth();
-        int th = bgTile.getHeight();
-        for(int x = offX - tw; x < getWidth()  + tw; x += tw)
-        for(int y = offY - th; y < getHeight() + th; y += th)
-            bg.drawImage(bgTile, x, y);
+        if(aureaSolvine != null)
+        {
+            aureaSolvine.takeHit(damage);
+        }
+
+        if(leonClovis != null)
+        {
+            leonClovis.takeDamage(damage);
+        }
     }
 
    
@@ -231,14 +248,17 @@ public class GameWorld extends World
                  getWidth()/2, 58);
     }
 
-    private void drawBar(int x, int y, int w, int h,
-                         int cur, int max, Color fill, Color bg)
+    public void drawHUD()
     {
-        GreenfootImage c = getBackground();
-        c.setColor(bg);   c.fillRect(x, y, w, h);
-        int f = Math.max(0, Math.min(w, (int)((double)cur/max*w)));
-        c.setColor(fill); c.fillRect(x, y, f, h);
-        c.setColor(Color.WHITE); c.drawRect(x, y, w, h);
+        if(aureaSolvine != null)
+        {
+            aureaSolvine.displayStats();
+        }
+
+        if(leonClovis != null)
+        {
+            leonClovis.displayStats();
+        }
     }
 
     
@@ -254,6 +274,7 @@ public class GameWorld extends World
     public void spawnFireball()
     {
         fireballTimer++;
+
         if(fireballTimer >= SKILL_INTERVAL)
         {
             fireballTimer = 0;
@@ -265,7 +286,7 @@ public class GameWorld extends World
                     closest.worldX,      closest.worldY,
                     player.getDamage() + (fireballLevel-1) * 5
                 );
-                addObject(fb, screenCX, screenCY);
+                addObject(fireball, screenCX, screenCY);
             }
         }
     }
@@ -273,10 +294,12 @@ public class GameWorld extends World
     public void spawnLightning()
     {
         lightningTimer++;
+
         if(lightningTimer >= SKILL_INTERVAL)
         {
             lightningTimer = 0;
             Enemy closest = getClosestEnemy();
+
             if(closest != null)
             {
                 double ex = closest.worldX;
@@ -364,7 +387,6 @@ public class GameWorld extends World
             int sy = (int)(screenCY + (y - player.worldY));
             addObject(e, sx, sy);
         }
-    }
 
     
     public Enemy getClosestEnemy()
@@ -372,22 +394,26 @@ public class GameWorld extends World
         java.util.List<Enemy> enemies = getObjects(Enemy.class);
         if(enemies.isEmpty()) return null;
         Enemy closest = null;
-        double minD = Double.MAX_VALUE;
-        for(Enemy e : enemies)
+        double minDistance = Double.MAX_VALUE;
+        double px = getPlayerWorldX();
+        double py = getPlayerWorldY();
+
+        for(Enemy enemy : enemies)
         {
             double d = distanceBetween(
                 e.worldX, e.worldY,
                 player.worldX, player.worldY);
             if(d < minD) { minD = d; closest = e; }
         }
+
         return closest;
     }
 
-    public double distanceBetween(double x1, double y1,
-                                  double x2, double y2)
+    public double distanceBetween(double x1, double y1, double x2, double y2)
     {
-        double dx = x1-x2, dy = y1-y2;
-        return Math.sqrt(dx*dx + dy*dy);
+        double dx = x1 - x2;
+        double dy = y1 - y2;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     private Hero createHero(String type)
