@@ -2,82 +2,31 @@ import greenfoot.*;
 
 public class Enemy extends Actor
 {
-    private static final String HIT_SOUND = "Spider sounds.mp3";
-    private static final int BASE_SIZE = 40;
-    private static final int LEVEL_FIVE_SIZE = 60;
-    private static final int LEVEL_FIVE_HEALTH_MULTIPLIER = 4;
-    private static final int LEVEL_TEN_HEALTH_MULTIPLIER = 16;
-    private static final int STRONG_WAVE = 5;
-    private static final int STRONG_WAVE_SIZE = BASE_SIZE * 2;
-    private static final int STRONG_WAVE_HEALTH_MULTIPLIER = 2;
-    private static final int TOUCH_DAMAGE_RANGE = 45;
-
-    int speed = 2;
-    int damage = 5;
-
-    public int hp = 30;
-    public int maxHp = 30;
-
-    public int xpDrop = 3;
-    public int coinDrop = 2;
+    public int speed;
+    public int hp;
+    public int maxHp;
+    public int xpDrop;
+    public int coinDrop;
 
     public double worldX;
     public double worldY;
 
-    SimpleTimer damageTimer = new SimpleTimer();
+    int attackCooldown = 0;
+    static final int ATTACK_INTERVAL = 60;
+    public int attackDamage;
 
-    public Enemy(double worldX, double worldY)
+    public Enemy(double worldX, double worldY, int round)
     {
         this.worldX = worldX;
         this.worldY = worldY;
 
-        setBodySize(BASE_SIZE);
-    }
-
-    public void applyLevelScaling(int heroLevel)
-    {
-        if(heroLevel >= 10)
-        {
-            setHealth(30 * LEVEL_TEN_HEALTH_MULTIPLIER);
-            setBodySize(LEVEL_FIVE_SIZE);
-        }
-        else if(heroLevel >= 5)
-        {
-            setHealth(30 * LEVEL_FIVE_HEALTH_MULTIPLIER);
-            setBodySize(LEVEL_FIVE_SIZE);
-        }
-    }
-
-    public void applyWaveScaling(int waveNumber)
-    {
-        if(waveNumber >= STRONG_WAVE)
-        {
-            setHealth(maxHp * STRONG_WAVE_HEALTH_MULTIPLIER);
-            setBodySize(STRONG_WAVE_SIZE);
-        }
-    }
-
-    private void setHealth(int health)
-    {
-        maxHp = health;
-        hp = maxHp;
-    }
-
-    private void setBodySize(int size)
-    {
-        try
-        {
-            GreenfootImage image = new GreenfootImage("enemy.png");
-            image.scale(size, size);
-            setImage(image);
-        }
-        catch(Exception exception)
-        {
-            GreenfootImage image = new GreenfootImage(size, size);
-            image.setColor(Color.RED);
-            image.fillOval(0, 0, size, size);
-            setImage(image);
-        }
+        // Stats scale with round number
+        speed        = 2  + round / 5;
+        hp           = 30 + (round - 1) * 8;
+        maxHp        = hp;
+        attackDamage = 5  + (round - 1) * 2;
+        xpDrop       = 3  + round / 3;
+        coinDrop     = 2  + round / 5;
     }
 
     public void act()
@@ -99,9 +48,12 @@ public class Enemy extends Actor
 
     public void followPlayer()
     {
-        World currentWorld = getWorld();
-
-        if(currentWorld instanceof GameWorld)
+        if(getWorld() == null) return;
+        GameWorld gw = (GameWorld)getWorld();
+        double dx = gw.player.worldX - worldX;
+        double dy = gw.player.worldY - worldY;
+        double dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist > 0)
         {
             GameWorld world = (GameWorld)currentWorld;
 
@@ -142,52 +94,18 @@ public class Enemy extends Actor
         double targetX,
         double targetY)
     {
-        double dx = targetX - worldX;
-        double dy = targetY - worldY;
-
-        double distance =
-            Math.sqrt(dx * dx + dy * dy);
-
-        if(distance > 0)
+        if(getWorld() == null) return;
+        GameWorld gw = (GameWorld)getWorld();
+        Hero p = gw.player;
+        attackCooldown++;
+        if(attackCooldown >= ATTACK_INTERVAL)
         {
-            worldX += dx / distance * speed;
-            worldY += dy / distance * speed;
-        }
-    }
-
-    public void takeDamage(int damage)
-    {
-        Greenfoot.playSound(HIT_SOUND);
-        hp -= damage;
-
-        if(hp <= 0)
-        {
-            World currentWorld = getWorld();
-
-            if(currentWorld instanceof GameWorld)
+            double dx = p.worldX - worldX;
+            double dy = p.worldY - worldY;
+            if(Math.sqrt(dx*dx + dy*dy) < 30)
             {
-                GameWorld world =
-                    (GameWorld)currentWorld;
-
-                world.givePlayerReward(
-                    xpDrop,
-                    coinDrop
-                );
-            }
-            else if(currentWorld instanceof MyWorld)
-            {
-                MyWorld world = (MyWorld)currentWorld;
-                world.giveSelectedPlayerReward(xpDrop, coinDrop);
-            }
-
-            if(currentWorld != null)
-            {
-                currentWorld.removeObject(this);
-            }
-
-            if(getWorld() != null)
-            {
-                getWorld().removeObject(this);
+                p.takeHit(attackDamage);
+                attackCooldown = 0;
             }
         }
     }
@@ -269,5 +187,18 @@ public class Enemy extends Actor
             world.damageSelectedPlayer(damage);
             damageTimer.mark();
         }
+    }
+
+    public boolean takeDamage(int damage, Hero source)
+    {
+        boolean died = takeDamage(damage);
+        if(died && source != null)
+        {
+            source.gainXP(xpDrop);
+            source.gainCoin(coinDrop);
+            if(getWorld() != null)
+                getWorld().removeObject(this);
+        }
+        return died;
     }
 }
