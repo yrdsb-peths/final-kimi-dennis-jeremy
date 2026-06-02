@@ -2,6 +2,8 @@ import greenfoot.*;
 
 public class LeonClovis extends Actor
 {
+    private static final double GUN_DAMAGE_LEVEL_MULTIPLIER = 1.6;
+
     public int hp = 70;
     public int maxHp = 70;
     public int xp = 0;
@@ -31,26 +33,26 @@ public class LeonClovis extends Actor
     {
         for(int i = 0; i < leonRight.length; i++)
         {
-            leonRight[i] = new GreenfootImage("images/leon_move/leon" + i + ".png");
+            leonRight[i] = new GreenfootImage("Leon_move/leon" + i + ".png");
             leonRight[i].scale(50, 50);
         }
 
         for(int i = 0; i < leonLeft.length; i++)
         {
-            leonLeft[i] = new GreenfootImage("images/leon_move/leon" + i + ".png");
+            leonLeft[i] = new GreenfootImage("Leon_move/leon" + i + ".png");
             leonLeft[i].mirrorHorizontally();
             leonLeft[i].scale(50, 50);
         }
 
         for(int i = 0; i < leonFront.length; i++)
         {
-            leonFront[i] = new GreenfootImage("images/leon_move_front/leon" + i + ".png");
+            leonFront[i] = new GreenfootImage("Leon_move_front/leon" + i + ".png");
             leonFront[i].scale(50, 50);
         }
 
         for(int i = 0; i < leonBack.length; i++)
         {
-            leonBack[i] = new GreenfootImage("images/leon_move_back/leonBack" + i + ".png");
+            leonBack[i] = new GreenfootImage("Leon_move_back/leonBack" + i + ".png");
             leonBack[i].scale(50, 50);
         }
 
@@ -70,21 +72,45 @@ public class LeonClovis extends Actor
     {
         if(shootTimer.millisElapsed() > 500)
         {
-            GameWorld world = (GameWorld)getWorld();
+            World currentWorld = getWorld();
 
-            if(world == null)
+            if(currentWorld == null)
             {
                 return;
             }
 
-            Enemy target = world.getClosestEnemy();
-
-            if(target != null)
+            if(currentWorld instanceof GameWorld)
             {
-                Bullet bullet = new Bullet(worldX, worldY, target.worldX, target.worldY, gunDamage);
-                world.addObject(bullet, world.screenCX, world.screenCY);
-                shootTimer.mark();
+                shootInGameWorld((GameWorld)currentWorld);
             }
+            else if(currentWorld instanceof MyWorld)
+            {
+                shootInMyWorld((MyWorld)currentWorld);
+            }
+        }
+    }
+
+    private void shootInGameWorld(GameWorld world)
+    {
+        Enemy target = world.getClosestEnemy();
+
+        if(target != null)
+        {
+            Bullet bullet = new Bullet(worldX, worldY, target.worldX, target.worldY, gunDamage);
+            world.addObject(bullet, world.screenCX, world.screenCY);
+            shootTimer.mark();
+        }
+    }
+
+    private void shootInMyWorld(MyWorld world)
+    {
+        Enemy target = world.getClosestEnemy(getX(), getY());
+
+        if(target != null)
+        {
+            Bullet bullet = new Bullet(getX(), getY(), target.getX(), target.getY(), gunDamage);
+            world.addObject(bullet, getX(), getY());
+            shootTimer.mark();
         }
     }
 
@@ -122,7 +148,10 @@ public class LeonClovis extends Actor
         {
             level++;
             xp = 0;
-            gunDamage += 5;
+            if(level % 5 == 0)
+            {
+                gunDamage = (int)Math.round(gunDamage * GUN_DAMAGE_LEVEL_MULTIPLIER);
+            }
             maxHp += 10;
             hp = maxHp;
         }
@@ -164,6 +193,7 @@ public class LeonClovis extends Actor
         if(Greenfoot.isKeyDown("w"))
         {
             worldY -= speed;
+            moveInMyWorld(0, -speed);
             facing = "back";
             moving = true;
         }
@@ -171,6 +201,7 @@ public class LeonClovis extends Actor
         if(Greenfoot.isKeyDown("s"))
         {
             worldY += speed;
+            moveInMyWorld(0, speed);
             facing = "front";
             moving = true;
         }
@@ -178,6 +209,7 @@ public class LeonClovis extends Actor
         if(Greenfoot.isKeyDown("a"))
         {
             worldX -= speed;
+            moveInMyWorld(-speed, 0);
             facing = "left";
             moving = true;
         }
@@ -185,6 +217,7 @@ public class LeonClovis extends Actor
         if(Greenfoot.isKeyDown("d"))
         {
             worldX += speed;
+            moveInMyWorld(speed, 0);
             facing = "right";
             moving = true;
         }
@@ -209,6 +242,20 @@ public class LeonClovis extends Actor
             {
                 setImage(leonBack[0]);
             }
+        }
+    }
+
+    private void moveInMyWorld(int dx, int dy)
+    {
+        World world = getWorld();
+
+        if(world instanceof MyWorld)
+        {
+            int x = Math.max(25, Math.min(world.getWidth() - 25, getX() + dx));
+            int y = Math.max(25, Math.min(world.getHeight() - 80, getY() + dy));
+            setLocation(x, y);
+            worldX = x;
+            worldY = y;
         }
     }
 

@@ -2,12 +2,18 @@ import greenfoot.*;
 
 public class Enemy extends Actor
 {
+    private static final String HIT_SOUND = "Spider sounds.mp3";
     private static final int BASE_SIZE = 40;
     private static final int LEVEL_FIVE_SIZE = 60;
     private static final int LEVEL_FIVE_HEALTH_MULTIPLIER = 4;
     private static final int LEVEL_TEN_HEALTH_MULTIPLIER = 16;
+    private static final int STRONG_WAVE = 5;
+    private static final int STRONG_WAVE_SIZE = BASE_SIZE * 2;
+    private static final int STRONG_WAVE_HEALTH_MULTIPLIER = 2;
+    private static final int TOUCH_DAMAGE_RANGE = 45;
 
     int speed = 2;
+    int damage = 5;
 
     public int hp = 30;
     public int maxHp = 30;
@@ -39,6 +45,15 @@ public class Enemy extends Actor
         {
             setHealth(30 * LEVEL_FIVE_HEALTH_MULTIPLIER);
             setBodySize(LEVEL_FIVE_SIZE);
+        }
+    }
+
+    public void applyWaveScaling(int waveNumber)
+    {
+        if(waveNumber >= STRONG_WAVE)
+        {
+            setHealth(maxHp * STRONG_WAVE_HEALTH_MULTIPLIER);
+            setBodySize(STRONG_WAVE_SIZE);
         }
     }
 
@@ -107,12 +122,18 @@ public class Enemy extends Actor
                 ? world.leon
                 : world.kaine;
 
+            if(player == null)
+            {
+                player = world.aurea;
+            }
+
             if(player != null)
             {
                 moveToward(
                     player.getX(),
                     player.getY()
                 );
+                setLocation((int)worldX, (int)worldY);
             }
         }
     }
@@ -136,6 +157,7 @@ public class Enemy extends Actor
 
     public void takeDamage(int damage)
     {
+        Greenfoot.playSound(HIT_SOUND);
         hp -= damage;
 
         if(hp <= 0)
@@ -151,6 +173,16 @@ public class Enemy extends Actor
                     xpDrop,
                     coinDrop
                 );
+            }
+            else if(currentWorld instanceof MyWorld)
+            {
+                MyWorld world = (MyWorld)currentWorld;
+                world.giveSelectedPlayerReward(xpDrop, coinDrop);
+            }
+
+            if(currentWorld != null)
+            {
+                currentWorld.removeObject(this);
             }
 
             if(getWorld() != null)
@@ -198,7 +230,7 @@ public class Enemy extends Actor
         if(distance < 40
             && damageTimer.millisElapsed() > 1000)
         {
-            world.damagePlayer(5);
+            world.damagePlayer(damage);
             damageTimer.mark();
         }
     }
@@ -207,35 +239,34 @@ public class Enemy extends Actor
         MyWorld world)
     {
         if(world.leon != null
-            && getOneIntersectingObject(
-                LeonClovis.class) != null)
+            && isCloseTo(world.leon))
         {
-            damageLeon(world.leon);
+            damageSelectedPlayer(world);
         }
         else if(world.kaine != null
-            && getOneIntersectingObject(
-                KaineVelsarth.class) != null)
+            && isCloseTo(world.kaine))
         {
-            damageKaine(world.kaine);
+            damageSelectedPlayer(world);
+        }
+        else if(world.aurea != null && isCloseTo(world.aurea))
+        {
+            damageSelectedPlayer(world);
         }
     }
 
-    private void damageLeon(
-        LeonClovis leon)
+    private boolean isCloseTo(Actor actor)
     {
-        if(damageTimer.millisElapsed() > 1000)
-        {
-            leon.takeDamage(5);
-            damageTimer.mark();
-        }
+        int dx = getX() - actor.getX();
+        int dy = getY() - actor.getY();
+        return Math.sqrt(dx * dx + dy * dy) < TOUCH_DAMAGE_RANGE;
     }
 
-    private void damageKaine(
-        KaineVelsarth kaine)
+    private void damageSelectedPlayer(
+        MyWorld world)
     {
         if(damageTimer.millisElapsed() > 1000)
         {
-            kaine.takeDamage(5);
+            world.damageSelectedPlayer(damage);
             damageTimer.mark();
         }
     }

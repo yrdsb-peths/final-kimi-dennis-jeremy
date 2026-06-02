@@ -2,6 +2,8 @@ import greenfoot.*;
 
 public class AureaSolvine extends Actor
 {
+    private static final double SKILL_DAMAGE_LEVEL_MULTIPLIER = 1.6;
+
     public int hp = 70;
     public int maxHp = 70;
     public int xp = 0;
@@ -10,6 +12,7 @@ public class AureaSolvine extends Actor
     public int speed = 4;
     public int stamina = 3;
     public int power = 3;
+    public int skillDamage = 10;
     public int xpToNextLevel = 10;
 
     public double worldX = 0;
@@ -75,6 +78,7 @@ public class AureaSolvine extends Actor
         updateState();
         animate();
         checkDead();
+        displayStats();
     }
 
     private void setUpInventory()
@@ -109,6 +113,17 @@ public class AureaSolvine extends Actor
 
         worldX += moveX;
         worldY += moveY;
+
+        World world = getWorld();
+
+        if(world instanceof MyWorld)
+        {
+            int x = Math.max(25, Math.min(world.getWidth() - 25, getX() + (int)moveX));
+            int y = Math.max(25, Math.min(world.getHeight() - 80, getY() + (int)moveY));
+            setLocation(x, y);
+            worldX = x;
+            worldY = y;
+        }
     }
 
     public void takeHit(int damage)
@@ -232,17 +247,17 @@ public class AureaSolvine extends Actor
 
     public void gainXP(int amount)
     {
-        xp += amount;
+        xp += Math.max(0, amount);
     }
 
     public void gainCoin(int amount)
     {
-        coin += amount;
+        coin += Math.max(0, amount);
     }
 
     public void checkLevelUp()
     {
-        if(xp >= xpToNextLevel)
+        while(xp >= xpToNextLevel)
         {
             xp -= xpToNextLevel;
             level++;
@@ -250,6 +265,10 @@ public class AureaSolvine extends Actor
             speed += 1;
             stamina += 1;
             power += 1;
+            if(level % 5 == 0)
+            {
+                skillDamage = (int)Math.round(skillDamage * SKILL_DAMAGE_LEVEL_MULTIPLIER);
+            }
             maxHp += 10;
             hp = maxHp;
         }
@@ -257,7 +276,7 @@ public class AureaSolvine extends Actor
 
     public int getDamage()
     {
-        return 10 + (power - 3) * 5;
+        return skillDamage;
     }
 
     public String getInventoryText()
