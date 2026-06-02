@@ -1,8 +1,8 @@
 import greenfoot.*;
 
-public class FireSword extends Sword
+public class fireSword extends Sword
 {
-    public FireSword()
+    public fireSword()
     {
         super();
         swordType = 0;
