@@ -1,6 +1,6 @@
 import greenfoot.*;
 
-public class Lightning extends Actor
+public class Lightning extends Weapon
 {
     static GreenfootImage[] frames = new GreenfootImage[4];
 
@@ -9,25 +9,29 @@ public class Lightning extends Actor
         for(int i = 0; i < 4; i++)
         {
             frames[i] = new GreenfootImage("lightning/tile00" + i + ".png");
-
-            frames[i].scale(
-                frames[i].getWidth() / 3,
-                frames[i].getHeight() / 3
-            );
+            if(frames[i].getWidth() <= 0)
+            {
+                frames[i] = new GreenfootImage(24, 48);
+                frames[i].setColor(new Color(180, 220, 255));
+                frames[i].fillRect(8, 0, 8, 48);
+            }
+            else
+            {
+                frames[i].scale(
+                    Math.max(1, frames[i].getWidth() / 3),
+                    Math.max(1, frames[i].getHeight() / 3)
+                );
+            }
         }
     }
 
     int frame = 0;
     int timer = 0;
-
-    int damage;
     boolean hasHit = false;
-
-    public double worldX;
-    public double worldY;
 
     public Lightning(double worldX, double worldY, int damage)
     {
+        super();
         this.worldX = worldX;
         this.worldY = worldY;
         this.damage = damage;
@@ -35,6 +39,7 @@ public class Lightning extends Actor
         setImage(frames[0]);
     }
 
+    @Override
     public void act()
     {
         if(getWorld() == null) return;
@@ -42,14 +47,10 @@ public class Lightning extends Actor
         animate();
 
         if(getWorld() == null) return;
-
-        if(!hasHit)
-        {
-            hitEnemy();
-        }
+        if(!hasHit) checkHitEnemy(worldX, worldY, 30);
     }
 
-    public void animate()
+    private void animate()
     {
         timer++;
 
@@ -71,21 +72,17 @@ public class Lightning extends Actor
         }
     }
 
-    public void hitEnemy()
+    @Override
+    protected void onHitEnemy(Enemy e, double dx, double dy, double dist)
     {
-        if(getWorld() == null) return;
-
-        for(Enemy e : getWorld().getObjects(Enemy.class))
+        GameWorld gw = (GameWorld)getWorld();
+        boolean died = e.takeDamage(damage);
+        if(died)
         {
-            double dx = e.worldX - worldX;
-            double dy = e.worldY - worldY;
-
-            if(Math.sqrt(dx * dx + dy * dy) < 30)
-            {
-                e.takeDamage(damage);
-                hasHit = true;
-                return;
-            }
+            gw.player.gainXP(e.xpDrop);
+            gw.player.gainCoin(e.coinDrop);
+            if(e.getWorld() != null) gw.removeObject(e);
         }
+        hasHit = true;
     }
 }
