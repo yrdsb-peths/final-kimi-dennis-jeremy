@@ -162,8 +162,7 @@ public class MyWorld extends World
         addObject(aurea, CENTER_X, 300);
         playerChosen = true;
         clearTitleScreen();
-        showText(aurea.getStartingLoadoutText(), CENTER_X, 520);
-        needsStartingEnemies = true;
+        showText("Kaine selected — use TitleScreen (A/K/L) for full game", 300, 305);
     }
 
     public void spawnLeon()
