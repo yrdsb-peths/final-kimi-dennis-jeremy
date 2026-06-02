@@ -35,6 +35,7 @@ public class Lightning extends Weapon
         this.worldX = worldX;
         this.worldY = worldY;
         this.damage = damage;
+
         setImage(frames[0]);
     }
 
@@ -42,7 +43,9 @@ public class Lightning extends Weapon
     public void act()
     {
         if(getWorld() == null) return;
+
         animate();
+
         if(getWorld() == null) return;
         if(!hasHit) checkHitEnemy(worldX, worldY, 30);
     }
@@ -50,14 +53,21 @@ public class Lightning extends Weapon
     private void animate()
     {
         timer++;
+
         if(timer % 3 == 0)
         {
             frame++;
+
             if(frame >= frames.length)
             {
-                if(getWorld() != null) getWorld().removeObject(this);
+                if(getWorld() != null)
+                {
+                    getWorld().removeObject(this);
+                }
+
                 return;
             }
+
             setImage(frames[frame]);
         }
     }

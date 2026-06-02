@@ -31,8 +31,19 @@ public class Enemy extends Actor
 
     public void act()
     {
+        if(getWorld() == null)
+        {
+            return;
+        }
+
         followPlayer();
-        attackPlayer();
+
+        if(getWorld() == null)
+        {
+            return;
+        }
+
+        touchPlayer();
     }
 
     public void followPlayer()
@@ -44,12 +55,44 @@ public class Enemy extends Actor
         double dist = Math.sqrt(dx*dx + dy*dy);
         if(dist > 0)
         {
-            worldX += dx / dist * speed;
-            worldY += dy / dist * speed;
+            GameWorld world = (GameWorld)currentWorld;
+
+            moveToward(
+                world.getPlayerWorldX(),
+                world.getPlayerWorldY()
+            );
+
+            return;
+        }
+
+        if(currentWorld instanceof MyWorld)
+        {
+            MyWorld world = (MyWorld)currentWorld;
+
+            Actor player =
+                world.leon != null
+                ? world.leon
+                : world.kaine;
+
+            if(player == null)
+            {
+                player = world.aurea;
+            }
+
+            if(player != null)
+            {
+                moveToward(
+                    player.getX(),
+                    player.getY()
+                );
+                setLocation((int)worldX, (int)worldY);
+            }
         }
     }
 
-    public void attackPlayer()
+    private void moveToward(
+        double targetX,
+        double targetY)
     {
         if(getWorld() == null) return;
         GameWorld gw = (GameWorld)getWorld();
@@ -67,10 +110,83 @@ public class Enemy extends Actor
         }
     }
 
-    public boolean takeDamage(int damage)
+    public void touchPlayer()
     {
-        hp -= damage;
-        return hp <= 0;
+        World currentWorld = getWorld();
+
+        if(currentWorld instanceof GameWorld)
+        {
+            damageGameWorldPlayer(
+                (GameWorld)currentWorld
+            );
+
+            return;
+        }
+
+        if(currentWorld instanceof MyWorld)
+        {
+            damageSelectedPlayerOnTouch(
+                (MyWorld)currentWorld
+            );
+        }
+    }
+
+    private void damageGameWorldPlayer(
+        GameWorld world)
+    {
+        double dx =
+            world.getPlayerWorldX()
+            - worldX;
+
+        double dy =
+            world.getPlayerWorldY()
+            - worldY;
+
+        double distance =
+            Math.sqrt(dx * dx + dy * dy);
+
+        if(distance < 40
+            && damageTimer.millisElapsed() > 1000)
+        {
+            world.damagePlayer(damage);
+            damageTimer.mark();
+        }
+    }
+
+    private void damageSelectedPlayerOnTouch(
+        MyWorld world)
+    {
+        if(world.leon != null
+            && isCloseTo(world.leon))
+        {
+            damageSelectedPlayer(world);
+        }
+        else if(world.kaine != null
+            && isCloseTo(world.kaine))
+        {
+            damageSelectedPlayer(world);
+        }
+        else if(world.aurea != null && isCloseTo(world.aurea))
+        {
+            damageSelectedPlayer(world);
+        }
+    }
+
+    private boolean isCloseTo(Actor actor)
+    {
+        int dx = getX() - actor.getX();
+        int dy = getY() - actor.getY();
+        return Math.sqrt(dx * dx + dy * dy) < TOUCH_DAMAGE_RANGE;
+    }
+
+    private void damageSelectedPlayer(
+        MyWorld world)
+    {
+        if(damageTimer.millisElapsed() > 1000)
+        {
+            world.damageSelectedPlayer(damage);
+            damageTimer.mark();
+        }
     }
 
     public boolean takeDamage(int damage, Hero source)

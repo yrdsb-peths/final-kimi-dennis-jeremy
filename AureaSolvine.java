@@ -15,11 +15,13 @@ public class AureaSolvine extends Hero
             idleFrames[i] = new GreenfootImage("character/AureaSolvine/idle/tile" + num + ".png");
             runFrames[i]  = new GreenfootImage("character/AureaSolvine/run/tile"  + num + ".png");
         }
+
         for(int i = 0; i < 3; i++)
         {
             String num = String.format("%03d", i);
             hitFrames[i] = new GreenfootImage("character/AureaSolvine/hit/tile" + num + ".png");
         }
+
         for(int i = 0; i < 7; i++)
         {
             String num = String.format("%03d", i);
@@ -45,7 +47,10 @@ public class AureaSolvine extends Hero
         if(state == State.HIT)
         {
             hitTimer--;
-            if(hitTimer <= 0) setState(State.IDLE);
+            if(hitTimer <= 0)
+            {
+                setState(State.IDLE);
+            }
             return;
         }
         boolean moving = (moveX != 0 || moveY != 0);
@@ -55,10 +60,14 @@ public class AureaSolvine extends Hero
     private void animate()
     {
         animTimer++;
-        if(animTimer % ANIM_SPEED != 0) return;
+        if(animTimer % ANIM_SPEED != 0)
+        {
+            return;
+        }
 
         GreenfootImage[] frames = getCurrentFrames();
         animFrame++;
+
         if(animFrame >= frames.length)
             animFrame = (state == State.HIT) ? frames.length - 1 : 0;
 
@@ -82,10 +91,14 @@ public class AureaSolvine extends Hero
     {
         switch(state)
         {
-            case RUN:   return runFrames;
-            case HIT:   return hitFrames;
-            case DEATH: return deathFrames;
-            default:    return idleFrames;
+            case RUN:
+                return runFrames;
+            case HIT:
+                return hitFrames;
+            case DEATH:
+                return deathFrames;
+            default:
+                return idleFrames;
         }
     }
 }
