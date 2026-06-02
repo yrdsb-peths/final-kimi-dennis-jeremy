@@ -252,8 +252,8 @@ public class MyWorld extends World
 
     public void spawnEnemy()
     {
-        double x = Greenfoot.getRandomNumber(getWidth());
-        double maxSpawnY = BATTLE_TEXT_Y - ENEMY_BOTTOM_PADDING;
+        int x = Greenfoot.getRandomNumber(getWidth());
+        int maxSpawnY = BATTLE_TEXT_Y - ENEMY_BOTTOM_PADDING;
         int y = Greenfoot.getRandomNumber(maxSpawnY);
         Enemy enemy = new Enemy(x, y);
         enemy.applyLevelScaling(getCurrentHeroLevel());
