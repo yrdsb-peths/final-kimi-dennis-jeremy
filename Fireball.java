@@ -88,7 +88,9 @@ public class Fireball extends Weapon
     @Override
     protected void onHitEnemy(Enemy e, double dx, double dy, double dist)
     {
-        GameWorld gw = (GameWorld)getWorld();
+        if(!(getWorld() instanceof GameWorld)) return;
+
+        GameWorld gw = (GameWorld) getWorld();
         boolean died = e.takeDamage(damage);
         if(died)
         {
@@ -120,6 +122,6 @@ public class Fireball extends Weapon
         double dy = worldY - gw.player.worldY;
         if(Math.sqrt(dx*dx + dy*dy) > 1000)
             gw.removeObject(this);
-        }
     }
 }
+

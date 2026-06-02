@@ -3,13 +3,12 @@ import greenfoot.*;
 public class GameWorld extends World
 {
     public Hero player;
-    
+
     public int round;
-    static final int TOTAL_ROUNDS    = 30;
-    static final int ROUND_DURATION  = 60 * 60;
+    static final int TOTAL_ROUNDS   = 30;
+    static final int ROUND_DURATION = 60 * 60;
     int roundTimer = 0;
 
-    
     int fireballLevel;
     int lightningLevel;
     int iceWaveLevel;
@@ -33,13 +32,12 @@ public class GameWorld extends World
     int bgOffX = 0, bgOffY = 0;
     int screenCX, screenCY;
 
-    
     int pendingAttributePoints = 0;
     boolean gameOverHandled = false;
     boolean roundEndHandled = false;
 
     public String heroType = "aurea";
-    
+
     public GameWorld(String heroType)
     {
         this(70, 70, 0, 0,
@@ -53,35 +51,29 @@ public class GameWorld extends World
     }
 
     public GameWorld(
-    int hp, int maxHp, int xp, int coin,
-    int level, int speed, int stamina, int power,
-    int xpToNextLevel,
-    int round,
-    String heroType,
-    int fireballLevel, int lightningLevel, int iceWaveLevel,
-    int gunLevel, int swordLevel)
-    {
-        this("aurea");
-    }
-
-    public GameWorld(String character)
+        int hp, int maxHp, int xp, int coin,
+        int level, int speed, int stamina, int power,
+        int xpToNextLevel,
+        int round,
+        String heroType,
+        int fireballLevel, int lightningLevel, int iceWaveLevel,
+        int gunLevel, int swordLevel)
     {
         super(1500, 750, 1);
-
         screenCX = getWidth() / 2;
         screenCY = getHeight() / 2;
-    
-        this.round          = round;
-        this.heroType       = heroType;
-        HeroData.heroType   = heroType;
-        this.fireballLevel  = fireballLevel;
-        this.lightningLevel = lightningLevel;
-        this.iceWaveLevel   = iceWaveLevel;
-        this.gunLevel       = gunLevel;
-        this.swordLevel     = swordLevel;
-    
+
+        this.round           = round;
+        this.heroType        = heroType;
+        HeroData.heroType    = heroType;
+        this.fireballLevel   = fireballLevel;
+        this.lightningLevel  = lightningLevel;
+        this.iceWaveLevel    = iceWaveLevel;
+        this.gunLevel        = gunLevel;
+        this.swordLevel      = swordLevel;
+
         ENEMY_SPAWN_INTERVAL = Math.max(20, 60 - (round - 1) * 2);
-    
+
         bgTile = new GreenfootImage("background.png");
         if(bgTile.getWidth() <= 0)
         {
@@ -90,9 +82,9 @@ public class GameWorld extends World
             bgTile.fill();
         }
         drawBackground(0, 0);
-    
+
         player = createHero(heroType);
-    
+
         player.hp            = hp;
         player.maxHp         = maxHp;
         player.xp            = xp;
@@ -103,7 +95,7 @@ public class GameWorld extends World
         player.power         = power;
         player.xpToNextLevel = xpToNextLevel;
         addObject(player, screenCX, screenCY);
-    
+
         if(iceWaveLevel > 0)
         {
             IceWave iw = new IceWave();
@@ -111,7 +103,7 @@ public class GameWorld extends World
             iw.worldY = player.worldY;
             addObject(iw, screenCX, screenCY);
         }
-    
+
         if("kaine".equals(heroType) && swordLevel > 0)
         {
             KaineCompanionSword sword = new KaineCompanionSword();
@@ -124,7 +116,7 @@ public class GameWorld extends World
         roundTimer++;
 
         bgOffX = (int)((-player.worldX % bgTile.getWidth()
-                        + bgTile.getWidth())  % bgTile.getWidth());
+                        + bgTile.getWidth()) % bgTile.getWidth());
         bgOffY = (int)((-player.worldY % bgTile.getHeight()
                         + bgTile.getHeight()) % bgTile.getHeight());
         drawBackground(bgOffX, bgOffY);
@@ -172,7 +164,7 @@ public class GameWorld extends World
         double camX = player.worldX;
         double camY = player.worldY;
 
-        if(leonClovis != null)
+        for(Enemy e : getObjects(Enemy.class))
         {
             int sx = (int)(screenCX + (e.worldX - camX));
             int sy = (int)(screenCY + (e.worldY - camY));
@@ -181,57 +173,41 @@ public class GameWorld extends World
         }
         for(Fireball f : getObjects(Fireball.class))
         {
-            return leonClovis.worldY;
+            int sx = (int)(screenCX + (f.worldX - camX));
+            int sy = (int)(screenCY + (f.worldY - camY));
+            f.setLocation(sx, sy);
         }
         for(Lightning l : getObjects(Lightning.class))
         {
-            return aureaSolvine.getDamage();
+            int sx = (int)(screenCX + (l.worldX - camX));
+            int sy = (int)(screenCY + (l.worldY - camY));
+            l.setLocation(sx, sy);
         }
-
-        return leonClovis.gunDamage;
+        for(IceWave iw : getObjects(IceWave.class))
+        {
+            iw.setLocation(screenCX, screenCY);
+        }
     }
 
-    public int getCurrentPlayerLevel()
-    {
-        if(aureaSolvine != null)
-        {
-            return aureaSolvine.level;
-        }
-
-        if(leonClovis != null)
-        {
-            return leonClovis.level;
-        }
-
-        return 1;
-    }
-
-    
     private void drawBackground(int offX, int offY)
     {
-        if(aureaSolvine != null)
-        {
-            aureaSolvine.takeHit(damage);
-        }
-
-        if(leonClovis != null)
-        {
-            leonClovis.takeDamage(damage);
-        }
+        GreenfootImage bg = getBackground();
+        bg.clear();
+        int tw = bgTile.getWidth();
+        int th = bgTile.getHeight();
+        for(int x = offX - tw; x < getWidth() + tw; x += tw)
+            for(int y = offY - th; y < getHeight() + th; y += th)
+                bg.drawImage(bgTile, x, y);
     }
 
-   
     public void drawHUD()
     {
         Hero p = player;
-        GreenfootImage bg = getBackground();
 
-        
         drawBar(30, 30, 200, 18, p.hp, p.maxHp,
-            new Color(180,40,40), new Color(60,10,10));
-        
+            new Color(180, 40, 40), new Color(60, 10, 10));
         drawBar(30, 56, 200, 14, p.xp, p.xpToNextLevel,
-            new Color(50,120,220), new Color(15,40,80));
+            new Color(50, 120, 220), new Color(15, 40, 80));
 
         showText("HP  " + p.hp + " / " + p.maxHp, 240, 39);
         showText("XP  " + p.xp + " / " + p.xpToNextLevel
@@ -240,28 +216,24 @@ public class GameWorld extends World
         showText("Weapon: " + HeroData.signatureWeaponName(heroType)
                  + " Lv." + getSignatureWeaponLevel(), 80, 115);
 
-        
         int secondsLeft = (ROUND_DURATION - roundTimer) / 60;
-        showText("Round " + round + " / " + TOTAL_ROUNDS,
-                 getWidth()/2, 30);
-        showText(secondsLeft + " second left",
-                 getWidth()/2, 58);
+        showText("Round " + round + " / " + TOTAL_ROUNDS, getWidth() / 2, 30);
+        showText(secondsLeft + " second left", getWidth() / 2, 58);
     }
 
-    public void drawHUD()
+    private void drawBar(int x, int y, int w, int h,
+                         int cur, int max, Color fill, Color barBg)
     {
-        if(aureaSolvine != null)
-        {
-            aureaSolvine.displayStats();
-        }
-
-        if(leonClovis != null)
-        {
-            leonClovis.displayStats();
-        }
+        GreenfootImage c = getBackground();
+        c.setColor(barBg);
+        c.fillRect(x, y, w, h);
+        int f = Math.max(0, Math.min(w, (int)((double)cur / max * w)));
+        c.setColor(fill);
+        c.fillRect(x, y, f, h);
+        c.setColor(Color.WHITE);
+        c.drawRect(x, y, w, h);
     }
 
-    
     public void checkPlayerDead()
     {
         if(gameOverHandled || !player.isDead) return;
@@ -270,11 +242,9 @@ public class GameWorld extends World
         Greenfoot.setWorld(new TitleScreen());
     }
 
-    
     public void spawnFireball()
     {
         fireballTimer++;
-
         if(fireballTimer >= SKILL_INTERVAL)
         {
             fireballTimer = 0;
@@ -283,10 +253,10 @@ public class GameWorld extends World
             {
                 Fireball fb = new Fireball(
                     player.worldX, player.worldY,
-                    closest.worldX,      closest.worldY,
-                    player.getDamage() + (fireballLevel-1) * 5
+                    closest.worldX, closest.worldY,
+                    player.getDamage() + (fireballLevel - 1) * 5
                 );
-                addObject(fireball, screenCX, screenCY);
+                addObject(fb, screenCX, screenCY);
             }
         }
     }
@@ -294,12 +264,10 @@ public class GameWorld extends World
     public void spawnLightning()
     {
         lightningTimer++;
-
         if(lightningTimer >= SKILL_INTERVAL)
         {
             lightningTimer = 0;
             Enemy closest = getClosestEnemy();
-
             if(closest != null)
             {
                 double ex = closest.worldX;
@@ -307,7 +275,7 @@ public class GameWorld extends World
                 int sx = (int)(screenCX + (ex - player.worldX));
                 int sy = (int)(screenCY + (ey - player.worldY));
                 Lightning lt = new Lightning(ex, ey,
-                    player.getDamage() + (lightningLevel-1) * 5);
+                    player.getDamage() + (lightningLevel - 1) * 5);
                 addObject(lt, sx, sy);
             }
         }
@@ -322,7 +290,7 @@ public class GameWorld extends World
             Enemy closest = getClosestEnemy();
             if(closest == null || !(player instanceof LeonClovis)) return;
 
-            LeonClovis leon = (LeonClovis)player;
+            LeonClovis leon = (LeonClovis) player;
             leon.gunDamage = player.getDamage() + (gunLevel - 1) * 5;
             Bullet bullet = new Bullet(closest, leon, leon.gunDamage);
             addObject(bullet, screenCX, screenCY);
@@ -374,38 +342,39 @@ public class GameWorld extends World
             if(getObjects(Enemy.class).size() >= MAX_ENEMIES) return;
 
             double x, y;
-            do {
+            do
+            {
                 x = player.worldX + Greenfoot.getRandomNumber(1600) - 800;
-                y = player.worldY + Greenfoot.getRandomNumber(900)  - 450;
+                y = player.worldY + Greenfoot.getRandomNumber(900) - 450;
             }
-            while(distanceBetween(x, y,
-                      player.worldX, player.worldY)
+            while(distanceBetween(x, y, player.worldX, player.worldY)
                   < MIN_SPAWN_DISTANCE);
 
-            Enemy e = new Enemy(x, y, round); 
+            Enemy e = new Enemy(x, y, round);
             int sx = (int)(screenCX + (x - player.worldX));
             int sy = (int)(screenCY + (y - player.worldY));
             addObject(e, sx, sy);
         }
+    }
 
-    
     public Enemy getClosestEnemy()
     {
         java.util.List<Enemy> enemies = getObjects(Enemy.class);
         if(enemies.isEmpty()) return null;
-        Enemy closest = null;
-        double minDistance = Double.MAX_VALUE;
-        double px = getPlayerWorldX();
-        double py = getPlayerWorldY();
 
-        for(Enemy enemy : enemies)
+        Enemy closest = null;
+        double minD = Double.MAX_VALUE;
+        for(Enemy e : enemies)
         {
             double d = distanceBetween(
                 e.worldX, e.worldY,
                 player.worldX, player.worldY);
-            if(d < minD) { minD = d; closest = e; }
+            if(d < minD)
+            {
+                minD = d;
+                closest = e;
+            }
         }
-
         return closest;
     }
 
@@ -418,10 +387,8 @@ public class GameWorld extends World
 
     private Hero createHero(String type)
     {
-        if("leon".equals(type))
-            return new LeonClovis();
-        if("kaine".equals(type))
-            return new KaineVelsarth();
+        if("leon".equals(type)) return new LeonClovis();
+        if("kaine".equals(type)) return new KaineVelsarth();
         return new AureaSolvine();
     }
 }

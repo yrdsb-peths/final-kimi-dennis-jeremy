@@ -24,8 +24,6 @@ public class LeonClovis extends Hero
             leonBackFrames[i]  = new GreenfootImage("character/Leon_move_back/leonBack" + i + ".png");
             leonBackFrames[i].scale(50, 50);
         }
-
-        setImage(leonRight[0]);
     }
 
     boolean facingBack = false;

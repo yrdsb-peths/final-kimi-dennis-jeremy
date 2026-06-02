@@ -24,9 +24,8 @@ public class startPage extends World
     
     public void act()
     {
-        if(Greenfoot.isKeyDown("space"))
-        {
+        String key = Greenfoot.getKey();
+        if(key != null && (key.equalsIgnoreCase("space") || key.equals(" ")))
             Greenfoot.setWorld(new TitleScreen());
-        }
     }
 }
