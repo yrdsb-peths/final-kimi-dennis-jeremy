@@ -5,7 +5,6 @@ public class TitleScreen extends World
     public TitleScreen()
     {
         super(1500, 750, 1);
-
         addObject(new Label("CHOOSE YOUR HERO", 80), 750, 120);
 
         addObject(new Label("AUREA SOLVINE", 50), 350, 300);
@@ -37,7 +36,7 @@ public class TitleScreen extends World
         }
         else if(key.equalsIgnoreCase("k"))
         {
-            Greenfoot.setWorld(new MyWorld("kaine"));
+            Greenfoot.setWorld(new MyWorld());
         }
     }
 }
