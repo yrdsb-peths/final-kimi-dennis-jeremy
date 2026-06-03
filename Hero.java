@@ -42,6 +42,16 @@ public abstract class Hero extends Actor
 
     public void act()
     {
+        if(getWorld() instanceof GameWorld)
+        {
+            return;
+        }
+
+        updateHero();
+    }
+
+    public void updateHero()
+    {
         if(isDead)
         {
             onDeathAnimation();
@@ -49,6 +59,7 @@ public abstract class Hero extends Actor
         }
 
         readInput();
+        updateHitRecovery();
         checkLevelUp();
         updateAnimation();
         checkDead();
@@ -95,6 +106,19 @@ public abstract class Hero extends Actor
             state     = newState;
             animFrame = 0;
             animTimer = 0;
+        }
+    }
+
+    private void updateHitRecovery()
+    {
+        if(state == State.HIT)
+        {
+            hitTimer--;
+
+            if(hitTimer <= 0)
+            {
+                setState(State.IDLE);
+            }
         }
     }
 

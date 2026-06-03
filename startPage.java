@@ -19,6 +19,9 @@ public class startPage extends World
         super(1500, 750, 1); 
         GreenfootImage bg = new GreenfootImage("startpage.png");
         bg.scale(1500,750);
+        bg.setColor(Color.WHITE);
+        bg.setFont(new Font("Arial", true, false, 22));
+        bg.drawString("(Except for Kaine)", 145, 265);
         setBackground(bg);
     }
     

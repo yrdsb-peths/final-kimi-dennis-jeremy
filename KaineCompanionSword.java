@@ -2,6 +2,10 @@ import greenfoot.*;
 
 public class KaineCompanionSword extends Actor
 {
+    private static final String FIRE_SWORD_SOUND = "fire-sword.wav";
+    private static final String FUTURISTIC_SWORD_SOUND = "ufo-sword.wav";
+    private static final String LIGHTNING_SWORD_SOUND = "lightning-sword.wav";
+
     public double worldOffX = 22; // Offset from player
     public double worldOffY = -6;
 
@@ -24,8 +28,8 @@ public class KaineCompanionSword extends Actor
 
         // Follow player on screen
         GameWorld gw = (GameWorld)getWorld();
-        int px = gw.screenCX;
-        int py = gw.screenCY;
+        int px = gw.player.getX();
+        int py = gw.player.getY();
         setLocation(px + (int)worldOffX, py + (int)worldOffY);
     }
 
@@ -70,9 +74,25 @@ public class KaineCompanionSword extends Actor
         }
         if(img.getWidth() > 0)
         {
-            img.scale(rightMode ? 40 : 20, 40);
+            img.scale(rightMode ? 80 : 40, 80);
             if(!rightMode && index == 0) img.rotate(45);
             setImage(img);
+        }
+    }
+
+    public void playActiveSwordSound()
+    {
+        if(activeSwordIndex == 0)
+        {
+            Greenfoot.playSound(FIRE_SWORD_SOUND);
+        }
+        else if(activeSwordIndex == 1)
+        {
+            Greenfoot.playSound(FUTURISTIC_SWORD_SOUND);
+        }
+        else
+        {
+            Greenfoot.playSound(LIGHTNING_SWORD_SOUND);
         }
     }
 }
