@@ -28,8 +28,8 @@ public class KaineCompanionSword extends Actor
 
         // Follow player on screen
         GameWorld gw = (GameWorld)getWorld();
-        int px = gw.screenCX;
-        int py = gw.screenCY;
+        int px = gw.player.getX();
+        int py = gw.player.getY();
         setLocation(px + (int)worldOffX, py + (int)worldOffY);
     }
 

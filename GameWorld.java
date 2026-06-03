@@ -92,6 +92,8 @@ public class GameWorld extends World
         player.power = power;
         player.xpToNextLevel = xpToNextLevel;
         addObject(player, screenCX, screenCY);
+        player.worldX = screenCX;
+        player.worldY = screenCY;
 
         if(iceWaveLevel > 0)
         {
@@ -112,10 +114,9 @@ public class GameWorld extends World
     {
         roundTimer++;
         player.updateHero();
+        keepPlayerOnScreen();
 
-        bgOffX = (int)((-player.worldX % bgTile.getWidth() + bgTile.getWidth()) % bgTile.getWidth());
-        bgOffY = (int)((-player.worldY % bgTile.getHeight() + bgTile.getHeight()) % bgTile.getHeight());
-        drawBackground(bgOffX, bgOffY);
+        drawBackground(0, 0);
 
         spawnEnemy();
         updateEnemies();
@@ -192,25 +193,25 @@ public class GameWorld extends World
 
     private void updateScreenPositions()
     {
-        double camX = player.worldX;
-        double camY = player.worldY;
-
-        player.setLocation(screenCX, screenCY);
+        player.setLocation((int)player.worldX, (int)player.worldY);
 
         for(Enemy enemy : getObjects(Enemy.class))
         {
-            int screenX = (int)(screenCX + (enemy.worldX - camX));
-            int screenY = (int)(screenCY + (enemy.worldY - camY));
-            enemy.setLocation(screenX, screenY);
-            enemy.turnTowards(screenCX, screenCY);
+            enemy.setLocation((int)enemy.worldX, (int)enemy.worldY);
+            enemy.turnTowards(player.getX(), player.getY());
         }
 
         for(Weapon weapon : getObjects(Weapon.class))
         {
-            int screenX = (int)(screenCX + (weapon.worldX - camX));
-            int screenY = (int)(screenCY + (weapon.worldY - camY));
-            weapon.setLocation(screenX, screenY);
+            weapon.setLocation((int)weapon.worldX, (int)weapon.worldY);
         }
+    }
+
+    private void keepPlayerOnScreen()
+    {
+        player.worldX = Math.max(36, Math.min(getWidth() - 36, player.worldX));
+        player.worldY = Math.max(36, Math.min(getHeight() - 36, player.worldY));
+        player.setLocation((int)player.worldX, (int)player.worldY);
     }
 
     private void updateEnemies()
@@ -320,7 +321,7 @@ public class GameWorld extends World
                     closest.worldX, closest.worldY,
                     player.getDamage() + (fireballLevel - 1) * 5
                 );
-                addObject(fireball, screenCX, screenCY);
+                addObject(fireball, player.getX(), player.getY());
             }
         }
     }
@@ -336,14 +337,12 @@ public class GameWorld extends World
 
             if(closest != null)
             {
-                int screenX = (int)(screenCX + (closest.worldX - player.worldX));
-                int screenY = (int)(screenCY + (closest.worldY - player.worldY));
                 Lightning lightning = new Lightning(
                     closest.worldX,
                     closest.worldY,
                     player.getDamage() + (lightningLevel - 1) * 5
                 );
-                addObject(lightning, screenX, screenY);
+                addObject(lightning, (int)closest.worldX, (int)closest.worldY);
             }
         }
     }
@@ -365,7 +364,7 @@ public class GameWorld extends World
             LeonClovis leon = (LeonClovis)player;
             leon.gunDamage = player.getDamage() + (gunLevel - 1) * 5;
             Bullet bullet = new Bullet(closest, leon, leon.gunDamage);
-            addObject(bullet, screenCX, screenCY);
+            addObject(bullet, player.getX(), player.getY());
         }
     }
 
@@ -453,15 +452,13 @@ public class GameWorld extends World
 
         do
         {
-            x = player.worldX + Greenfoot.getRandomNumber(1600) - 800;
-            y = player.worldY + Greenfoot.getRandomNumber(900) - 450;
+            x = Greenfoot.getRandomNumber(getWidth());
+            y = Greenfoot.getRandomNumber(getHeight());
         }
         while(distanceBetween(x, y, player.worldX, player.worldY) < MIN_SPAWN_DISTANCE);
 
         Enemy enemy = new Enemy(x, y, round);
-        int screenX = (int)(screenCX + (x - player.worldX));
-        int screenY = (int)(screenCY + (y - player.worldY));
-        addObject(enemy, screenX, screenY);
+        addObject(enemy, (int)x, (int)y);
     }
 
     public Enemy getClosestEnemy()
