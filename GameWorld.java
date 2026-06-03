@@ -119,6 +119,12 @@ public class GameWorld extends World
         drawBackground(0, 0);
 
         spawnEnemy();
+
+        if(swordLevel > 0)
+        {
+            spawnSwordMelee();
+        }
+
         updateEnemies();
 
         if(fireballLevel > 0)
@@ -134,11 +140,6 @@ public class GameWorld extends World
         if(gunLevel > 0)
         {
             spawnGun();
-        }
-
-        if(swordLevel > 0)
-        {
-            spawnSwordMelee();
         }
 
         updateScreenPositions();
@@ -378,7 +379,6 @@ public class GameWorld extends World
         }
 
         swordTimer = 0;
-        int damage = player.getDamage() + (swordLevel - 1) * 5;
         List<Enemy> enemies = new ArrayList<Enemy>(getObjects(Enemy.class));
         List<Enemy> defeated = new ArrayList<Enemy>();
         boolean hitAnyEnemy = false;
@@ -394,10 +394,11 @@ public class GameWorld extends World
             swordHitEnemies.add(enemy);
             hitAnyEnemy = true;
 
-            if(enemy.takeDamage(damage))
+            if(enemy.takeDamage(enemy.hp))
             {
                 player.gainXP(enemy.xpDrop);
                 player.gainCoin(enemy.coinDrop);
+                player.checkLevelUp();
                 defeated.add(enemy);
             }
         }
