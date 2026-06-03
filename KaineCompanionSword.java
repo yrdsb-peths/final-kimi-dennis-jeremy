@@ -2,9 +2,9 @@ import greenfoot.*;
 
 public class KaineCompanionSword extends Actor
 {
-    private static final String FIRE_SWORD_SOUND = "fire sword sound effect.mp3";
-    private static final String FUTURISTIC_SWORD_SOUND = "Ufo sound.mp3";
-    private static final String LIGHTNING_SWORD_SOUND = "lightning sound.mp3";
+    private static final String FIRE_SWORD_SOUND = "fire-sword.wav";
+    private static final String FUTURISTIC_SWORD_SOUND = "ufo-sword.wav";
+    private static final String LIGHTNING_SWORD_SOUND = "lightning-sword.wav";
 
     public double worldOffX = 22; // Offset from player
     public double worldOffY = -6;

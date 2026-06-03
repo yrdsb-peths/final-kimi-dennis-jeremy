@@ -2,7 +2,7 @@ import greenfoot.*;
 
 public class Enemy extends Actor
 {
-    private static final String HIT_SOUND = "Spider sounds.mp3";
+    private static final String HIT_SOUND = "spider-hit.wav";
     private static final int BASE_SIZE = 40;
     private static final int LEVEL_FIVE_SIZE = 60;
     private static final int LEVEL_FIVE_HEALTH_MULTIPLIER = 4;
