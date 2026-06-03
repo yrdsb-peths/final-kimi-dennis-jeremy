@@ -117,8 +117,8 @@ public class GameWorld extends World
         bgOffY = (int)((-player.worldY % bgTile.getHeight() + bgTile.getHeight()) % bgTile.getHeight());
         drawBackground(bgOffX, bgOffY);
 
-        updateScreenPositions();
         spawnEnemy();
+        updateEnemies();
 
         if(fireballLevel > 0)
         {
@@ -140,6 +140,7 @@ public class GameWorld extends World
             spawnSwordMelee();
         }
 
+        updateScreenPositions();
         checkPlayerDead();
         checkRoundEnd();
         drawHUD();
@@ -209,6 +210,19 @@ public class GameWorld extends World
             int screenX = (int)(screenCX + (weapon.worldX - camX));
             int screenY = (int)(screenCY + (weapon.worldY - camY));
             weapon.setLocation(screenX, screenY);
+        }
+    }
+
+    private void updateEnemies()
+    {
+        List<Enemy> enemies = new ArrayList<Enemy>(getObjects(Enemy.class));
+
+        for(Enemy enemy : enemies)
+        {
+            if(enemy.getWorld() != null)
+            {
+                enemy.updateForGameWorld(this);
+            }
         }
     }
 

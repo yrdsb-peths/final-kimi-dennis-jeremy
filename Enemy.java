@@ -91,12 +91,23 @@ public class Enemy extends Actor
             return;
         }
 
+        if(getWorld() instanceof GameWorld)
+        {
+            return;
+        }
+
         followPlayer();
 
         if(getWorld() != null)
         {
             touchPlayer();
         }
+    }
+
+    public void updateForGameWorld(GameWorld world)
+    {
+        moveToward(world.getPlayerWorldX(), world.getPlayerWorldY());
+        damageGameWorldPlayer(world);
     }
 
     private void followPlayer()
