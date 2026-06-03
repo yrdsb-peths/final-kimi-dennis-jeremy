@@ -134,8 +134,13 @@ editor.fx.0.height=1033
 editor.fx.0.width=1721
 editor.fx.0.x=-7
 editor.fx.0.y=-7
+<<<<<<< Updated upstream
 height=926
 package.numDependencies=42
+=======
+height=1033
+package.numDependencies=44
+>>>>>>> Stashed changes
 package.numTargets=25
 project.charset=UTF-8
 publish.hasSource=false
