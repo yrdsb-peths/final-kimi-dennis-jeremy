@@ -118,7 +118,7 @@ public class Fireball extends Weapon
         GameWorld gw = (GameWorld)getWorld();
         double dx = worldX - gw.player.worldX;
         double dy = worldY - gw.player.worldY;
-        if(Math.sqrt(dx*dx + dy*dy) > 1000)
+        if(Math.sqrt(dx*dx + dy*dy) > 1000){
             gw.removeObject(this);
         }
     }

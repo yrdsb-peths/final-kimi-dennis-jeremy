@@ -1,13 +1,13 @@
 #BlueJ class context
 comment0.target=Bullet
-comment1.params=startX\ startY\ targetX\ targetY\ damage
-comment1.target=Bullet(double,\ double,\ double,\ double,\ int)
+comment1.params=enemy\ shooter\ damage
+comment1.target=Bullet(Enemy,\ Hero,\ int)
 comment2.params=
 comment2.target=void\ act()
 comment3.params=
-comment3.target=void\ moveBullet()
-comment4.params=world
-comment4.target=boolean\ isOutsideWorld(greenfoot.World)
+comment3.target=void\ followEnemy()
+comment4.params=
+comment4.target=void\ hitEnemy()
 comment5.params=
-comment5.target=void\ hitEnemy()
+comment5.target=void\ removeAtEdge()
 numComments=6
