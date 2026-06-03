@@ -2,8 +2,6 @@
 comment0.target=futuristicSword
 comment1.params=
 comment1.target=futuristicSword()
-comment2.params=swordRightMode
-comment2.target=futuristicSword(boolean)
-comment3.params=
-comment3.target=void\ act()
-numComments=4
+comment2.params=rightMode
+comment2.target=greenfoot.GreenfootImage\ getSwordImage(boolean)
+numComments=3

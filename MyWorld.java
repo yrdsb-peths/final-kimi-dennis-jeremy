@@ -145,7 +145,7 @@ public class MyWorld extends World
         addObject(kaine, CENTER_X, 300);
         playerChosen = true;
         clearTitleScreen();
-        showText(kaine.getStartingLoadoutText(), CENTER_X, 520);
+        showText("Kaine - Sword master. Space to switch, Tab to flip sword.", CENTER_X, 520);
         needsStartingEnemies = true;
     }
 
@@ -155,7 +155,8 @@ public class MyWorld extends World
         addObject(aurea, CENTER_X, 300);
         playerChosen = true;
         clearTitleScreen();
-        showText("Kaine selected — use TitleScreen (A/K/L) for full game", 300, 305);
+        showText("Aurea - Lightning mage. Use WASD to move.", CENTER_X, 520);
+        needsStartingEnemies = true;
     }
 
     public void spawnLeon()
@@ -164,9 +165,7 @@ public class MyWorld extends World
         addObject(leon, CENTER_X, 300);
         playerChosen = true;
         clearTitleScreen();
-        showText("Leon starts with ranged attacks.", CENTER_X, 520);
-        showText("", CENTER_X, 545);
-        showText("", CENTER_X, 570);
+        showText("Leon - Gunslinger. Use WASD to move.", CENTER_X, 520);
         needsStartingEnemies = true;
     }
 
@@ -187,7 +186,6 @@ public class MyWorld extends World
                 spawnEnemyInWave();
                 enemySpawnTimer.mark();
             }
-
             return;
         }
 
@@ -255,22 +253,19 @@ public class MyWorld extends World
         int x = Greenfoot.getRandomNumber(getWidth());
         int maxSpawnY = BATTLE_TEXT_Y - ENEMY_BOTTOM_PADDING;
         int y = Greenfoot.getRandomNumber(maxSpawnY);
-        Enemy enemy = new Enemy(x, y);
-        enemy.applyLevelScaling(getCurrentHeroLevel());
-        enemy.applyWaveScaling(waveNumber);
+        Enemy enemy = new Enemy(x, y, waveNumber);
         addObject(enemy, x, y);
     }
 
+    // ── Aurea 的火球技能 ──────────────────────────────────
     private void spawnAureaSkill()
     {
-        if(aurea == null || aureaSkillTimer.millisElapsed() <= 900)
-        {
-            return;
-        }
+        if(aurea == null) return;
+        if(aureaSkillTimer.millisElapsed() <= 900) return;
 
         Enemy closest = getClosestEnemy(aurea.getX(), aurea.getY());
 
-        if(closest != null && aurea.hasEquippedFireball())
+        if(closest != null)
         {
             Fireball fireball = new Fireball(
                 aurea.getX(),
@@ -321,7 +316,7 @@ public class MyWorld extends World
 
         if(kaine != null)
         {
-            kaine.gainXp(xp);
+            kaine.gainXP(xp);
             kaine.gainCoin(coin);
         }
 
@@ -334,17 +329,17 @@ public class MyWorld extends World
 
     public void damageSelectedPlayer(int damage)
     {
-        if(leon != null)
+        if(leon != null && leon.getWorld() != null)
         {
-            leon.takeDamage(damage);
+            leon.takeHit(damage);
         }
 
-        if(kaine != null)
+        if(kaine != null && kaine.getWorld() != null)
         {
-            kaine.takeDamage(damage);
+            kaine.takeHit(damage);
         }
 
-        if(aurea != null)
+        if(aurea != null && aurea.getWorld() != null)
         {
             aurea.takeHit(damage);
         }
@@ -359,17 +354,17 @@ public class MyWorld extends World
 
     private int getCurrentHeroLevel()
     {
-        if(leon != null)
+        if(leon != null && leon.getWorld() != null)
         {
             return leon.level;
         }
 
-        if(kaine != null)
+        if(kaine != null && kaine.getWorld() != null)
         {
             return kaine.level;
         }
 
-        if(aurea != null)
+        if(aurea != null && aurea.getWorld() != null)
         {
             return aurea.level;
         }
