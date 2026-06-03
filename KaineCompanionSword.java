@@ -74,7 +74,7 @@ public class KaineCompanionSword extends Actor
         }
         if(img.getWidth() > 0)
         {
-            img.scale(rightMode ? 40 : 20, 40);
+            img.scale(rightMode ? 80 : 40, 80);
             if(!rightMode && index == 0) img.rotate(45);
             setImage(img);
         }
