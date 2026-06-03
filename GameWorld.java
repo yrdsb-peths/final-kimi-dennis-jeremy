@@ -111,6 +111,7 @@ public class GameWorld extends World
     public void act()
     {
         roundTimer++;
+        player.updateHero();
 
         bgOffX = (int)((-player.worldX % bgTile.getWidth() + bgTile.getWidth()) % bgTile.getWidth());
         bgOffY = (int)((-player.worldY % bgTile.getHeight() + bgTile.getHeight()) % bgTile.getHeight());

@@ -48,13 +48,6 @@ public class AureaSolvine extends Hero
     {
         if(state == State.HIT)
         {
-            hitTimer--;
-
-            if(hitTimer <= 0)
-            {
-                setState(State.IDLE);
-            }
-
             return;
         }
 
