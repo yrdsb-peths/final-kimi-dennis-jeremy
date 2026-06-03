@@ -8,4 +8,6 @@ comment3.params=
 comment3.target=void\ handleInput()
 comment4.params=index\ rightMode
 comment4.target=void\ loadSwordImage(int,\ boolean)
-numComments=5
+comment5.params=
+comment5.target=void\ playActiveSwordSound()
+numComments=6
