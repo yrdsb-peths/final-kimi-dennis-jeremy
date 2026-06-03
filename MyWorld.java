@@ -9,20 +9,19 @@ public class MyWorld extends World
     private static final int NEXT_WAVE_DELAY = 2000;
     private static final int MAX_ENEMIES_ON_SCREEN = 5;
     private static final int WAVE_SIZE_MULTIPLIER = 4;
-    private static final int SHOP_UPGRADE_COST = 10;
-    private static final int SHOP_DAMAGE_BONUS = 5;
     private static final String BACKGROUND_IMAGE = "background.png";
 
     private boolean playerChosen = false;
     private final SimpleTimer enemySpawnTimer = new SimpleTimer();
     private final SimpleTimer nextWaveTimer = new SimpleTimer();
     private final SimpleTimer aureaSkillTimer = new SimpleTimer();
+
     private int waveNumber = 1;
     private int enemiesThisWave = 1;
     private int enemiesSpawnedThisWave = 0;
+
     private boolean waitingForNextWave = false;
     private boolean needsStartingEnemies = false;
-    private final SimpleTimer shopTimer = new SimpleTimer();
 
     public LeonClovis leon;
     public KaineVelsarth kaine;
@@ -56,9 +55,7 @@ public class MyWorld extends World
 
             spawnEnemies();
             spawnAureaSkill();
-            handleShop();
             updateWaveText();
-            updateShopText();
         }
     }
 
@@ -66,10 +63,7 @@ public class MyWorld extends World
     {
         String key = Greenfoot.getKey();
 
-        if(key == null)
-        {
-            return;
-        }
+        if(key == null) return;
 
         choosePlayer(key);
     }
@@ -95,11 +89,11 @@ public class MyWorld extends World
         drawWorldBackground();
 
         GreenfootImage titleImage = new GreenfootImage(
-            "Spider Skill Battles",
-            42,
-            new Color(20, 20, 20),
-            new Color(245, 245, 245)
-        );
+                "Spider Skill Battles",
+                42,
+                new Color(20, 20, 20),
+                new Color(245, 245, 245)
+            );
 
         getBackground().drawImage(
             titleImage,
@@ -123,8 +117,6 @@ public class MyWorld extends World
         showText("", CENTER_X, 520);
         showText("", CENTER_X, 545);
         showText("", CENTER_X, 570);
-        showText("", 600, 25);
-        showText("", 600, 55);
     }
 
     private void drawWorldBackground()
@@ -136,7 +128,7 @@ public class MyWorld extends World
             background = new GreenfootImage(BACKGROUND_IMAGE);
             background.scale(getWidth(), getHeight());
         }
-        catch(IllegalArgumentException exception)
+        catch(IllegalArgumentException e)
         {
             background = new GreenfootImage(getWidth(), getHeight());
             background.setColor(new Color(245, 245, 245));
@@ -150,9 +142,23 @@ public class MyWorld extends World
     {
         kaine = new KaineVelsarth();
         addObject(kaine, CENTER_X, 300);
+
         playerChosen = true;
         clearTitleScreen();
-        showText(kaine.getStartingLoadoutText(), CENTER_X, 520);
+
+        showText("Kaine starts with sword attacks.", CENTER_X, 520);
+        needsStartingEnemies = true;
+    }
+
+    public void spawnLeon()
+    {
+        leon = new LeonClovis();
+        addObject(leon, CENTER_X, 300);
+
+        playerChosen = true;
+        clearTitleScreen();
+
+        showText("Leon starts with ranged attacks.", CENTER_X, 520);
         needsStartingEnemies = true;
     }
 
@@ -160,20 +166,11 @@ public class MyWorld extends World
     {
         aurea = new AureaSolvine();
         addObject(aurea, CENTER_X, 300);
-        playerChosen = true;
-        clearTitleScreen();
-        showText("Kaine selected — use TitleScreen (A/K/L) for full game", 300, 305);
-    }
 
-    public void spawnLeon()
-    {
-        leon = new LeonClovis();
-        addObject(leon, CENTER_X, 300);
         playerChosen = true;
         clearTitleScreen();
-        showText("Leon starts with ranged attacks.", CENTER_X, 520);
-        showText("", CENTER_X, 545);
-        showText("", CENTER_X, 570);
+
+        showText("Aurea starts with magic attacks.", CENTER_X, 520);
         needsStartingEnemies = true;
     }
 
@@ -199,18 +196,20 @@ public class MyWorld extends World
         }
 
         if(enemiesSpawnedThisWave < enemiesThisWave
-            && getObjects(Enemy.class).size() < MAX_ENEMIES_ON_SCREEN
-            && enemySpawnTimer.millisElapsed() > ENEMY_SPAWN_DELAY)
+        && getObjects(Enemy.class).size() < MAX_ENEMIES_ON_SCREEN
+        && enemySpawnTimer.millisElapsed() > ENEMY_SPAWN_DELAY)
         {
             spawnEnemyInWave();
             enemySpawnTimer.mark();
         }
 
-        if(enemiesSpawnedThisWave >= enemiesThisWave && getObjects(Enemy.class).isEmpty())
+        if(enemiesSpawnedThisWave >= enemiesThisWave
+        && getObjects(Enemy.class).isEmpty())
         {
             waveNumber++;
             waitingForNextWave = true;
             nextWaveTimer.mark();
+
             showText("Wave " + waveNumber + " starts soon", CENTER_X, 545);
             showText("Enemies left: 0 / " + enemiesThisWave, CENTER_X, 570);
         }
@@ -221,6 +220,7 @@ public class MyWorld extends World
         enemiesThisWave = getEnemiesForWave();
         enemiesSpawnedThisWave = 0;
         waitingForNextWave = false;
+
         updateWaveText();
         enemySpawnTimer.mark();
     }
@@ -237,69 +237,14 @@ public class MyWorld extends World
         updateWaveText();
     }
 
-    private void updateWaveText()
-    {
-        if(waitingForNextWave)
-        {
-            showText("Wave " + waveNumber + " starts soon", CENTER_X, 545);
-            showText("Enemies left: 0 / " + enemiesThisWave, CENTER_X, 570);
-            return;
-        }
-
-        showText("Wave " + waveNumber, CENTER_X, 545);
-        showText("Enemies left: " + getEnemiesLeftInWave() + " / " + enemiesThisWave, CENTER_X, 570);
-    }
-
-    private void handleShop()
-    {
-        if(!Greenfoot.isKeyDown("u") || shopTimer.millisElapsed() <= 300)
-        {
-            return;
-        }
-
-        if(leon != null && leon.coin >= SHOP_UPGRADE_COST)
-        {
-            leon.coin -= SHOP_UPGRADE_COST;
-            leon.gunDamage += SHOP_DAMAGE_BONUS;
-            shopTimer.mark();
-        }
-
-        if(kaine != null && kaine.coin >= SHOP_UPGRADE_COST)
-        {
-            kaine.coin -= SHOP_UPGRADE_COST;
-            kaine.swordDamage += SHOP_DAMAGE_BONUS;
-            shopTimer.mark();
-        }
-
-        if(aurea != null && aurea.coin >= SHOP_UPGRADE_COST)
-        {
-            aurea.coin -= SHOP_UPGRADE_COST;
-            aurea.skillDamage += SHOP_DAMAGE_BONUS;
-            shopTimer.mark();
-        }
-    }
-
-    private void updateShopText()
-    {
-        showText("Shop: Press U - Upgrade weapon (" + SHOP_UPGRADE_COST + " coins)", 590, 25);
-        showText("Damage +" + SHOP_DAMAGE_BONUS, 590, 55);
-    }
-
-    private int getEnemiesLeftInWave()
-    {
-        int enemiesDefeated = enemiesSpawnedThisWave - getObjects(Enemy.class).size();
-        int enemiesLeft = enemiesThisWave - enemiesDefeated;
-        return Math.max(0, enemiesLeft);
-    }
-
     public void spawnEnemy()
     {
         int x = Greenfoot.getRandomNumber(getWidth());
         int maxSpawnY = BATTLE_TEXT_Y - ENEMY_BOTTOM_PADDING;
         int y = Greenfoot.getRandomNumber(maxSpawnY);
-        Enemy enemy = new Enemy(x, y);
-        enemy.applyLevelScaling(getCurrentHeroLevel());
-        enemy.applyWaveScaling(waveNumber);
+
+        Enemy enemy = new Enemy(x, y, waveNumber);
+
         addObject(enemy, x, y);
     }
 
@@ -312,15 +257,16 @@ public class MyWorld extends World
 
         Enemy closest = getClosestEnemy(aurea.getX(), aurea.getY());
 
-        if(closest != null && aurea.hasEquippedFireball())
+        if(closest != null)
         {
             Fireball fireball = new Fireball(
-                aurea.getX(),
-                aurea.getY(),
-                closest.getX(),
-                closest.getY(),
-                aurea.getDamage()
-            );
+                    aurea.getX(),
+                    aurea.getY(),
+                    closest.getX(),
+                    closest.getY(),
+                    aurea.getDamage()
+                );
+
             addObject(fireball, aurea.getX(), aurea.getY());
             aureaSkillTimer.mark();
         }
@@ -330,10 +276,7 @@ public class MyWorld extends World
     {
         java.util.List<Enemy> enemies = getObjects(Enemy.class);
 
-        if(enemies.isEmpty())
-        {
-            return null;
-        }
+        if(enemies.isEmpty()) return null;
 
         Enemy closest = null;
         double minDistance = Double.MAX_VALUE;
@@ -356,14 +299,13 @@ public class MyWorld extends World
     {
         if(leon != null)
         {
-            leon.xp += xp;
-            leon.coin += coin;
-            leon.checkLevelUp();
+            leon.gainXP(xp);
+            leon.gainCoin(coin);
         }
 
         if(kaine != null)
         {
-            kaine.gainXp(xp);
+            kaine.gainXP(xp);
             kaine.gainCoin(coin);
         }
 
@@ -378,12 +320,12 @@ public class MyWorld extends World
     {
         if(leon != null)
         {
-            leon.takeDamage(damage);
+            leon.takeHit(damage);
         }
 
         if(kaine != null)
         {
-            kaine.takeDamage(damage);
+            kaine.takeHit(damage);
         }
 
         if(aurea != null)
@@ -392,11 +334,25 @@ public class MyWorld extends World
         }
     }
 
-    private double distanceBetween(double x1, double y1, double x2, double y2)
+    private void updateWaveText()
     {
-        double dx = x1 - x2;
-        double dy = y1 - y2;
-        return Math.sqrt(dx * dx + dy * dy);
+        if(waitingForNextWave)
+        {
+            showText("Wave " + waveNumber + " starts soon", CENTER_X, 545);
+            showText("Enemies left: 0 / " + enemiesThisWave, CENTER_X, 570);
+            return;
+        }
+
+        showText("Wave " + waveNumber, CENTER_X, 545);
+        showText("Enemies left: " + getEnemiesLeftInWave() + " / " + enemiesThisWave, CENTER_X, 570);
+    }
+
+    private int getEnemiesLeftInWave()
+    {
+        int enemiesDefeated = enemiesSpawnedThisWave - getObjects(Enemy.class).size();
+        int enemiesLeft = enemiesThisWave - enemiesDefeated;
+
+        return Math.max(0, enemiesLeft);
     }
 
     private int getCurrentHeroLevel()
@@ -417,5 +373,13 @@ public class MyWorld extends World
         }
 
         return 1;
+    }
+
+    private double distanceBetween(double x1, double y1, double x2, double y2)
+    {
+        double dx = x1 - x2;
+        double dy = y1 - y2;
+
+        return Math.sqrt(dx * dx + dy * dy);
     }
 }
