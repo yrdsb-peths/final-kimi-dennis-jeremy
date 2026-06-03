@@ -9,6 +9,8 @@ public class MyWorld extends World
     private static final int NEXT_WAVE_DELAY = 2000;
     private static final int MAX_ENEMIES_ON_SCREEN = 5;
     private static final int WAVE_SIZE_MULTIPLIER = 4;
+    private static final int SHOP_UPGRADE_COST = 10;
+    private static final int SHOP_DAMAGE_BONUS = 5;
     private static final String BACKGROUND_IMAGE = "background.png";
 
     private boolean playerChosen = false;
@@ -20,6 +22,7 @@ public class MyWorld extends World
     private int enemiesSpawnedThisWave = 0;
     private boolean waitingForNextWave = false;
     private boolean needsStartingEnemies = false;
+    private final SimpleTimer shopTimer = new SimpleTimer();
 
     public LeonClovis leon;
     public KaineVelsarth kaine;
@@ -53,7 +56,9 @@ public class MyWorld extends World
 
             spawnEnemies();
             spawnAureaSkill();
+            handleShop();
             updateWaveText();
+            updateShopText();
         }
     }
 
@@ -118,6 +123,8 @@ public class MyWorld extends World
         showText("", CENTER_X, 520);
         showText("", CENTER_X, 545);
         showText("", CENTER_X, 570);
+        showText("", 600, 25);
+        showText("", 600, 55);
     }
 
     private void drawWorldBackground()
@@ -155,8 +162,7 @@ public class MyWorld extends World
         addObject(aurea, CENTER_X, 300);
         playerChosen = true;
         clearTitleScreen();
-        showText(aurea.getStartingLoadoutText(), CENTER_X, 520);
-        needsStartingEnemies = true;
+        showText("Kaine selected — use TitleScreen (A/K/L) for full game", 300, 305);
     }
 
     public void spawnLeon()
@@ -242,6 +248,41 @@ public class MyWorld extends World
 
         showText("Wave " + waveNumber, CENTER_X, 545);
         showText("Enemies left: " + getEnemiesLeftInWave() + " / " + enemiesThisWave, CENTER_X, 570);
+    }
+
+    private void handleShop()
+    {
+        if(!Greenfoot.isKeyDown("u") || shopTimer.millisElapsed() <= 300)
+        {
+            return;
+        }
+
+        if(leon != null && leon.coin >= SHOP_UPGRADE_COST)
+        {
+            leon.coin -= SHOP_UPGRADE_COST;
+            leon.gunDamage += SHOP_DAMAGE_BONUS;
+            shopTimer.mark();
+        }
+
+        if(kaine != null && kaine.coin >= SHOP_UPGRADE_COST)
+        {
+            kaine.coin -= SHOP_UPGRADE_COST;
+            kaine.swordDamage += SHOP_DAMAGE_BONUS;
+            shopTimer.mark();
+        }
+
+        if(aurea != null && aurea.coin >= SHOP_UPGRADE_COST)
+        {
+            aurea.coin -= SHOP_UPGRADE_COST;
+            aurea.skillDamage += SHOP_DAMAGE_BONUS;
+            shopTimer.mark();
+        }
+    }
+
+    private void updateShopText()
+    {
+        showText("Shop: Press U - Upgrade weapon (" + SHOP_UPGRADE_COST + " coins)", 590, 25);
+        showText("Damage +" + SHOP_DAMAGE_BONUS, 590, 55);
     }
 
     private int getEnemiesLeftInWave()

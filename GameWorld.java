@@ -1,247 +1,254 @@
 import greenfoot.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class GameWorld extends World
 {
-    private static final String BACKGROUND_IMAGE = "background.png";
-    private static final int ENEMY_SPAWN_INTERVAL = 60;
-    private static final int SKILL_INTERVAL = 90;
-    private static final int MIN_SPAWN_DISTANCE = 300;
-    private static final int MAX_ENEMIES = 30;
+    public Hero player;
 
-    public AureaSolvine aureaSolvine;
-    public LeonClovis leonClovis;
+    public int round;
+    static final int TOTAL_ROUNDS = 30;
+    static final int ROUND_DURATION = 60 * 60;
+    static final int SWORD_MELEE_RADIUS = 75;
+    static final int SKILL_INTERVAL = 90;
+    static final int MIN_SPAWN_DISTANCE = 300;
+    static final int MAX_ENEMIES = 30;
 
+    int roundTimer = 0;
+    int fireballLevel;
+    int lightningLevel;
+    int iceWaveLevel;
+    int gunLevel;
+    int swordLevel;
     int enemySpawnTimer = 0;
     int lightningTimer = 0;
     int fireballTimer = 0;
-    private boolean gameOverShown = false;
-
-    GreenfootImage bgTile;
+    int gunTimer = 0;
+    int swordTimer = 0;
+    int enemySpawnInterval;
+    int pendingAttributePoints = 0;
     int bgOffX = 0;
     int bgOffY = 0;
+    int screenCX;
+    int screenCY;
 
-    public int screenCX;
-    public int screenCY;
+    boolean gameOverHandled = false;
+    boolean roundEndHandled = false;
 
-    public GameWorld()
+    public String heroType = "aurea";
+
+    private GreenfootImage bgTile;
+    private KaineCompanionSword kaineSword;
+    private HashSet<Enemy> swordHitEnemies = new HashSet<Enemy>();
+
+    public GameWorld(String heroType)
     {
-        this("aurea");
+        this(70, 70, 0, 0,
+            1, 4, 3, 3, 10,
+            1, heroType,
+            HeroData.startingWeapon(heroType, 0),
+            HeroData.startingWeapon(heroType, 1),
+            HeroData.startingWeapon(heroType, 2),
+            HeroData.startingWeapon(heroType, 3),
+            HeroData.startingWeapon(heroType, 4));
     }
 
-    public GameWorld(String character)
+    public GameWorld(
+        int hp, int maxHp, int xp, int coin,
+        int level, int speed, int stamina, int power,
+        int xpToNextLevel,
+        int round,
+        String heroType,
+        int fireballLevel, int lightningLevel, int iceWaveLevel,
+        int gunLevel, int swordLevel)
     {
         super(1500, 750, 1);
 
         screenCX = getWidth() / 2;
         screenCY = getHeight() / 2;
 
-        setUpBackgroundTile();
+        this.round = round;
+        this.heroType = heroType;
+        HeroData.heroType = heroType;
+        this.fireballLevel = fireballLevel;
+        this.lightningLevel = lightningLevel;
+        this.iceWaveLevel = iceWaveLevel;
+        this.gunLevel = gunLevel;
+        this.swordLevel = swordLevel;
+        enemySpawnInterval = Math.max(20, 60 - (round - 1) * 2);
+
+        loadBackground();
         drawBackground(0, 0);
 
-        if(character.equals("leon"))
-        {
-            leonClovis = new LeonClovis();
-            addObject(leonClovis, screenCX, screenCY);
-        }
-        else
-        {
-            aureaSolvine = new AureaSolvine();
-            addObject(aureaSolvine, screenCX, screenCY);
-            addObject(new IceWave(), screenCX, screenCY);
-        }
-    }
+        player = createHero(heroType);
+        player.hp = hp;
+        player.maxHp = maxHp;
+        player.xp = xp;
+        player.coin = coin;
+        player.level = level;
+        player.speed = speed;
+        player.stamina = stamina;
+        player.power = power;
+        player.xpToNextLevel = xpToNextLevel;
+        addObject(player, screenCX, screenCY);
+        player.worldX = screenCX;
+        player.worldY = screenCY;
 
-    private void setUpBackgroundTile()
-    {
-        try
+        if(iceWaveLevel > 0)
         {
-            bgTile = new GreenfootImage(BACKGROUND_IMAGE);
+            IceWave iceWave = new IceWave();
+            iceWave.worldX = player.worldX;
+            iceWave.worldY = player.worldY;
+            addObject(iceWave, screenCX, screenCY);
         }
-        catch(IllegalArgumentException exception)
+
+        if("kaine".equals(heroType) && swordLevel > 0)
         {
-            bgTile = new GreenfootImage(getWidth(), getHeight());
-            bgTile.setColor(Color.BLACK);
-            bgTile.fill();
+            kaineSword = new KaineCompanionSword();
+            addObject(kaineSword, screenCX + 22, screenCY - 6);
         }
     }
 
     public void act()
     {
-        if(gameOverShown)
-        {
-            return;
-        }
+        roundTimer++;
+        player.updateHero();
+        keepPlayerOnScreen();
 
-        updateCamera();
-        drawBackground(bgOffX, bgOffY);
-        updateScreenPositions();
+        drawBackground(0, 0);
+
         spawnEnemy();
 
-        if(aureaSolvine != null)
+        if(swordLevel > 0)
         {
-            spawnFireball();
-            spawnLightning();
-            checkPlayerDead();
+            spawnSwordMelee();
         }
 
+        updateEnemies();
+
+        if(fireballLevel > 0)
+        {
+            spawnFireball();
+        }
+
+        if(lightningLevel > 0)
+        {
+            spawnLightning();
+        }
+
+        if(gunLevel > 0)
+        {
+            spawnGun();
+        }
+
+        updateScreenPositions();
+        checkPlayerDead();
+        checkRoundEnd();
         drawHUD();
     }
 
     public double getPlayerWorldX()
     {
-        if(aureaSolvine != null)
-        {
-            return aureaSolvine.worldX;
-        }
-
-        if(leonClovis != null)
-        {
-            return leonClovis.worldX;
-        }
-
-        return 0;
+        return player.worldX;
     }
 
     public double getPlayerWorldY()
     {
-        if(aureaSolvine != null)
-        {
-            return aureaSolvine.worldY;
-        }
-
-        if(leonClovis != null)
-        {
-            return leonClovis.worldY;
-        }
-
-        return 0;
-    }
-
-    public int getPlayerDamage()
-    {
-        if(aureaSolvine != null)
-        {
-            return aureaSolvine.getDamage();
-        }
-
-        return leonClovis.gunDamage;
-    }
-
-    public int getCurrentPlayerLevel()
-    {
-        if(aureaSolvine != null)
-        {
-            return aureaSolvine.level;
-        }
-
-        if(leonClovis != null)
-        {
-            return leonClovis.level;
-        }
-
-        return 1;
+        return player.worldY;
     }
 
     public void damagePlayer(int damage)
     {
-        if(aureaSolvine != null)
-        {
-            aureaSolvine.takeHit(damage);
-        }
-
-        if(leonClovis != null)
-        {
-            leonClovis.takeDamage(damage);
-        }
+        player.takeHit(damage);
     }
 
-    public void givePlayerReward(int xp, int coin)
+    public void addAttributePoint()
     {
-        if(aureaSolvine != null)
-        {
-            aureaSolvine.gainXP(xp);
-            aureaSolvine.gainCoin(coin);
-        }
-
-        if(leonClovis != null)
-        {
-            leonClovis.xp += xp;
-            leonClovis.coin += coin;
-        }
+        pendingAttributePoints++;
     }
 
-    public void updateCamera()
+    private void checkRoundEnd()
     {
-        double px = getPlayerWorldX();
-        double py = getPlayerWorldY();
+        if(roundEndHandled || roundTimer < ROUND_DURATION)
+        {
+            return;
+        }
 
-        bgOffX = (int)((-px % bgTile.getWidth() + bgTile.getWidth()) % bgTile.getWidth());
-        bgOffY = (int)((-py % bgTile.getHeight() + bgTile.getHeight()) % bgTile.getHeight());
+        roundEndHandled = true;
+        goToUpgradeScreen();
     }
 
-    public void updateScreenPositions()
+    private void goToUpgradeScreen()
     {
-        double camX = getPlayerWorldX();
-        double camY = getPlayerWorldY();
+        HeroData.heroType = heroType;
+        Greenfoot.setWorld(new UpgradeScreen(
+            player.hp, player.maxHp, player.xp, player.coin,
+            player.level, player.speed, player.stamina, player.power,
+            player.xpToNextLevel, pendingAttributePoints,
+            round + 1,
+            fireballLevel, lightningLevel, iceWaveLevel,
+            gunLevel, swordLevel
+        ));
+    }
 
-        if(aureaSolvine != null)
-        {
-            aureaSolvine.setLocation(screenCX, screenCY);
-        }
-
-        if(leonClovis != null)
-        {
-            leonClovis.setLocation(screenCX, screenCY);
-        }
+    private void updateScreenPositions()
+    {
+        player.setLocation((int)player.worldX, (int)player.worldY);
 
         for(Enemy enemy : getObjects(Enemy.class))
         {
-            int screenX = (int)(screenCX + (enemy.worldX - camX));
-            int screenY = (int)(screenCY + (enemy.worldY - camY));
-            enemy.setLocation(screenX, screenY);
-            enemy.turnTowards(screenCX, screenCY);
+            enemy.setLocation((int)enemy.worldX, (int)enemy.worldY);
+            enemy.turnTowards(player.getX(), player.getY());
         }
 
-        for(Bullet bullet : getObjects(Bullet.class))
+        for(Weapon weapon : getObjects(Weapon.class))
         {
-            int screenX = (int)(screenCX + (bullet.worldX - camX));
-            int screenY = (int)(screenCY + (bullet.worldY - camY));
-            bullet.setLocation(screenX, screenY);
-        }
-
-        for(Fireball fireball : getObjects(Fireball.class))
-        {
-            int screenX = (int)(screenCX + (fireball.worldX - camX));
-            int screenY = (int)(screenCY + (fireball.worldY - camY));
-            fireball.setLocation(screenX, screenY);
-        }
-
-        for(Lightning lightning : getObjects(Lightning.class))
-        {
-            int screenX = (int)(screenCX + (lightning.worldX - camX));
-            int screenY = (int)(screenCY + (lightning.worldY - camY));
-            lightning.setLocation(screenX, screenY);
-        }
-
-        for(IceWave iceWave : getObjects(IceWave.class))
-        {
-            iceWave.worldX = getPlayerWorldX();
-            iceWave.worldY = getPlayerWorldY();
-            iceWave.setLocation(screenCX, screenCY);
+            weapon.setLocation((int)weapon.worldX, (int)weapon.worldY);
         }
     }
 
-    public void drawBackground(int offX, int offY)
+    private void keepPlayerOnScreen()
+    {
+        player.worldX = Math.max(36, Math.min(getWidth() - 36, player.worldX));
+        player.worldY = Math.max(36, Math.min(getHeight() - 36, player.worldY));
+        player.setLocation((int)player.worldX, (int)player.worldY);
+    }
+
+    private void updateEnemies()
+    {
+        List<Enemy> enemies = new ArrayList<Enemy>(getObjects(Enemy.class));
+
+        for(Enemy enemy : enemies)
+        {
+            if(enemy.getWorld() != null)
+            {
+                enemy.updateForGameWorld(this);
+            }
+        }
+    }
+
+    private void loadBackground()
+    {
+        try
+        {
+            bgTile = new GreenfootImage("background.png");
+        }
+        catch(IllegalArgumentException exception)
+        {
+            bgTile = new GreenfootImage(128, 128);
+            bgTile.setColor(new Color(35, 50, 35));
+            bgTile.fill();
+        }
+    }
+
+    private void drawBackground(int offX, int offY)
     {
         GreenfootImage background = getBackground();
-        background.clear();
 
-        int tileWidth = bgTile.getWidth();
-        int tileHeight = bgTile.getHeight();
-
-        for(int x = offX - tileWidth; x < getWidth() + tileWidth; x += tileWidth)
+        for(int x = -offX; x < getWidth(); x += bgTile.getWidth())
         {
-            for(int y = offY - tileHeight; y < getHeight() + tileHeight; y += tileHeight)
+            for(int y = -offY; y < getHeight(); y += bgTile.getHeight())
             {
                 background.drawImage(bgTile, x, y);
             }
@@ -250,60 +257,53 @@ public class GameWorld extends World
 
     public void drawHUD()
     {
-        if(aureaSolvine != null)
-        {
-            aureaSolvine.displayStats();
-        }
+        GreenfootImage background = getBackground();
 
-        if(leonClovis != null)
-        {
-            leonClovis.displayStats();
-        }
+        drawBar(background, 30, 30, 200, 18, player.hp, player.maxHp,
+            new Color(180, 40, 40), new Color(60, 10, 10));
+        drawBar(background, 30, 56, 200, 14, player.xp, player.xpToNextLevel,
+            new Color(50, 120, 220), new Color(15, 40, 80));
+
+        showText("HP  " + player.hp + " / " + player.maxHp, 240, 39);
+        showText("XP  " + player.xp + " / " + player.xpToNextLevel + "   Lv." + player.level, 270, 63);
+        showText("Coin: " + player.coin, 80, 90);
+        showText("Weapon: " + HeroData.signatureWeaponName(heroType) + " Lv." + getSignatureWeaponLevel(), 100, 115);
+
+        int secondsLeft = Math.max(0, (ROUND_DURATION - roundTimer) / 60);
+        showText("Round " + round + " / " + TOTAL_ROUNDS, getWidth() / 2, 30);
+        showText(secondsLeft + " seconds left", getWidth() / 2, 58);
+    }
+
+    private void drawBar(
+        GreenfootImage background,
+        int x, int y, int width, int height,
+        int value, int max,
+        Color fillColor, Color emptyColor)
+    {
+        int fillWidth = max <= 0 ? 0 : Math.max(0, Math.min(width, value * width / max));
+
+        background.setColor(emptyColor);
+        background.fillRect(x, y, width, height);
+        background.setColor(fillColor);
+        background.fillRect(x, y, fillWidth, height);
+        background.setColor(Color.WHITE);
+        background.drawRect(x, y, width, height);
     }
 
     public void checkPlayerDead()
     {
-        if(aureaSolvine.isDead && aureaSolvine.animFrame >= 6 && !gameOverShown)
-        {
-            gameOverShown = true;
-            addObject(new GameOver(), screenCX, screenCY);
-            Greenfoot.stop();
-        }
-    }
-
-    public void spawnEnemy()
-    {
-        enemySpawnTimer++;
-
-        if(enemySpawnTimer < ENEMY_SPAWN_INTERVAL)
+        if(gameOverHandled || !player.isDead)
         {
             return;
         }
 
-        enemySpawnTimer = 0;
-
-        if(getObjects(Enemy.class).size() >= MAX_ENEMIES)
+        if(player instanceof AureaSolvine && player.animFrame < 6)
         {
             return;
         }
 
-        double px = getPlayerWorldX();
-        double py = getPlayerWorldY();
-        double x;
-        double y;
-
-        do
-        {
-            x = px + Greenfoot.getRandomNumber(1600) - 800;
-            y = py + Greenfoot.getRandomNumber(900) - 450;
-        }
-        while(distanceBetween(x, y, px, py) < MIN_SPAWN_DISTANCE);
-
-        Enemy enemy = new Enemy(x, y);
-        enemy.applyLevelScaling(getCurrentPlayerLevel());
-        int screenX = (int)(screenCX + (x - px));
-        int screenY = (int)(screenCY + (y - py));
-        addObject(enemy, screenX, screenY);
+        gameOverHandled = true;
+        Greenfoot.setWorld(new TitleScreen());
     }
 
     public void spawnFireball()
@@ -315,16 +315,14 @@ public class GameWorld extends World
             fireballTimer = 0;
             Enemy closest = getClosestEnemy();
 
-            if(closest != null && aureaSolvine.hasEquippedFireball())
+            if(closest != null)
             {
                 Fireball fireball = new Fireball(
-                    getPlayerWorldX(),
-                    getPlayerWorldY(),
-                    closest.worldX,
-                    closest.worldY,
-                    getPlayerDamage()
+                    player.worldX, player.worldY,
+                    closest.worldX, closest.worldY,
+                    player.getDamage() + (fireballLevel - 1) * 5
                 );
-                addObject(fireball, screenCX, screenCY);
+                addObject(fireball, player.getX(), player.getY());
             }
         }
     }
@@ -340,17 +338,133 @@ public class GameWorld extends World
 
             if(closest != null)
             {
-                Lightning lightning = new Lightning(closest.worldX, closest.worldY, getPlayerDamage());
-                int screenX = (int)(screenCX + (closest.worldX - getPlayerWorldX()));
-                int screenY = (int)(screenCY + (closest.worldY - getPlayerWorldY()));
-                addObject(lightning, screenX, screenY);
+                Lightning lightning = new Lightning(
+                    closest.worldX,
+                    closest.worldY,
+                    player.getDamage() + (lightningLevel - 1) * 5
+                );
+                addObject(lightning, (int)closest.worldX, (int)closest.worldY);
             }
         }
     }
 
+    public void spawnGun()
+    {
+        gunTimer++;
+
+        if(gunTimer >= SKILL_INTERVAL)
+        {
+            gunTimer = 0;
+            Enemy closest = getClosestEnemy();
+
+            if(closest == null || !(player instanceof LeonClovis))
+            {
+                return;
+            }
+
+            LeonClovis leon = (LeonClovis)player;
+            leon.gunDamage = player.getDamage() + (gunLevel - 1) * 5;
+            Bullet bullet = new Bullet(closest, leon, leon.gunDamage);
+            addObject(bullet, player.getX(), player.getY());
+        }
+    }
+
+    public void spawnSwordMelee()
+    {
+        swordTimer++;
+
+        if(swordTimer < SKILL_INTERVAL)
+        {
+            return;
+        }
+
+        swordTimer = 0;
+        List<Enemy> enemies = new ArrayList<Enemy>(getObjects(Enemy.class));
+        List<Enemy> defeated = new ArrayList<Enemy>();
+        boolean hitAnyEnemy = false;
+
+        for(Enemy enemy : enemies)
+        {
+            if(swordHitEnemies.contains(enemy)
+                || distanceBetween(enemy.worldX, enemy.worldY, player.worldX, player.worldY) > SWORD_MELEE_RADIUS)
+            {
+                continue;
+            }
+
+            swordHitEnemies.add(enemy);
+            hitAnyEnemy = true;
+
+            if(enemy.takeDamage(enemy.hp))
+            {
+                player.gainXP(enemy.xpDrop);
+                player.gainCoin(enemy.coinDrop);
+                player.checkLevelUp();
+                defeated.add(enemy);
+            }
+        }
+
+        if(hitAnyEnemy && kaineSword != null)
+        {
+            kaineSword.playActiveSwordSound();
+        }
+
+        for(Enemy enemy : defeated)
+        {
+            if(enemy.getWorld() != null)
+            {
+                removeObject(enemy);
+            }
+        }
+    }
+
+    private int getSignatureWeaponLevel()
+    {
+        if("leon".equals(heroType))
+        {
+            return gunLevel;
+        }
+
+        if("kaine".equals(heroType))
+        {
+            return swordLevel;
+        }
+
+        return lightningLevel;
+    }
+
+    public void spawnEnemy()
+    {
+        enemySpawnTimer++;
+
+        if(enemySpawnTimer < enemySpawnInterval)
+        {
+            return;
+        }
+
+        enemySpawnTimer = 0;
+
+        if(getObjects(Enemy.class).size() >= MAX_ENEMIES)
+        {
+            return;
+        }
+
+        double x;
+        double y;
+
+        do
+        {
+            x = Greenfoot.getRandomNumber(getWidth());
+            y = Greenfoot.getRandomNumber(getHeight());
+        }
+        while(distanceBetween(x, y, player.worldX, player.worldY) < MIN_SPAWN_DISTANCE);
+
+        Enemy enemy = new Enemy(x, y, round);
+        addObject(enemy, (int)x, (int)y);
+    }
+
     public Enemy getClosestEnemy()
     {
-        java.util.List<Enemy> enemies = getObjects(Enemy.class);
+        List<Enemy> enemies = getObjects(Enemy.class);
 
         if(enemies.isEmpty())
         {
@@ -359,12 +473,10 @@ public class GameWorld extends World
 
         Enemy closest = null;
         double minDistance = Double.MAX_VALUE;
-        double px = getPlayerWorldX();
-        double py = getPlayerWorldY();
 
         for(Enemy enemy : enemies)
         {
-            double distance = distanceBetween(enemy.worldX, enemy.worldY, px, py);
+            double distance = distanceBetween(enemy.worldX, enemy.worldY, player.worldX, player.worldY);
 
             if(distance < minDistance)
             {
@@ -381,5 +493,20 @@ public class GameWorld extends World
         double dx = x1 - x2;
         double dy = y1 - y2;
         return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    private Hero createHero(String type)
+    {
+        if("leon".equals(type))
+        {
+            return new LeonClovis();
+        }
+
+        if("kaine".equals(type))
+        {
+            return new KaineVelsarth();
+        }
+
+        return new AureaSolvine();
     }
 }

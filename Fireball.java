@@ -1,6 +1,6 @@
 import greenfoot.*;
 
-public class Fireball extends Actor
+public class Fireball extends Weapon
 {
     static GreenfootImage[] frames = new GreenfootImage[44];
 
@@ -10,6 +10,13 @@ public class Fireball extends Actor
         {
             String num = String.format("%03d", i);
             frames[i] = new GreenfootImage("FireBall/tile" + num + ".png");
+
+            if(frames[i].getWidth() <= 0)
+            {
+                frames[i] = new GreenfootImage(12, 12);
+                frames[i].setColor(new Color(255, 120, 40));
+                frames[i].fillOval(0, 0, 12, 12);
+            }
         }
     }
 
@@ -17,100 +24,103 @@ public class Fireball extends Actor
     int animationTimer = 0;
 
     double speed = 6;
-
-    public double worldX;
-    public double worldY;
-
     double velX;
     double velY;
 
-    int damage;
-
     public Fireball(double startX, double startY, double targetX, double targetY, int damage)
     {
-        worldX = startX;
-        worldY = startY;
+        super();
+        this.worldX = startX;
+        this.worldY = startY;
         this.damage = damage;
 
         double dx = targetX - startX;
         double dy = targetY - startY;
+        double distance = Math.sqrt(dx * dx + dy * dy);
 
-        double dist = Math.sqrt(dx * dx + dy * dy);
-
-        if(dist == 0)
+        if(distance == 0)
         {
-            dist = 1;
+            distance = 1;
         }
 
-        velX = dx / dist * speed;
-        velY = dy / dist * speed;
+        velX = dx / distance * speed;
+        velY = dy / distance * speed;
 
         setImage(frames[0]);
-
-        double angle = Math.toDegrees(Math.atan2(dy, dx));
-        setRotation((int)angle);
+        setRotation((int)Math.toDegrees(Math.atan2(dy, dx)));
     }
 
+    @Override
     public void act()
     {
-        if(getWorld() == null) return;
+        if(getWorld() == null)
+        {
+            return;
+        }
 
         worldX += velX;
         worldY += velY;
 
-        World world = getWorld();
-
-        if(world instanceof MyWorld)
+        if(getWorld() instanceof MyWorld)
         {
             setLocation((int)worldX, (int)worldY);
         }
 
         animate();
-        checkHitEnemy();
+        checkHitEnemy(worldX, worldY, 25);
         checkRange();
     }
 
-    public void animate()
+    private void animate()
     {
         animationTimer++;
 
         if(animationTimer % 3 == 0)
         {
             frame = (frame + 1) % frames.length;
-
-            int rot = getRotation();
-
+            int rotation = getRotation();
             setImage(new GreenfootImage(frames[frame]));
-            setRotation(rot);
+            setRotation(rotation);
         }
     }
 
-    public void checkHitEnemy()
+    @Override
+    protected void onHitEnemy(Enemy enemy, double dx, double dy, double distance)
     {
-        if(getWorld() == null) return;
+        World world = getWorld();
+        boolean died = enemy.takeDamage(damage);
 
-        for(Enemy e : getWorld().getObjects(Enemy.class))
+        if(died)
         {
-            double dx = e.worldX - worldX;
-            double dy = e.worldY - worldY;
-
-            if(Math.sqrt(dx * dx + dy * dy) < 25)
+            if(world instanceof GameWorld)
             {
-                e.takeDamage(damage);
+                GameWorld gameWorld = (GameWorld)world;
+                gameWorld.player.gainXP(enemy.xpDrop);
+                gameWorld.player.gainCoin(enemy.coinDrop);
+            }
+            else if(world instanceof MyWorld)
+            {
+                ((MyWorld)world).giveSelectedPlayerReward(enemy.xpDrop, enemy.coinDrop);
+            }
 
-                if(getWorld() != null)
-                {
-                    getWorld().removeObject(this);
-                }
-
-                return;
+            if(enemy.getWorld() != null)
+            {
+                world.removeObject(enemy);
             }
         }
+
+        if(getWorld() != null)
+        {
+            world.removeObject(this);
+        }
     }
 
-    public void checkRange()
+    private void checkRange()
     {
-        if(getWorld() == null) return;
+        if(getWorld() == null)
+        {
+            return;
+        }
 
         if(getWorld() instanceof MyWorld)
         {
@@ -124,14 +134,13 @@ public class Fireball extends Actor
             return;
         }
 
-        GameWorld gw = (GameWorld)getWorld();
-
-        double dx = worldX - gw.getPlayerWorldX();
-        double dy = worldY - gw.getPlayerWorldY();
+        GameWorld gameWorld = (GameWorld)getWorld();
+        double dx = worldX - gameWorld.player.worldX;
+        double dy = worldY - gameWorld.player.worldY;
 
         if(Math.sqrt(dx * dx + dy * dy) > 1000)
         {
-            gw.removeObject(this);
+            gameWorld.removeObject(this);
         }
     }
 }
