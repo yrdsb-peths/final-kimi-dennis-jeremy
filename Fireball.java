@@ -10,7 +10,6 @@ public class Fireball extends Weapon
         {
             String num = String.format("%03d", i);
             frames[i] = new GreenfootImage("FireBall/tile" + num + ".png");
-
             if(frames[i].getWidth() <= 0)
             {
                 frames[i] = new GreenfootImage(12, 12);
@@ -24,8 +23,7 @@ public class Fireball extends Weapon
     int animationTimer = 0;
 
     double speed = 6;
-    double velX;
-    double velY;
+    double velX, velY;
 
     public Fireball(double startX, double startY, double targetX, double targetY, int damage)
     {
@@ -36,32 +34,33 @@ public class Fireball extends Weapon
 
         double dx = targetX - startX;
         double dy = targetY - startY;
-        double distance = Math.sqrt(dx * dx + dy * dy);
 
-        if(distance == 0)
+        double dist = Math.sqrt(dx * dx + dy * dy);
+
+        if(dist == 0)
         {
-            distance = 1;
+            dist = 1;
         }
 
-        velX = dx / distance * speed;
-        velY = dy / distance * speed;
+        velX = dx / dist * speed;
+        velY = dy / dist * speed;
 
         setImage(frames[0]);
-        setRotation((int)Math.toDegrees(Math.atan2(dy, dx)));
+        double angle = Math.toDegrees(Math.atan2(dy, dx));
+        setRotation((int)angle);
     }
 
     @Override
     public void act()
     {
-        if(getWorld() == null)
-        {
-            return;
-        }
+        if(getWorld() == null) return;
 
         worldX += velX;
         worldY += velY;
 
-        if(getWorld() instanceof MyWorld)
+        World world = getWorld();
+
+        if(world instanceof MyWorld)
         {
             setLocation((int)worldX, (int)worldY);
         }
@@ -78,49 +77,52 @@ public class Fireball extends Weapon
         if(animationTimer % 3 == 0)
         {
             frame = (frame + 1) % frames.length;
-            int rotation = getRotation();
+
+            int rot = getRotation();
+
             setImage(new GreenfootImage(frames[frame]));
-            setRotation(rotation);
+            setRotation(rot);
         }
     }
 
     @Override
-    protected void onHitEnemy(Enemy enemy, double dx, double dy, double distance)
+    protected void onHitEnemy(Enemy e, double dx, double dy, double dist)
     {
         World world = getWorld();
-        boolean died = enemy.takeDamage(damage);
+        if(world == null)
+        {
+            return;
+        }
 
+        boolean died = e.takeDamage(damage);
         if(died)
         {
             if(world instanceof GameWorld)
             {
-                GameWorld gameWorld = (GameWorld)world;
-                gameWorld.player.gainXP(enemy.xpDrop);
-                gameWorld.player.gainCoin(enemy.coinDrop);
+                GameWorld gw = (GameWorld)world;
+                gw.player.gainXP(e.xpDrop);
+                gw.player.gainCoin(e.coinDrop);
             }
             else if(world instanceof MyWorld)
             {
-                ((MyWorld)world).giveSelectedPlayerReward(enemy.xpDrop, enemy.coinDrop);
+                ((MyWorld)world).giveSelectedPlayerReward(e.xpDrop, e.coinDrop);
             }
 
-            if(enemy.getWorld() != null)
+            if(e.getWorld() != null)
             {
-                world.removeObject(enemy);
+                e.getWorld().removeObject(e);
             }
         }
 
         if(getWorld() != null)
         {
-            world.removeObject(this);
+            getWorld().removeObject(this);
         }
     }
 
     private void checkRange()
     {
-        if(getWorld() == null)
-        {
-            return;
-        }
+        if(getWorld() == null) return;
 
         if(getWorld() instanceof MyWorld)
         {
@@ -134,13 +136,11 @@ public class Fireball extends Weapon
             return;
         }
 
-        GameWorld gameWorld = (GameWorld)getWorld();
-        double dx = worldX - gameWorld.player.worldX;
-        double dy = worldY - gameWorld.player.worldY;
-
-        if(Math.sqrt(dx * dx + dy * dy) > 1000)
-        {
-            gameWorld.removeObject(this);
+        GameWorld gw = (GameWorld)getWorld();
+        double dx = worldX - gw.player.worldX;
+        double dy = worldY - gw.player.worldY;
+        if(Math.sqrt(dx*dx + dy*dy) > 1000){
+            gw.removeObject(this);
         }
     }
 }

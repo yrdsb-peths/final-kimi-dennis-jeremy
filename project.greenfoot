@@ -8,7 +8,11 @@ dependency1.from=startPage
 dependency1.to=TitleScreen
 dependency1.type=UsesDependency
 dependency10.from=GameWorld
+<<<<<<< HEAD
 dependency10.to=Fireball
+=======
+dependency10.to=TitleScreen
+>>>>>>> 6ff9170742c3f3b649e9fa09b9048af2c82a2e0b
 dependency10.type=UsesDependency
 dependency11.from=GameWorld
 dependency11.to=Lightning
@@ -98,48 +102,61 @@ dependency37.from=Enemy
 dependency37.to=GameWorld
 dependency37.type=UsesDependency
 dependency38.from=Enemy
-dependency38.to=MyWorld
+dependency38.to=Hero
 dependency38.type=UsesDependency
-dependency39.from=Enemy
-dependency39.to=Hero
+dependency39.from=Bullet
+dependency39.to=Enemy
 dependency39.type=UsesDependency
 dependency4.from=GameWorld
 dependency4.to=Enemy
 dependency4.type=UsesDependency
 dependency40.from=Bullet
-dependency40.to=Enemy
+dependency40.to=Hero
 dependency40.type=UsesDependency
 dependency41.from=Bullet
-dependency41.to=Hero
+dependency41.to=HitEffect
 dependency41.type=UsesDependency
-dependency42.from=Bullet
-dependency42.to=HitEffect
+dependency42.from=Hero
+dependency42.to=GameWorld
 dependency42.type=UsesDependency
-dependency43.from=Hero
-dependency43.to=GameWorld
+dependency43.from=LeonClovis
+dependency43.to=SimpleTimer
 dependency43.type=UsesDependency
 dependency5.from=GameWorld
 dependency5.to=IceWave
 dependency5.type=UsesDependency
 dependency6.from=GameWorld
+<<<<<<< HEAD
 dependency6.to=UpgradeScreen
 dependency6.type=UsesDependency
 dependency7.from=GameWorld
 dependency7.to=Weapon
+=======
+dependency6.to=Enemy
+dependency6.type=UsesDependency
+dependency7.from=GameWorld
+dependency7.to=Fireball
+>>>>>>> 6ff9170742c3f3b649e9fa09b9048af2c82a2e0b
 dependency7.type=UsesDependency
 dependency8.from=GameWorld
-dependency8.to=AureaSolvine
+dependency8.to=Lightning
 dependency8.type=UsesDependency
 dependency9.from=GameWorld
-dependency9.to=TitleScreen
+dependency9.to=AureaSolvine
 dependency9.type=UsesDependency
 editor.fx.0.height=0
 editor.fx.0.width=0
 editor.fx.0.x=0
 editor.fx.0.y=0
+<<<<<<< HEAD
 height=1056
 package.numDependencies=43
 package.numTargets=25
+=======
+height=926
+package.numDependencies=43
+package.numTargets=26
+>>>>>>> 6ff9170742c3f3b649e9fa09b9048af2c82a2e0b
 project.charset=UTF-8
 publish.hasSource=false
 publish.locked=true

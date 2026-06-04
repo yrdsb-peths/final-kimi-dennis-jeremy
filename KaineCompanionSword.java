@@ -2,6 +2,11 @@ import greenfoot.*;
 
 public class KaineCompanionSword extends Actor
 {
+    private static final int SWORD_WIDTH = 80;
+    private static final int SWORD_RIGHT_WIDTH = 160;
+    private static final int SWORD_HEIGHT = 160;
+    private static final int HIT_COOLDOWN = 20;
+
     private static final String FIRE_SWORD_SOUND = "fire-sword.wav";
     private static final String FUTURISTIC_SWORD_SOUND = "ufo-sword.wav";
     private static final String LIGHTNING_SWORD_SOUND = "lightning-sword.wav";
@@ -13,6 +18,7 @@ public class KaineCompanionSword extends Actor
     boolean swordRightMode = false;
 
     GreenfootImage[] swordImages;
+    private java.util.HashMap<Enemy, Integer> hitCooldowns = new java.util.HashMap<>();
 
     public KaineCompanionSword()
     {
@@ -24,6 +30,7 @@ public class KaineCompanionSword extends Actor
     {
         if(getWorld() == null) return;
 
+        updateHitCooldowns();
         handleInput();
 
         // Follow player on screen
@@ -31,6 +38,7 @@ public class KaineCompanionSword extends Actor
         int px = gw.player.getX();
         int py = gw.player.getY();
         setLocation(px + (int)worldOffX, py + (int)worldOffY);
+        damageTouchingEnemies(gw);
     }
 
     private void handleInput()
@@ -74,9 +82,58 @@ public class KaineCompanionSword extends Actor
         }
         if(img.getWidth() > 0)
         {
-            img.scale(rightMode ? 80 : 40, 80);
+            img.scale(rightMode ? SWORD_RIGHT_WIDTH : SWORD_WIDTH, SWORD_HEIGHT);
             if(!rightMode && index == 0) img.rotate(45);
             setImage(img);
+        }
+    }
+
+    private void damageTouchingEnemies(GameWorld gw)
+    {
+        int damage = gw.player.getDamage() + (gw.swordLevel - 1) * 5;
+        java.util.List<Enemy> enemies = new java.util.ArrayList<>(getIntersectingObjects(Enemy.class));
+
+        for(Enemy enemy : enemies)
+        {
+            if(hitCooldowns.containsKey(enemy))
+            {
+                continue;
+            }
+
+            hitCooldowns.put(enemy, HIT_COOLDOWN);
+            playActiveSwordSound();
+
+            if(enemy.takeDamage(damage))
+            {
+                gw.player.gainXP(enemy.xpDrop);
+                gw.player.gainCoin(enemy.coinDrop);
+
+                if(enemy.getWorld() != null)
+                {
+                    enemy.getWorld().removeObject(enemy);
+                }
+            }
+        }
+    }
+
+    private void updateHitCooldowns()
+    {
+        java.util.Iterator<java.util.Map.Entry<Enemy, Integer>> iterator = hitCooldowns.entrySet().iterator();
+
+        while(iterator.hasNext())
+        {
+            java.util.Map.Entry<Enemy, Integer> entry = iterator.next();
+            Enemy enemy = entry.getKey();
+            int remaining = entry.getValue() - 1;
+
+            if(remaining <= 0 || enemy.getWorld() == null)
+            {
+                iterator.remove();
+            }
+            else
+            {
+                entry.setValue(remaining);
+            }
         }
     }
 

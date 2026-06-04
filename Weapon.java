@@ -23,10 +23,14 @@ public abstract class Weapon extends Actor
     protected void checkHitEnemy(double checkX, double checkY, double radius)
     {
         if(getWorld() == null) return;
-        GameWorld gw = (GameWorld)getWorld();
 
-        for(Enemy e : gw.getObjects(Enemy.class))
+        for(Enemy e : getWorld().getObjects(Enemy.class))
         {
+            if(getWorld() == null)
+            {
+                return;
+            }
+
             double dx = e.worldX - checkX;
             double dy = e.worldY - checkY;
             double dist = Math.sqrt(dx*dx + dy*dy);
@@ -34,6 +38,11 @@ public abstract class Weapon extends Actor
             if(dist < radius)
             {
                 onHitEnemy(e, dx, dy, dist);
+
+                if(getWorld() == null)
+                {
+                    return;
+                }
             }
         }
     }

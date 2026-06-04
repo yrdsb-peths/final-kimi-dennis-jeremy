@@ -2,8 +2,6 @@
 comment0.target=lightningSword
 comment1.params=
 comment1.target=lightningSword()
-comment2.params=lightningRightMode
-comment2.target=lightningSword(boolean)
-comment3.params=
-comment3.target=void\ act()
-numComments=4
+comment2.params=rightMode
+comment2.target=greenfoot.GreenfootImage\ getSwordImage(boolean)
+numComments=3
