@@ -22,7 +22,8 @@ public class IceWave extends Weapon
     static final int RADIUS   = 160;
     static final int KNOCKBACK = 60;
 
-    boolean damageDealtThisCycle = false;
+    // 用于标记这一帧是否已经触发过伤害（防止重复）
+    boolean hasDealtDamageThisFrame = false;
 
     public IceWave()
     {
@@ -40,7 +41,19 @@ public class IceWave extends Weapon
         worldY = gw.player.worldY;
 
         animate();
-        if(frame == 10) checkHitEnemy(worldX, worldY, RADIUS);
+        
+        // 只在第10帧时触发伤害
+        if(frame == 10 && !hasDealtDamageThisFrame)
+        {
+            hasDealtDamageThisFrame = true;
+            hitAllEnemiesInRange();
+        }
+        
+        // 动画循环时重置标志
+        if(frame == 0)
+        {
+            hasDealtDamageThisFrame = false;
+        }
     }
 
     private void animate()
@@ -52,33 +65,61 @@ public class IceWave extends Weapon
             if(frame >= frames.length)
             {
                 frame = 0;
-                damageDealtThisCycle = false;
             }
             setImage(frames[frame]);
+        }
+    }
+
+    // 击退范围内的所有敌人
+    private void hitAllEnemiesInRange()
+    {
+        GameWorld gw = (GameWorld)getWorld();
+        
+        // 获取所有敌人
+        java.util.List<Enemy> enemies = gw.getObjects(Enemy.class);
+        java.util.List<Enemy> toRemove = new java.util.ArrayList<>();
+
+        for(Enemy e : enemies)
+        {
+            double dx = e.worldX - worldX;
+            double dy = e.worldY - worldY;
+            double dist = Math.sqrt(dx * dx + dy * dy);
+
+            // 检查敌人是否在范围内
+            if(dist < RADIUS && dist > 0)
+            {
+                // 扣伤害
+                boolean died = e.takeDamage(damage);
+                
+                if(died)
+                {
+                    // 敌人死亡，记下来稍后删除
+                    gw.player.gainXP(e.xpDrop);
+                    gw.player.gainCoin(e.coinDrop);
+                    toRemove.add(e);
+                }
+                else
+                {
+                    // 敌人存活，进行击退
+                    e.worldX += dx / dist * KNOCKBACK;
+                    e.worldY += dy / dist * KNOCKBACK;
+                }
+            }
+        }
+
+        // 删除所有死亡的敌人
+        for(Enemy e : toRemove)
+        {
+            if(e.getWorld() != null)
+            {
+                gw.removeObject(e);
+            }
         }
     }
 
     @Override
     protected void onHitEnemy(Enemy e, double dx, double dy, double dist)
     {
-        if(damageDealtThisCycle) return;
-        damageDealtThisCycle = true;
-
-        if(dist == 0) return;
-
-        GameWorld gw = (GameWorld)getWorld();
-        boolean died = e.takeDamage(damage);
-        if(died)
-        {
-            gw.player.gainXP(e.xpDrop);
-            gw.player.gainCoin(e.coinDrop);
-            if(e.getWorld() != null) gw.removeObject(e);
-        }
-        else
-        {
-            // Knockback
-            e.worldX += dx / dist * KNOCKBACK;
-            e.worldY += dy / dist * KNOCKBACK;
-        }
+        // 这个方法不再使用，改由 hitAllEnemiesInRange() 处理
     }
 }
