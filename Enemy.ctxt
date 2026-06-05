@@ -12,4 +12,6 @@ comment5.params=damage
 comment5.target=boolean\ takeDamage(int)
 comment6.params=damage\ source
 comment6.target=boolean\ takeDamage(int,\ Hero)
-numComments=7
+comment7.params=baseValue\ round
+comment7.target=int\ scaleByRound(int,\ int)
+numComments=8
