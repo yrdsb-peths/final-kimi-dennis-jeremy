@@ -30,7 +30,7 @@ public class GameWorld extends World
 
     GreenfootImage bgTile;
     int bgOffX = 0, bgOffY = 0;
-    int screenCX, screenCY;
+    public int screenCX, screenCY;  // ← 改成 public，敌人需要用
 
     int pendingAttributePoints = 0;
     boolean gameOverHandled = false;
@@ -115,19 +115,24 @@ public class GameWorld extends World
     {
         roundTimer++;
 
+        // 更新背景
         bgOffX = (int)((-player.worldX % bgTile.getWidth()
                         + bgTile.getWidth()) % bgTile.getWidth());
         bgOffY = (int)((-player.worldY % bgTile.getHeight()
                         + bgTile.getHeight()) % bgTile.getHeight());
         drawBackground(bgOffX, bgOffY);
 
+        // ★ 关键：更新屏幕位置必须在所有其他逻辑之前！
         updateScreenPositions();
+        
+        // 生成新的敌人和技能
         spawnEnemy();
         if(fireballLevel  > 0) spawnFireball();
         if(lightningLevel > 0) spawnLightning();
         if(gunLevel       > 0) spawnGun();
         if(swordLevel     > 0) spawnSwordMelee();
 
+        // 检查游戏状态
         checkPlayerDead();
         checkRoundEnd();
         drawHUD();
@@ -159,33 +164,54 @@ public class GameWorld extends World
         ));
     }
 
+    // ★ 关键方法：同步所有对象的屏幕位置
+    // 必须在 act() 最开始调用，保证摄像机计算正确
     private void updateScreenPositions()
     {
         double camX = player.worldX;
         double camY = player.worldY;
 
+        // 更新敌人屏幕位置（基于世界坐标）
         for(Enemy e : getObjects(Enemy.class))
         {
-            int sx = (int)(screenCX + (e.worldX - camX));
-            int sy = (int)(screenCY + (e.worldY - camY));
-            e.setLocation(sx, sy);
-            e.turnTowards(screenCX, screenCY);
+            if(e != null)
+            {
+                int sx = (int)(screenCX + (e.worldX - camX));
+                int sy = (int)(screenCY + (e.worldY - camY));
+                e.setLocation(sx, sy);
+                e.turnTowards(screenCX, screenCY);
+            }
         }
+        
+        // 更新火球屏幕位置
         for(Fireball f : getObjects(Fireball.class))
         {
-            int sx = (int)(screenCX + (f.worldX - camX));
-            int sy = (int)(screenCY + (f.worldY - camY));
-            f.setLocation(sx, sy);
+            if(f != null)
+            {
+                int sx = (int)(screenCX + (f.worldX - camX));
+                int sy = (int)(screenCY + (f.worldY - camY));
+                f.setLocation(sx, sy);
+            }
         }
+        
+        // 更新闪电屏幕位置
         for(Lightning l : getObjects(Lightning.class))
         {
-            int sx = (int)(screenCX + (l.worldX - camX));
-            int sy = (int)(screenCY + (l.worldY - camY));
-            l.setLocation(sx, sy);
+            if(l != null)
+            {
+                int sx = (int)(screenCX + (l.worldX - camX));
+                int sy = (int)(screenCY + (l.worldY - camY));
+                l.setLocation(sx, sy);
+            }
         }
+        
+        // 冰波始终在屏幕中心
         for(IceWave iw : getObjects(IceWave.class))
         {
-            iw.setLocation(screenCX, screenCY);
+            if(iw != null)
+            {
+                iw.setLocation(screenCX, screenCY);
+            }
         }
     }
 
@@ -290,7 +316,7 @@ public class GameWorld extends World
             Enemy closest = getClosestEnemy();
             if(closest == null || !(player instanceof LeonClovis)) return;
 
-            LeonClovis leon = (LeonClovis) player;
+            LeonClovis leon = (LeonClovis)player;
             leon.gunDamage = player.getDamage() + (gunLevel - 1) * 5;
             Bullet bullet = new Bullet(closest, leon, leon.gunDamage);
             addObject(bullet, screenCX, screenCY);
