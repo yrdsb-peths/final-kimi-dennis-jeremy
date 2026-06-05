@@ -14,6 +14,8 @@ public class Enemy extends Actor
 
     int attackCooldown = 0;
     static final int ATTACK_INTERVAL = 60;
+    static final int BASE_HP = 30;
+    static final int BASE_ATTACK_DAMAGE = 5;
 
     public Enemy(double worldX, double worldY, int round)
     {
@@ -21,9 +23,9 @@ public class Enemy extends Actor
         this.worldY = worldY;
 
         speed = 2 + round / 5;
-        hp = 30 + (round - 1) * 8;
+        hp = scaleByRound(BASE_HP, round);
         maxHp = hp;
-        attackDamage = 5 + (round - 1) * 2;
+        attackDamage = scaleByRound(BASE_ATTACK_DAMAGE, round);
         xpDrop = 3 + round / 3;
         coinDrop = 2 + round / 5;
 
@@ -100,5 +102,23 @@ public class Enemy extends Actor
         }
 
         return died;
+    }
+
+    private int scaleByRound(int baseValue, int round)
+    {
+        int multiplierSteps = Math.max(0, round - 1);
+        long scaledValue = (long)baseValue;
+
+        for(int i = 0; i < multiplierSteps; i++)
+        {
+            scaledValue *= 2;
+
+            if(scaledValue > Integer.MAX_VALUE)
+            {
+                return Integer.MAX_VALUE;
+            }
+        }
+
+        return (int)scaledValue;
     }
 }
