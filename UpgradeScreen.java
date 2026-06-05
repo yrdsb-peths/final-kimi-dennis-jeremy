@@ -79,6 +79,7 @@ public class UpgradeScreen extends World
         if(Greenfoot.isKeyDown("q")) { buyOrUpgrade("fireball");  waitRelease(); }
         if(Greenfoot.isKeyDown("w")) { buyOrUpgrade("lightning"); waitRelease(); }
         if(Greenfoot.isKeyDown("e")) { buyOrUpgrade("icewave");   waitRelease(); }
+        if("kaine".equals(heroType) && Greenfoot.isKeyDown("r")) { buyOrUpgrade("sword"); waitRelease(); }
 
         if(isAdvanceKeyPressed())
             startNextRound();
@@ -122,6 +123,7 @@ public class UpgradeScreen extends World
     {
         if(w.equals("fireball"))  return fireballLevel;
         if(w.equals("lightning")) return lightningLevel;
+        if(w.equals("sword"))     return swordLevel;
         return iceWaveLevel;
     }
 
@@ -130,6 +132,7 @@ public class UpgradeScreen extends World
         if(w.equals("fireball"))  fireballLevel  = lv;
         if(w.equals("lightning")) lightningLevel = lv;
         if(w.equals("icewave"))   iceWaveLevel   = lv;
+        if(w.equals("sword"))     swordLevel     = lv;
     }
 
     private void showMsg(String msg)
@@ -216,10 +219,12 @@ public class UpgradeScreen extends World
         drawWeaponEntry(bg, wx, wy+40,  "[Q]  Fireball",  fireballLevel);
         drawWeaponEntry(bg, wx, wy+110, "[W]  Lightning", lightningLevel);
         drawWeaponEntry(bg, wx, wy+180, "[E]  IceWave",   iceWaveLevel);
+        if("kaine".equals(heroType))
+            drawWeaponEntry(bg, wx, wy+250, "[R]  Signature Sword", swordLevel);
 
         bg.setFont(new Font("Arial", false, false, 18));
         bg.setColor(new Color(180, 180, 180));
-        bg.drawString("Buy: " + WEAPON_BUY_COST + " coin   Upgrade: " + WEAPON_UPGRADE_COST + " coin", wx, wy+270);
+        bg.drawString("Buy: " + WEAPON_BUY_COST + " coin   Upgrade: " + WEAPON_UPGRADE_COST + " coin", wx, wy+340);
 
         
         if(!message.isEmpty())
