@@ -15,6 +15,11 @@ public class Enemy extends Actor
     int attackCooldown = 0;
     static final int ATTACK_INTERVAL = 60;
 
+    public Enemy(double worldX, double worldY)
+    {
+        this(worldX, worldY, 1);
+    }
+
     public Enemy(double worldX, double worldY, int round)
     {
         this.worldX = worldX;
@@ -26,11 +31,6 @@ public class Enemy extends Actor
         attackDamage = 5 + (round - 1) * 2;
         xpDrop = 3 + round / 3;
         coinDrop = 2 + round / 5;
-
-        GreenfootImage img = new GreenfootImage(40, 40);
-        img.setColor(Color.RED);
-        img.fillOval(0, 0, 40, 40);
-        setImage(img);
     }
 
     public void act()
@@ -40,17 +40,24 @@ public class Enemy extends Actor
             return;
         }
 
-        followPlayer();
-        touchPlayer();
+        if(getWorld() instanceof GameWorld)
+        {
+            followGameWorldPlayer();
+            attackGameWorldPlayer();
+        }
+        else if(getWorld() instanceof MyWorld)
+        {
+            followMyWorldPlayer();
+            attackMyWorldPlayer();
+        }
     }
 
-    public void followPlayer()
+    private void followGameWorldPlayer()
     {
-        GameWorld gw = (GameWorld)getWorld();
+        GameWorld world = (GameWorld)getWorld();
 
-        double dx = gw.player.worldX - worldX;
-        double dy = gw.player.worldY - worldY;
-
+        double dx = world.player.worldX - worldX;
+        double dy = world.player.worldY - worldY;
         double dist = Math.sqrt(dx * dx + dy * dy);
 
         if(dist > 0)
@@ -60,20 +67,95 @@ public class Enemy extends Actor
         }
     }
 
-    public void touchPlayer()
+    private void attackGameWorldPlayer()
     {
-        GameWorld gw = (GameWorld)getWorld();
+        GameWorld world = (GameWorld)getWorld();
 
-        double dx = gw.player.worldX - worldX;
-        double dy = gw.player.worldY - worldY;
-
+        double dx = world.player.worldX - worldX;
+        double dy = world.player.worldY - worldY;
         double dist = Math.sqrt(dx * dx + dy * dy);
 
         attackCooldown++;
 
         if(dist < 40 && attackCooldown >= ATTACK_INTERVAL)
         {
-            gw.player.takeHit(attackDamage);
+            world.player.takeHit(attackDamage);
+            attackCooldown = 0;
+        }
+    }
+
+    private void followMyWorldPlayer()
+    {
+        MyWorld world = (MyWorld)getWorld();
+
+        Actor player = null;
+
+        if(world.leon != null)
+        {
+            player = world.leon;
+        }
+        else if(world.kaine != null)
+        {
+            player = world.kaine;
+        }
+        else if(world.aurea != null)
+        {
+            player = world.aurea;
+        }
+
+        if(player == null)
+        {
+            return;
+        }
+
+        int dx = player.getX() - getX();
+        int dy = player.getY() - getY();
+        double dist = Math.sqrt(dx * dx + dy * dy);
+
+        if(dist > 0)
+        {
+            int newX = getX() + (int)(dx / dist * speed);
+            int newY = getY() + (int)(dy / dist * speed);
+            setLocation(newX, newY);
+
+            worldX = newX;
+            worldY = newY;
+        }
+    }
+
+    private void attackMyWorldPlayer()
+    {
+        MyWorld world = (MyWorld)getWorld();
+
+        Actor player = null;
+
+        if(world.leon != null)
+        {
+            player = world.leon;
+        }
+        else if(world.kaine != null)
+        {
+            player = world.kaine;
+        }
+        else if(world.aurea != null)
+        {
+            player = world.aurea;
+        }
+
+        if(player == null)
+        {
+            return;
+        }
+
+        int dx = player.getX() - getX();
+        int dy = player.getY() - getY();
+        double dist = Math.sqrt(dx * dx + dy * dy);
+
+        attackCooldown++;
+
+        if(dist < 40 && attackCooldown >= ATTACK_INTERVAL)
+        {
+            world.damageSelectedPlayer(attackDamage);
             attackCooldown = 0;
         }
     }
