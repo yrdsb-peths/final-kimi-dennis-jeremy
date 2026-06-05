@@ -127,12 +127,16 @@ public abstract class Hero extends Actor
     protected abstract void onDeathAnimation();
 
     // Level-up system
-    public void gainXP(int amount)   { xp += amount; }
+    public void gainXP(int amount)
+    {
+        xp += amount;
+        checkLevelUp();
+    }
     public void gainCoin(int amount) { coin += amount; }
 
     public void checkLevelUp()
     {
-        if(xp >= xpToNextLevel)
+        while(xp >= xpToNextLevel)
         {
             xp -= xpToNextLevel;
             level++;
