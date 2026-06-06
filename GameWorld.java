@@ -94,6 +94,7 @@ public class GameWorld extends World
         player.stamina       = stamina;
         player.power         = power;
         player.xpToNextLevel = xpToNextLevel;
+
         addObject(player, screenCX, screenCY);
 
         if(iceWaveLevel > 0)
@@ -267,6 +268,7 @@ public class GameWorld extends World
         if(fireballTimer >= SKILL_INTERVAL)
         {
             fireballTimer = 0;
+
             Enemy closest = getClosestEnemy();
             if(closest != null)
             {
@@ -286,6 +288,7 @@ public class GameWorld extends World
         if(lightningTimer >= SKILL_INTERVAL)
         {
             lightningTimer = 0;
+
             Enemy closest = getClosestEnemy();
             if(closest != null)
             {
@@ -306,11 +309,13 @@ public class GameWorld extends World
         if(gunTimer >= SKILL_INTERVAL)
         {
             gunTimer = 0;
+
             Enemy closest = getClosestEnemy();
             if(closest == null || !(player instanceof LeonClovis)) return;
 
             LeonClovis leon = (LeonClovis)player;
             leon.gunDamage = player.getDamage() + (gunLevel - 1) * 5;
+
             Bullet bullet = new Bullet(closest, leon, leon.gunDamage);
             addObject(bullet, screenCX, screenCY);
         }
@@ -401,6 +406,7 @@ public class GameWorld extends World
     {
         double dx = x1 - x2;
         double dy = y1 - y2;
+
         return Math.sqrt(dx * dx + dy * dy);
     }
 

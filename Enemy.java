@@ -29,7 +29,7 @@ public class Enemy extends Actor
         coinDrop     = 2 + round / 5;
     }
 
-    public void act()
+    private void attackGameWorldPlayer()
     {
         followPlayer();
         attackPlayer();
