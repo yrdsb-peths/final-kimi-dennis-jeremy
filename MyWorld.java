@@ -145,8 +145,7 @@ public class MyWorld extends World
 
         playerChosen = true;
         clearTitleScreen();
-
-        showText("Kaine starts with sword attacks.", CENTER_X, 520);
+        showText("Kaine - Sword master. Space to switch, Tab to flip sword.", CENTER_X, 520);
         needsStartingEnemies = true;
     }
 
@@ -157,8 +156,7 @@ public class MyWorld extends World
 
         playerChosen = true;
         clearTitleScreen();
-
-        showText("Leon starts with ranged attacks.", CENTER_X, 520);
+        showText("Aurea - Lightning mage. Use WASD to move.", CENTER_X, 520);
         needsStartingEnemies = true;
     }
 
@@ -169,8 +167,7 @@ public class MyWorld extends World
 
         playerChosen = true;
         clearTitleScreen();
-
-        showText("Aurea starts with magic attacks.", CENTER_X, 520);
+        showText("Leon - Gunslinger. Use WASD to move.", CENTER_X, 520);
         needsStartingEnemies = true;
     }
 
@@ -191,7 +188,6 @@ public class MyWorld extends World
                 spawnEnemyInWave();
                 enemySpawnTimer.mark();
             }
-
             return;
         }
 
@@ -242,18 +238,15 @@ public class MyWorld extends World
         int x = Greenfoot.getRandomNumber(getWidth());
         int maxSpawnY = BATTLE_TEXT_Y - ENEMY_BOTTOM_PADDING;
         int y = Greenfoot.getRandomNumber(maxSpawnY);
-
         Enemy enemy = new Enemy(x, y, waveNumber);
-
         addObject(enemy, x, y);
     }
 
+    // ── Aurea 的火球技能 ──────────────────────────────────
     private void spawnAureaSkill()
     {
-        if(aurea == null || aureaSkillTimer.millisElapsed() <= 900)
-        {
-            return;
-        }
+        if(aurea == null) return;
+        if(aureaSkillTimer.millisElapsed() <= 900) return;
 
         Enemy closest = getClosestEnemy(aurea.getX(), aurea.getY());
 
@@ -318,17 +311,17 @@ public class MyWorld extends World
 
     public void damageSelectedPlayer(int damage)
     {
-        if(leon != null)
+        if(leon != null && leon.getWorld() != null)
         {
             leon.takeHit(damage);
         }
 
-        if(kaine != null)
+        if(kaine != null && kaine.getWorld() != null)
         {
             kaine.takeHit(damage);
         }
 
-        if(aurea != null)
+        if(aurea != null && aurea.getWorld() != null)
         {
             aurea.takeHit(damage);
         }
@@ -357,17 +350,17 @@ public class MyWorld extends World
 
     private int getCurrentHeroLevel()
     {
-        if(leon != null)
+        if(leon != null && leon.getWorld() != null)
         {
             return leon.level;
         }
 
-        if(kaine != null)
+        if(kaine != null && kaine.getWorld() != null)
         {
             return kaine.level;
         }
 
-        if(aurea != null)
+        if(aurea != null && aurea.getWorld() != null)
         {
             return aurea.level;
         }

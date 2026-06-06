@@ -39,7 +39,10 @@ public abstract class Hero extends Actor
 
     public void act()
     {
-        updateHero();
+        if(getWorld() instanceof GameWorld || getWorld() instanceof MyWorld)
+        {
+            updateHero();
+        }
     }
 
     public void updateHero()

@@ -88,36 +88,17 @@ public class Fireball extends Weapon
     @Override
     protected void onHitEnemy(Enemy e, double dx, double dy, double dist)
     {
-        World world = getWorld();
-        if(world == null)
-        {
-            return;
-        }
+        if(!(getWorld() instanceof GameWorld)) return;
 
+        GameWorld gw = (GameWorld) getWorld();
         boolean died = e.takeDamage(damage);
         if(died)
         {
-            if(world instanceof GameWorld)
-            {
-                GameWorld gw = (GameWorld)world;
-                gw.player.gainXP(e.xpDrop);
-                gw.player.gainCoin(e.coinDrop);
-            }
-            else if(world instanceof MyWorld)
-            {
-                ((MyWorld)world).giveSelectedPlayerReward(e.xpDrop, e.coinDrop);
-            }
-
-            if(e.getWorld() != null)
-            {
-                e.getWorld().removeObject(e);
-            }
+            gw.player.gainXP(e.xpDrop);
+            gw.player.gainCoin(e.coinDrop);
+            if(e.getWorld() != null) gw.removeObject(e);
         }
-
-        if(getWorld() != null)
-        {
-            getWorld().removeObject(this);
-        }
+        if(getWorld() != null) gw.removeObject(this);
     }
 
     private void checkRange()
@@ -139,8 +120,8 @@ public class Fireball extends Weapon
         GameWorld gw = (GameWorld)getWorld();
         double dx = worldX - gw.player.worldX;
         double dy = worldY - gw.player.worldY;
-        if(Math.sqrt(dx*dx + dy*dy) > 1000){
+        if(Math.sqrt(dx*dx + dy*dy) > 1000)
             gw.removeObject(this);
-        }
     }
 }
+
