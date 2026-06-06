@@ -1,7 +1,0 @@
-#BlueJ class context
-comment0.target=futuristicSword
-comment1.params=
-comment1.target=futuristicSword()
-comment2.params=rightMode
-comment2.target=greenfoot.GreenfootImage\ getSwordImage(boolean)
-numComments=3
