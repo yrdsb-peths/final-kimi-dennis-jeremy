@@ -115,24 +115,20 @@ public class GameWorld extends World
     {
         roundTimer++;
 
-        // 更新背景
         bgOffX = (int)((-player.worldX % bgTile.getWidth()
                         + bgTile.getWidth()) % bgTile.getWidth());
         bgOffY = (int)((-player.worldY % bgTile.getHeight()
                         + bgTile.getHeight()) % bgTile.getHeight());
         drawBackground(bgOffX, bgOffY);
-
-        // ★ 关键：更新屏幕位置必须在所有其他逻辑之前！
         updateScreenPositions();
         
-        // 生成新的敌人和技能
+        
         spawnEnemy();
         if(fireballLevel  > 0) spawnFireball();
         if(lightningLevel > 0) spawnLightning();
         if(gunLevel       > 0) spawnGun();
         if(swordLevel     > 0) spawnSwordMelee();
 
-        // 检查游戏状态
         checkPlayerDead();
         checkRoundEnd();
         drawHUD();
@@ -164,14 +160,12 @@ public class GameWorld extends World
         ));
     }
 
-    // ★ 关键方法：同步所有对象的屏幕位置
-    // 必须在 act() 最开始调用，保证摄像机计算正确
     private void updateScreenPositions()
     {
         double camX = player.worldX;
         double camY = player.worldY;
 
-        // 更新敌人屏幕位置（基于世界坐标）
+        
         for(Enemy e : getObjects(Enemy.class))
         {
             if(e != null)
@@ -183,7 +177,7 @@ public class GameWorld extends World
             }
         }
         
-        // 更新火球屏幕位置
+        
         for(Fireball f : getObjects(Fireball.class))
         {
             if(f != null)
@@ -194,7 +188,7 @@ public class GameWorld extends World
             }
         }
         
-        // 更新闪电屏幕位置
+        
         for(Lightning l : getObjects(Lightning.class))
         {
             if(l != null)
@@ -205,7 +199,7 @@ public class GameWorld extends World
             }
         }
         
-        // 冰波始终在屏幕中心
+    
         for(IceWave iw : getObjects(IceWave.class))
         {
             if(iw != null)
@@ -239,8 +233,7 @@ public class GameWorld extends World
         showText("XP  " + p.xp + " / " + p.xpToNextLevel
                  + "   Lv." + p.level, 270, 63);
         showText("Coin: " + p.coin, 80, 90);
-        showText("Weapon: " + HeroData.signatureWeaponName(heroType)
-                 + " Lv." + getSignatureWeaponLevel(), 80, 115);
+        showText(" Lv." + getSignatureWeaponLevel(), 80, 115);
 
         int secondsLeft = (ROUND_DURATION - roundTimer) / 60;
         showText("Round " + round + " / " + TOTAL_ROUNDS, getWidth() / 2, 30);
