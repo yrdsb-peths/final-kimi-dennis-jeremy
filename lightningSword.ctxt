@@ -1,0 +1,7 @@
+#BlueJ class context
+comment0.target=lightningSword
+comment1.params=
+comment1.target=lightningSword()
+comment2.params=rightMode
+comment2.target=greenfoot.GreenfootImage\ getSwordImage(boolean)
+numComments=3

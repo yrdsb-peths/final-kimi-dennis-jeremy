@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=Bullet
+comment1.params=enemy\ shooter\ damage
+comment1.target=Bullet(Enemy,\ Hero,\ int)
+comment2.params=
+comment2.target=void\ act()
+comment3.params=
+comment3.target=void\ followEnemy()
+comment4.params=
+comment4.target=void\ hitEnemy()
+comment5.params=
+comment5.target=void\ removeAtEdge()
+numComments=6
