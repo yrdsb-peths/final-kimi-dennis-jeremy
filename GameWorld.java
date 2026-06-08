@@ -5,8 +5,9 @@ public class GameWorld extends World
     private static final String BATTLE_THEME = "theme.mp3";
 
     public Hero player;
-    private GreenfootSound battleTheme = new GreenfootSound(BATTLE_THEME);
+    private GreenfootSound battleTheme;
     private boolean battleThemeStarted = false;
+    private boolean battleThemeUnavailable = false;
 
     public int round;
     static final int TOTAL_ROUNDS = 30;
@@ -161,10 +162,24 @@ public class GameWorld extends World
 
     private void startBattleTheme()
     {
-        if(!battleThemeStarted)
+        if(battleThemeStarted || battleThemeUnavailable)
         {
+            return;
+        }
+
+        try
+        {
+            if(battleTheme == null)
+            {
+                battleTheme = new GreenfootSound(BATTLE_THEME);
+            }
+
             battleThemeStarted = true;
             battleTheme.play();
+        }
+        catch(Exception e)
+        {
+            battleThemeUnavailable = true;
         }
     }
 
@@ -188,7 +203,7 @@ public class GameWorld extends World
     {
         Hero p = player;
 
-        battleTheme.stop();
+        stopBattleTheme();
         Greenfoot.setWorld(new UpgradeScreen(
             p.hp, p.maxHp, p.xp, p.coin,
             p.level, p.speed, p.stamina, p.power,
@@ -300,8 +315,16 @@ public class GameWorld extends World
         }
 
         gameOverHandled = true;
-        battleTheme.stop();
+        stopBattleTheme();
         Greenfoot.setWorld(new TitleScreen());
+    }
+
+    private void stopBattleTheme()
+    {
+        if(battleTheme != null)
+        {
+            battleTheme.stop();
+        }
     }
 
     public void spawnFireball()

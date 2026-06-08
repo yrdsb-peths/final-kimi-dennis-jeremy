@@ -22,7 +22,7 @@ public class Enemy extends Actor
         this.worldX = worldX;
         this.worldY = worldY;
 
-        speed = 2 + round / 5;
+        speed = 2 + Math.max(0, round - 1);
         hp = scaleByRound(BASE_HP, round);
         maxHp = hp;
         attackDamage = scaleByRound(BASE_ATTACK_DAMAGE, round);
