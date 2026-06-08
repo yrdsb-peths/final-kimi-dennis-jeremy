@@ -153,6 +153,7 @@ public abstract class Hero extends Actor
     public void gainXP(int amount)
     {
         xp += amount;
+        checkLevelUp();
     }
 
     public void gainCoin(int amount)
@@ -162,7 +163,7 @@ public abstract class Hero extends Actor
 
     public void checkLevelUp()
     {
-        if(xp >= xpToNextLevel)
+        while(xp >= xpToNextLevel)
         {
             xp -= xpToNextLevel;
             level++;

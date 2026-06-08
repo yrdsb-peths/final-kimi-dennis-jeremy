@@ -14,19 +14,31 @@ public class Enemy extends Actor
     int attackCooldown = 0;
     static final int ATTACK_INTERVAL = 60;
     public int attackDamage;
+    static final int BASE_HP = 30;
+    static final int BASE_ATTACK_DAMAGE = 5;
 
     public Enemy(double worldX, double worldY, int round)
     {
         this.worldX = worldX;
         this.worldY = worldY;
 
-        // Stats scale with round number
-        speed        = 2 + round / 5;
-        hp           = 30 + (round - 1) * 8;
-        maxHp        = hp;
-        attackDamage = 5 + (round - 1) * 2;
-        xpDrop       = 3 + round / 3;
-        coinDrop     = 2 + round / 5;
+        speed = 2 + Math.max(0, round - 1);
+        hp = scaleByRound(BASE_HP, round);
+        maxHp = hp;
+        attackDamage = scaleByRound(BASE_ATTACK_DAMAGE, round);
+        xpDrop = 3 + round / 3;
+        coinDrop = 2 + round / 5;
+
+        GreenfootImage img = new GreenfootImage(40, 40);
+        img.setColor(Color.RED);
+        img.fillOval(0, 0, 40, 40);
+        setImage(img);
+    }
+
+    public void act()
+    {
+        followPlayer();
+        attackPlayer();
     }
 
     private void attackGameWorldPlayer()
@@ -105,5 +117,22 @@ public class Enemy extends Actor
                 getWorld().removeObject(this);
         }
         return died;
+    }
+    private int scaleByRound(int baseValue, int round)
+    {
+        int multiplierSteps = Math.max(0, round - 1);
+        long scaledValue = (long)baseValue;
+
+        for(int i = 0; i < multiplierSteps; i++)
+        {
+            scaledValue *= 2;
+
+            if(scaledValue > Integer.MAX_VALUE)
+            {
+                return Integer.MAX_VALUE;
+            }
+        }
+
+        return (int)scaledValue;
     }
 }

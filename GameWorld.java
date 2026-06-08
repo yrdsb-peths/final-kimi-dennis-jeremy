@@ -2,7 +2,12 @@ import greenfoot.*;
 
 public class GameWorld extends World
 {
+    private static final String BATTLE_THEME = "theme.mp3";
+
     public Hero player;
+    private GreenfootSound battleTheme;
+    private boolean battleThemeStarted = false;
+    private boolean battleThemeUnavailable = false;
 
     public int round;
     static final int TOTAL_ROUNDS   = 30;
@@ -114,7 +119,10 @@ public class GameWorld extends World
 
     public void act()
     {
+        startBattleTheme();
+
         roundTimer++;
+        player.updateHero();
 
         bgOffX = (int)((-player.worldX % bgTile.getWidth()
                         + bgTile.getWidth()) % bgTile.getWidth());
@@ -135,6 +143,34 @@ public class GameWorld extends World
         drawHUD();
     }
 
+    public void started()
+    {
+        startBattleTheme();
+    }
+
+    private void startBattleTheme()
+    {
+        if(battleThemeStarted || battleThemeUnavailable)
+        {
+            return;
+        }
+
+        try
+        {
+            if(battleTheme == null)
+            {
+                battleTheme = new GreenfootSound(BATTLE_THEME);
+            }
+
+            battleThemeStarted = true;
+            battleTheme.play();
+        }
+        catch(Exception e)
+        {
+            battleThemeUnavailable = true;
+        }
+    }
+
     private void checkRoundEnd()
     {
         if(roundEndHandled || roundTimer < ROUND_DURATION) return;
@@ -151,6 +187,8 @@ public class GameWorld extends World
     {
         HeroData.heroType = heroType;
         Hero p = player;
+
+        stopBattleTheme();
         Greenfoot.setWorld(new UpgradeScreen(
             p.hp, p.maxHp, p.xp, p.coin,
             p.level, p.speed, p.stamina, p.power,
@@ -247,7 +285,9 @@ public class GameWorld extends World
         GreenfootImage c = getBackground();
         c.setColor(barBg);
         c.fillRect(x, y, w, h);
-        int f = Math.max(0, Math.min(w, (int)((double)cur / max * w)));
+        int f = max > 0
+            ? Math.max(0, Math.min(w, (int)((double)cur / max * w)))
+            : 0;
         c.setColor(fill);
         c.fillRect(x, y, f, h);
         c.setColor(Color.WHITE);
@@ -259,7 +299,16 @@ public class GameWorld extends World
         if(gameOverHandled || !player.isDead) return;
         if(player instanceof AureaSolvine && player.animFrame < 6) return;
         gameOverHandled = true;
+        stopBattleTheme();
         Greenfoot.setWorld(new TitleScreen());
+    }
+
+    private void stopBattleTheme()
+    {
+        if(battleTheme != null)
+        {
+            battleTheme.stop();
+        }
     }
 
     public void spawnFireball()
