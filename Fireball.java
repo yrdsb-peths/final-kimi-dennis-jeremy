@@ -99,18 +99,16 @@ public class Fireball extends Weapon
         {
             if(world instanceof GameWorld)
             {
-                GameWorld gw = (GameWorld)world;
-                gw.player.gainXP(e.xpDrop);
-                gw.player.gainCoin(e.coinDrop);
+                ((GameWorld)world).handleEnemyDefeat(e);
             }
             else if(world instanceof MyWorld)
             {
                 ((MyWorld)world).giveSelectedPlayerReward(e.xpDrop, e.coinDrop);
-            }
 
-            if(e.getWorld() != null)
-            {
-                e.getWorld().removeObject(e);
+                if(e.getWorld() != null)
+                {
+                    e.getWorld().removeObject(e);
+                }
             }
         }
 

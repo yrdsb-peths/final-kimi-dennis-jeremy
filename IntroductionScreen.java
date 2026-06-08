@@ -64,7 +64,7 @@ public class IntroductionScreen extends World
 
     drawSection(bg, x, y, "Progression");
     y += line;
-    drawBody(bg, x, y, "Level up from XP to gain attribute points and stronger stats.");
+    drawBody(bg, x, y, "Level up from XP to gain attribute points — spend them in the shop on Power, Speed, or Stamina.");
     y += line;
     drawBody(bg, x, y, "After each round ends, enter the shop to spend coins and attribute points.");
     y += line * 2;

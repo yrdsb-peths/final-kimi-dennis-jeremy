@@ -79,9 +79,7 @@ public class Lightning extends Weapon
         boolean died = e.takeDamage(damage);
         if(died)
         {
-            gw.player.gainXP(e.xpDrop);
-            gw.player.gainCoin(e.coinDrop);
-            if(e.getWorld() != null) gw.removeObject(e);
+            gw.handleEnemyDefeat(e);
         }
         hasHit = true;
     }

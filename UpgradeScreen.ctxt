@@ -1,7 +1,7 @@
 #BlueJ class context
 comment0.target=UpgradeScreen
-comment1.params=hp\ maxHp\ xp\ coin\ level\ speed\ stamina\ power\ xpToNextLevel\ attributePoints\ nextRound\ fireballLevel\ lightningLevel\ iceWaveLevel\ gunLevel\ swordLevel
-comment1.target=UpgradeScreen(int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int)
+comment1.params=hp\ maxHp\ xp\ coin\ level\ speed\ stamina\ power\ xpToNextLevel\ attributePoints\ nextRound\ fireballLevel\ lightningLevel\ iceWaveLevel\ gunLevel\ swordLevel\ enemiesKilled
+comment1.target=UpgradeScreen(int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int)
 comment10.params=
 comment10.target=void\ startNextRound()
 comment11.params=

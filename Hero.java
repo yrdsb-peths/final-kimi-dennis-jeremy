@@ -166,9 +166,6 @@ public abstract class Hero extends Actor
 
             xpToNextLevel = (int)(xpToNextLevel * 1.5);
 
-            speed += 1;
-            stamina += 1;
-            power += 1;
             maxHp += 10;
             hp = maxHp;
 

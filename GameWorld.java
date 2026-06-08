@@ -26,6 +26,10 @@ public class GameWorld extends World
     static final int SKILL_INTERVAL = 90;
     static final int MIN_SPAWN_DISTANCE = 300;
     static final int MAX_ENEMIES = 30;
+    static final String SOUND_FIREBALL = "fireball.mp3";
+    static final String SOUND_LIGHTNING = "lightning.mp3";
+    static final String SOUND_GAME_OVER = "game over.mp3";
+    static final String SOUND_BACKGROUND = "background.mp3";
 
     int ENEMY_SPAWN_INTERVAL;
 
@@ -36,8 +40,10 @@ public class GameWorld extends World
     int screenCY;
 
     int pendingAttributePoints = 0;
+    int enemiesKilled = 0;
     boolean gameOverHandled = false;
     boolean roundEndHandled = false;
+    GreenfootSound backgroundMusic;
 
     public String heroType = "aurea";
 
@@ -50,7 +56,8 @@ public class GameWorld extends World
              HeroData.startingWeapon(heroType, 1),
              HeroData.startingWeapon(heroType, 2),
              HeroData.startingWeapon(heroType, 3),
-             HeroData.startingWeapon(heroType, 4));
+             HeroData.startingWeapon(heroType, 4),
+             0);
     }
 
     public GameWorld(
@@ -60,7 +67,8 @@ public class GameWorld extends World
         int round,
         String heroType,
         int fireballLevel, int lightningLevel, int iceWaveLevel,
-        int gunLevel, int swordLevel)
+        int gunLevel, int swordLevel,
+        int enemiesKilled)
     {
         super(1500, 750, 1);
 
@@ -76,6 +84,7 @@ public class GameWorld extends World
         this.iceWaveLevel = iceWaveLevel;
         this.gunLevel = gunLevel;
         this.swordLevel = swordLevel;
+        this.enemiesKilled = enemiesKilled;
 
         ENEMY_SPAWN_INTERVAL = Math.max(20, 60 - (round - 1) * 2);
 
@@ -109,6 +118,9 @@ public class GameWorld extends World
             KaineCompanionSword sword = new KaineCompanionSword();
             addObject(sword, screenCX + 22, screenCY - 6);
         }
+
+        backgroundMusic = new GreenfootSound(SOUND_BACKGROUND);
+        startBackgroundMusic();
     }
 
     public void act()
@@ -147,6 +159,16 @@ public class GameWorld extends World
         drawHUD();
     }
 
+    private void startBackgroundMusic()
+    {
+        backgroundMusic.playLoop();
+    }
+
+    private void stopBackgroundMusic()
+    {
+        backgroundMusic.stop();
+    }
+
     private void checkRoundEnd()
     {
         if(roundEndHandled || roundTimer < ROUND_DURATION)
@@ -173,8 +195,22 @@ public class GameWorld extends World
             p.xpToNextLevel, pendingAttributePoints,
             round + 1,
             fireballLevel, lightningLevel, iceWaveLevel,
-            gunLevel, swordLevel
+            gunLevel, swordLevel,
+            enemiesKilled
         ));
+    }
+
+    public void handleEnemyDefeat(Enemy e)
+    {
+        if(e == null || e.getWorld() == null)
+        {
+            return;
+        }
+
+        enemiesKilled++;
+        player.gainXP(e.xpDrop);
+        player.gainCoin(e.coinDrop);
+        removeObject(e);
     }
 
     private void updateScreenPositions()
@@ -278,7 +314,19 @@ public class GameWorld extends World
         }
 
         gameOverHandled = true;
-        Greenfoot.setWorld(new TitleScreen());
+        stopBackgroundMusic();
+        Greenfoot.playSound(SOUND_GAME_OVER);
+
+        Hero p = player;
+        int roundsSurvived = Math.max(0, round - 1);
+
+        Greenfoot.setWorld(new EndScreen(
+            false, heroType, roundsSurvived, enemiesKilled,
+            p.hp, p.maxHp, p.xp, p.coin,
+            p.level, p.speed, p.stamina, p.power,
+            fireballLevel, lightningLevel, iceWaveLevel,
+            gunLevel, swordLevel
+        ));
     }
 
     public void spawnFireball()
@@ -300,6 +348,7 @@ public class GameWorld extends World
                 );
 
                 addObject(fb, screenCX, screenCY);
+                Greenfoot.playSound(SOUND_FIREBALL);
             }
         }
     }
@@ -324,6 +373,7 @@ public class GameWorld extends World
 
                 Lightning lt = new Lightning(ex, ey, player.getDamage() + (lightningLevel - 1) * 5);
                 addObject(lt, sx, sy);
+                Greenfoot.playSound(SOUND_LIGHTNING);
             }
         }
     }
@@ -373,15 +423,13 @@ public class GameWorld extends World
 
                 if(e.takeDamage(dmg))
                 {
-                    player.gainXP(e.xpDrop);
-                    player.gainCoin(e.coinDrop);
                     defeated.add(e);
                 }
             }
 
             for(Enemy e : defeated)
             {
-                removeObject(e);
+                handleEnemyDefeat(e);
             }
         }
     }

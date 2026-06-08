@@ -56,10 +56,24 @@ public class Bullet extends Actor
         if(getWorld() != null)
             getWorld().addObject(new HitEffect(), getX(), getY());
 
-        enemy.takeDamage(damage, player);
+        World world = getWorld();
+
+        if(world instanceof GameWorld)
+        {
+            if(enemy.takeDamage(damage))
+            {
+                ((GameWorld)world).handleEnemyDefeat(enemy);
+            }
+        }
+        else
+        {
+            enemy.takeDamage(damage, player);
+        }
 
         if(getWorld() != null)
+        {
             getWorld().removeObject(this);
+        }
     }
 
     public void removeAtEdge()

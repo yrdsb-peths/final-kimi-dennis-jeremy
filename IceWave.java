@@ -21,8 +21,10 @@ public class IceWave extends Weapon
 
     static final int RADIUS   = 160;
     static final int KNOCKBACK = 60;
+    static final String SOUND_ICEWAVE = "icewave.mp3";
 
     boolean damageDealtThisCycle = false;
+    boolean soundPlayedThisCycle = false;
 
     public IceWave()
     {
@@ -40,7 +42,16 @@ public class IceWave extends Weapon
         worldY = gw.player.worldY;
 
         animate();
-        if(frame == 10) checkHitEnemy(worldX, worldY, RADIUS);
+
+        if(frame == 10)
+        {
+            if(!soundPlayedThisCycle)
+            {
+                Greenfoot.playSound(SOUND_ICEWAVE);
+                soundPlayedThisCycle = true;
+            }
+            checkHitEnemy(worldX, worldY, RADIUS);
+        }
     }
 
     private void animate()
@@ -53,6 +64,7 @@ public class IceWave extends Weapon
             {
                 frame = 0;
                 damageDealtThisCycle = false;
+                soundPlayedThisCycle = false;
             }
             setImage(frames[frame]);
         }
@@ -70,9 +82,7 @@ public class IceWave extends Weapon
         boolean died = e.takeDamage(damage);
         if(died)
         {
-            gw.player.gainXP(e.xpDrop);
-            gw.player.gainCoin(e.coinDrop);
-            if(e.getWorld() != null) gw.removeObject(e);
+            gw.handleEnemyDefeat(e);
         }
         else
         {
