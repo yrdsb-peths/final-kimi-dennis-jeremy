@@ -5,16 +5,9 @@ public class TitleScreen extends World
     public TitleScreen()
     {
         super(1500, 750, 1);
-        addObject(new Label("CHOOSE YOUR HERO", 80), 750, 120);
-
-        addObject(new Label("AUREA SOLVINE", 50), 350, 300);
-        addObject(new Label("Press A", 40), 350, 380);
-
-        addObject(new Label("LEON CLOVIS", 50), 750, 300);
-        addObject(new Label("Press L", 40), 750, 380);
-
-        addObject(new Label("KAINE VELSARTH", 50), 1150, 300);
-        addObject(new Label("Press K", 40), 1150, 380);
+        GreenfootImage bg = new GreenfootImage("Titlescreen.png");
+        bg.scale(1500,750);
+        setBackground(bg);
     }
 
     public void act()
