@@ -2,7 +2,11 @@ import greenfoot.*;
 
 public class GameWorld extends World
 {
+    private static final String BATTLE_THEME = "theme.mp3";
+
     public Hero player;
+    private GreenfootSound battleTheme = new GreenfootSound(BATTLE_THEME);
+    private boolean battleThemeStarted = false;
 
     public int round;
     static final int TOTAL_ROUNDS = 30;
@@ -113,6 +117,8 @@ public class GameWorld extends World
 
     public void act()
     {
+        startBattleTheme();
+
         roundTimer++;
         player.updateHero();
 
@@ -148,6 +154,20 @@ public class GameWorld extends World
         drawHUD();
     }
 
+    public void started()
+    {
+        startBattleTheme();
+    }
+
+    private void startBattleTheme()
+    {
+        if(!battleThemeStarted)
+        {
+            battleThemeStarted = true;
+            battleTheme.play();
+        }
+    }
+
     private void checkRoundEnd()
     {
         if(roundEndHandled || roundTimer < ROUND_DURATION)
@@ -168,6 +188,7 @@ public class GameWorld extends World
     {
         Hero p = player;
 
+        battleTheme.stop();
         Greenfoot.setWorld(new UpgradeScreen(
             p.hp, p.maxHp, p.xp, p.coin,
             p.level, p.speed, p.stamina, p.power,
@@ -279,6 +300,7 @@ public class GameWorld extends World
         }
 
         gameOverHandled = true;
+        battleTheme.stop();
         Greenfoot.setWorld(new TitleScreen());
     }
 
