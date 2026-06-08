@@ -31,5 +31,9 @@ public class TitleScreen extends World
         {
             Greenfoot.setWorld(new GameWorld("kaine"));
         }
+        else if(key.equalsIgnoreCase("i"))
+        {
+            Greenfoot.setWorld(new IntroductionScreen());
+        }
     }
 }
