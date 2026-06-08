@@ -7,156 +7,96 @@ public class Enemy extends Actor
     public int maxHp;
     public int xpDrop;
     public int coinDrop;
-    public int attackDamage;
 
     public double worldX;
     public double worldY;
 
     int attackCooldown = 0;
     static final int ATTACK_INTERVAL = 60;
-
-    public Enemy(double worldX, double worldY)
-    {
-        this(worldX, worldY, 1);
-    }
+    public int attackDamage;
+    static final int BASE_HP = 30;
+    static final int BASE_ATTACK_DAMAGE = 5;
 
     public Enemy(double worldX, double worldY, int round)
     {
         this.worldX = worldX;
         this.worldY = worldY;
 
-        speed = 2 + round / 5;
-        hp = 30 + (round - 1) * 8;
+        speed = 2 + Math.max(0, round - 1);
+        hp = scaleByRound(BASE_HP, round);
         maxHp = hp;
-        attackDamage = 5 + (round - 1) * 2;
+        attackDamage = scaleByRound(BASE_ATTACK_DAMAGE, round);
         xpDrop = 3 + round / 3;
         coinDrop = 2 + round / 5;
+
+        GreenfootImage img = new GreenfootImage(40, 40);
+        img.setColor(Color.RED);
+        img.fillOval(0, 0, 40, 40);
+        setImage(img);
     }
 
     public void act()
     {
-        if(getWorld() == null)
-        {
-            return;
-        }
-
-        if(getWorld() instanceof GameWorld)
-        {
-            followGameWorldPlayer();
-            attackGameWorldPlayer();
-        }
-        else if(getWorld() instanceof MyWorld)
-        {
-            followMyWorldPlayer();
-            attackMyWorldPlayer();
-        }
-    }
-
-    private void followGameWorldPlayer()
-    {
-        GameWorld world = (GameWorld)getWorld();
-
-        double dx = world.player.worldX - worldX;
-        double dy = world.player.worldY - worldY;
-        double dist = Math.sqrt(dx * dx + dy * dy);
-
-        if(dist > 0)
-        {
-            worldX += dx / dist * speed;
-            worldY += dy / dist * speed;
-        }
+        followPlayer();
+        attackPlayer();
     }
 
     private void attackGameWorldPlayer()
     {
-        GameWorld world = (GameWorld)getWorld();
-
-        double dx = world.player.worldX - worldX;
-        double dy = world.player.worldY - worldY;
-        double dist = Math.sqrt(dx * dx + dy * dy);
-
-        attackCooldown++;
-
-        if(dist < 40 && attackCooldown >= ATTACK_INTERVAL)
-        {
-            world.player.takeHit(attackDamage);
-            attackCooldown = 0;
-        }
+        followPlayer();
+        attackPlayer();
     }
 
-    private void followMyWorldPlayer()
+    public void followPlayer()
     {
-        MyWorld world = (MyWorld)getWorld();
+        if(getWorld() == null) return;
 
-        Actor player = null;
-
-        if(world.leon != null)
+        if(getWorld() instanceof GameWorld)
         {
-            player = world.leon;
-        }
-        else if(world.kaine != null)
-        {
-            player = world.kaine;
-        }
-        else if(world.aurea != null)
-        {
-            player = world.aurea;
-        }
-
-        if(player == null)
-        {
+            GameWorld gw = (GameWorld) getWorld();
+            double dx = gw.player.worldX - worldX;
+            double dy = gw.player.worldY - worldY;
+            double dist = Math.sqrt(dx * dx + dy * dy);
+            if(dist > 0)
+            {
+                worldX += dx / dist * speed;
+                worldY += dy / dist * speed;
+            }
             return;
         }
 
-        int dx = player.getX() - getX();
-        int dy = player.getY() - getY();
-        double dist = Math.sqrt(dx * dx + dy * dy);
-
-        if(dist > 0)
+        if(getWorld() instanceof MyWorld)
         {
-            int newX = getX() + (int)(dx / dist * speed);
-            int newY = getY() + (int)(dy / dist * speed);
-            setLocation(newX, newY);
-
-            worldX = newX;
-            worldY = newY;
+            MyWorld world = (MyWorld) getWorld();
+            Actor target = world.leon != null ? world.leon
+                : (world.kaine != null ? world.kaine : world.aurea);
+            if(target != null)
+            {
+                turnTowards(target.getX(), target.getY());
+                move(speed);
+            }
         }
     }
 
-    private void attackMyWorldPlayer()
+    public void attackPlayer()
     {
-        MyWorld world = (MyWorld)getWorld();
+        if(getWorld() == null) return;
 
-        Actor player = null;
-
-        if(world.leon != null)
+        if(getWorld() instanceof GameWorld)
         {
-            player = world.leon;
-        }
-        else if(world.kaine != null)
-        {
-            player = world.kaine;
-        }
-        else if(world.aurea != null)
-        {
-            player = world.aurea;
-        }
-
-        if(player == null)
-        {
-            return;
-        }
-
-        int dx = player.getX() - getX();
-        int dy = player.getY() - getY();
-        double dist = Math.sqrt(dx * dx + dy * dy);
-
-        attackCooldown++;
-
-        if(dist < 40 && attackCooldown >= ATTACK_INTERVAL)
-        {
-            world.damageSelectedPlayer(attackDamage);
-            attackCooldown = 0;
+            GameWorld gw = (GameWorld) getWorld();
+            Hero p = gw.player;
+            attackCooldown++;
+            if(attackCooldown >= ATTACK_INTERVAL)
+            {
+                double dx = p.worldX - worldX;
+                double dy = p.worldY - worldY;
+                if(Math.sqrt(dx * dx + dy * dy) < 30)
+                {
+                    p.takeHit(attackDamage);
+                    attackCooldown = 0;
+                }
+            }
         }
     }
 
@@ -169,18 +109,30 @@ public class Enemy extends Actor
     public boolean takeDamage(int damage, Hero source)
     {
         boolean died = takeDamage(damage);
-
         if(died && source != null)
         {
             source.gainXP(xpDrop);
             source.gainCoin(coinDrop);
-
             if(getWorld() != null)
-            {
                 getWorld().removeObject(this);
+        }
+        return died;
+    }
+    private int scaleByRound(int baseValue, int round)
+    {
+        int multiplierSteps = Math.max(0, round - 1);
+        long scaledValue = (long)baseValue;
+
+        for(int i = 0; i < multiplierSteps; i++)
+        {
+            scaledValue *= 2;
+
+            if(scaledValue > Integer.MAX_VALUE)
+            {
+                return Integer.MAX_VALUE;
             }
         }
 
-        return died;
+        return (int)scaledValue;
     }
 }

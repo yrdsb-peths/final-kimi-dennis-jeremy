@@ -2,6 +2,8 @@ import greenfoot.*;
 
 public class UpgradeScreen extends World
 {
+    private static GreenfootImage shopBackground;
+
     String heroType;
     int hp, maxHp, xp, coin, level, speed, stamina, power;
     int xpToNextLevel;
@@ -33,6 +35,7 @@ public class UpgradeScreen extends World
         int enemiesKilled)
     {
         super(1500, 750, 1);
+        ensureShopBackground();
         this.hp             = hp;
         this.maxHp          = maxHp;
         this.xp             = xp;
@@ -175,12 +178,25 @@ public class UpgradeScreen extends World
         Greenfoot.setWorld(gw);
     }
 
+    private static void ensureShopBackground()
+    {
+        if(shopBackground != null) return;
+        shopBackground = new GreenfootImage("shop.png");
+        if(shopBackground.getWidth() > 0)
+            shopBackground.scale(1500, 750);
+    }
+
     private void drawUI()
     {
         GreenfootImage bg = getBackground();
         bg.clear();
-        bg.setColor(new Color(20, 20, 40));
-        bg.fillRect(0, 0, getWidth(), getHeight());
+        if(shopBackground != null && shopBackground.getWidth() > 0)
+            bg.drawImage(shopBackground, 0, 0);
+        else
+        {
+            bg.setColor(new Color(20, 20, 40));
+            bg.fillRect(0, 0, getWidth(), getHeight());
+        }
         bg.setColor(Color.WHITE);
         bg.setFont(new Font("Arial", true, false, 36));
         drawCenteredText(bg, "Round " + (nextRound-1) + " end ", getWidth()/2, 60);
