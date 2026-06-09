@@ -1,0 +1,14 @@
+#BlueJ class context
+comment0.target=JokeScreen
+comment0.text=\r\n\ Easter\ egg\ world\ shown\ at\ the\ start\ of\ Round\ 3.\r\n\ Phase\ 0\ (60\ frames)\:\ shows\ "Fatal\ Error"\ in\ red\ on\ black.\r\n\ Phase\ 1\ (180\ frames)\:\ black\ screen\ (3\ seconds).\r\n\ Phase\ 2\ (120\ frames)\:\ shows\ "Just\ kidding\ \:)"\ then\ launches\ Round\ 3.\r\n
+comment1.params=hp\ maxHp\ xp\ coin\ level\ speed\ stamina\ power\ xpToNextLevel\ heroType\ fireballLevel\ lightningLevel\ iceWaveLevel\ gunLevel\ swordLevel\ enemiesKilled
+comment1.target=JokeScreen(int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ java.lang.String,\ int,\ int,\ int,\ int,\ int,\ int)
+comment2.params=
+comment2.target=void\ act()
+comment3.params=
+comment3.target=void\ drawPhase()
+comment4.params=
+comment4.target=void\ launchRound3()
+comment5.params=bg\ text\ cx\ y
+comment5.target=void\ drawCentered(greenfoot.GreenfootImage,\ java.lang.String,\ int,\ int)
+numComments=6

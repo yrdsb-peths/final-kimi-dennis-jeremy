@@ -6,7 +6,6 @@ public class GameWorld extends World
 
     public int round;
     static final int TOTAL_ROUNDS = 30;
-    static final int ROUND_DURATION = 60 * 60;
 
     int roundTimer = 0;
 
@@ -25,8 +24,7 @@ public class GameWorld extends World
     static final int SWORD_MELEE_RADIUS = 75;
     static final int SKILL_INTERVAL = 90;
     static final int MAX_ENEMIES = 30;
-    static final int ELITE_WARN_START_FRAMES = 360;
-    static final int ELITE_SPAWN_AT_FRAMES = 180;
+    static final int ELITE_SPAWN_AT_FRAMES = 3600;
     static final int OFFSCREEN_MARGIN = 120;
     static final String SOUND_FIREBALL = "fireball.mp3";
     static final String SOUND_LIGHTNING = "lightning.mp3";
@@ -47,9 +45,11 @@ public class GameWorld extends World
     boolean roundEndHandled = false;
     boolean eliteSpawnedThisRound = false;
     boolean eliteDefeatedThisRound = false;
-    GreenfootSound backgroundMusic;
+    static GreenfootSound backgroundMusic;
 
     public String heroType = "aurea";
+
+    static boolean jokeShown = false;
 
     public GameWorld(String heroType)
     {
@@ -123,12 +123,34 @@ public class GameWorld extends World
             addObject(sword, screenCX + 22, screenCY - 6);
         }
 
-        backgroundMusic = new GreenfootSound(SOUND_BACKGROUND);
         startBackgroundMusic();
+
+        // Easter egg: intercept round 3 the first time
+        if(round == 3 && !jokeShown)
+        {
+            jokeShown = true;
+            triggerJokeScreen = true;
+        }
     }
+
+    private boolean triggerJokeScreen = false;
 
     public void act()
     {
+        if(triggerJokeScreen)
+        {
+            triggerJokeScreen = false;
+            Hero p = player;
+            Greenfoot.setWorld(new JokeScreen(
+                p.hp, p.maxHp, p.xp, p.coin,
+                p.level, p.speed, p.stamina, p.power,
+                p.xpToNextLevel, heroType,
+                fireballLevel, lightningLevel, iceWaveLevel,
+                gunLevel, swordLevel, enemiesKilled
+            ));
+            return;
+        }
+
         roundTimer++;
 
         bgOffX = (int)((-player.worldX % bgTile.getWidth() + bgTile.getWidth()) % bgTile.getWidth());
@@ -166,7 +188,14 @@ public class GameWorld extends World
 
     private void startBackgroundMusic()
     {
-        backgroundMusic.playLoop();
+        if(backgroundMusic == null)
+        {
+            backgroundMusic = new GreenfootSound(SOUND_BACKGROUND);
+        }
+        if(!backgroundMusic.isPlaying())
+        {
+            backgroundMusic.playLoop();
+        }
     }
 
     private void stopBackgroundMusic()
@@ -176,13 +205,17 @@ public class GameWorld extends World
 
     private void checkRoundEnd()
     {
-        if(roundEndHandled || roundTimer < ROUND_DURATION)
+        if(roundEndHandled)
         {
             return;
         }
 
-        roundEndHandled = true;
-        goToUpgradeScreen();
+        // Round ends only when elite has been defeated and all enemies are cleared
+        if(eliteDefeatedThisRound && getObjects(Enemy.class).isEmpty())
+        {
+            roundEndHandled = true;
+            goToUpgradeScreen();
+        }
     }
 
     public void addAttributePoint()
@@ -237,15 +270,12 @@ public class GameWorld extends World
             return;
         }
 
-        int framesLeft = ROUND_DURATION - roundTimer;
-
-        if(framesLeft > ELITE_SPAWN_AT_FRAMES)
+        // Spawn elite after ELITE_SPAWN_AT_FRAMES frames into the round
+        if(roundTimer >= ELITE_SPAWN_AT_FRAMES)
         {
-            return;
+            spawnEliteEnemy();
+            eliteSpawnedThisRound = true;
         }
-
-        spawnEliteEnemy();
-        eliteSpawnedThisRound = true;
     }
 
     private void spawnEliteEnemy()
@@ -363,23 +393,20 @@ public class GameWorld extends World
         showText("Coin: " + p.coin, 80, 90);
         showText("Weapon: " + HeroData.signatureWeaponName(heroType) + " Lv." + getSignatureWeaponLevel(), 130, 115);
 
-        int secondsLeft = (ROUND_DURATION - roundTimer) / 60;
-
         showText("Round " + round + " / " + TOTAL_ROUNDS, getWidth() / 2, 30);
-        showText(secondsLeft + " seconds left", getWidth() / 2, 58);
 
-        int framesLeft = ROUND_DURATION - roundTimer;
-
-        if(!eliteSpawnedThisRound
-            && framesLeft <= ELITE_WARN_START_FRAMES
-            && framesLeft > ELITE_SPAWN_AT_FRAMES)
+        if(eliteSpawnedThisRound && !eliteDefeatedThisRound)
         {
-            int eliteSeconds = (framesLeft - ELITE_SPAWN_AT_FRAMES + 59) / 60;
-            showText("Elite incoming: " + eliteSeconds, getWidth() / 2, 86);
+            showText("Elite enemy active! Defeat all enemies to advance.", getWidth() / 2, 58);
         }
-        else if(eliteSpawnedThisRound && !eliteDefeatedThisRound)
+        else if(!eliteSpawnedThisRound)
         {
-            showText("Elite enemy active!", getWidth() / 2, 86);
+            int secondsLeft = (ELITE_SPAWN_AT_FRAMES - roundTimer) / 60;
+            showText("Elite in: " + secondsLeft + "s", getWidth() / 2, 58);
+        }
+        else
+        {
+            showText("", getWidth() / 2, 58);
         }
     }
 
@@ -559,6 +586,12 @@ public class GameWorld extends World
 
     public void spawnEnemy()
     {
+        // No normal spawns once elite is on the field
+        if(eliteSpawnedThisRound)
+        {
+            return;
+        }
+
         enemySpawnTimer++;
 
         if(enemySpawnTimer >= ENEMY_SPAWN_INTERVAL)

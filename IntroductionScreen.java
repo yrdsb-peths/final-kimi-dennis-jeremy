@@ -41,7 +41,7 @@ public class IntroductionScreen extends World
 
     drawSection(bg, x, y, "Goal");
     y += line;
-    drawBody(bg, x, y, "Survive 30 rounds (60 seconds each). Defeat enemies to earn XP and coins.");
+    drawBody(bg, x, y, "Survive 30 rounds. Defeat enemies to earn XP and coins.");
     y += line * 2;
 
     drawSection(bg, x, y, "Choose Your Hero (Title Screen)");
@@ -62,11 +62,20 @@ public class IntroductionScreen extends World
     drawBody(bg, x, y, "Kaine only: SPACE — switch sword type   TAB — flip sword direction");
     y += line * 2;
 
+    drawSection(bg, x, y, "How Rounds Work");
+    y += line;
+    drawBody(bg, x, y, "Enemies spawn continuously. Near the end of each round, an Elite enemy appears.");
+    y += line;
+    drawBody(bg, x, y, "Once the Elite spawns, no new normal enemies appear.");
+    y += line;
+    drawBody(bg, x, y, "Defeat the Elite and clear all remaining enemies to end the round early");
+    y += line;
+    drawBody(bg, x, y, "and head straight to the shop!");
+    y += line * 2;
+
     drawSection(bg, x, y, "Progression");
     y += line;
-    drawBody(bg, x, y, "Level up from XP to gain attribute points — spend them in the shop on Power, Speed, or Stamina.");
-    y += line;
-    drawBody(bg, x, y, "After each round ends, enter the shop to spend coins and attribute points.");
+    drawBody(bg, x, y, "Level up from XP to gain attribute points — spend them in the shop.");
     y += line * 2;
 
     drawSection(bg, x, y, "Shop (after each round)");
@@ -77,8 +86,7 @@ public class IntroductionScreen extends World
     y += line;
     drawBody(bg, x, y, "Buy weapon: 10 coins   Upgrade weapon: 15 coins");
     y += line;
-    drawBody(bg, x, y, "SPACE — start the next round (or return to title after round 30)");
-    y += line * 2;
+    drawBody(bg, x, y, "SPACE — start the next round");
 
     bg.setFont(new Font("Arial", true, false, 24));
     bg.setColor(new Color(255, 220, 80));
