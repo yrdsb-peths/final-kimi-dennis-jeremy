@@ -103,10 +103,7 @@ public class KaineCompanionSword extends Actor
             hitCooldowns.put(enemy, HIT_COOLDOWN);
             playActiveSwordSound();
 
-            if(enemy.takeDamage(damage))
-            {
-                gw.handleEnemyDefeat(enemy);
-            }
+            enemy.takeDamage(damage);
         }
     }
 

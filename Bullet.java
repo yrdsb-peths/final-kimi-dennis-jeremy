@@ -60,10 +60,7 @@ public class Bullet extends Actor
 
         if(world instanceof GameWorld)
         {
-            if(enemy.takeDamage(damage))
-            {
-                ((GameWorld)world).handleEnemyDefeat(enemy);
-            }
+            enemy.takeDamage(damage);
         }
         else
         {

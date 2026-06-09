@@ -75,14 +75,12 @@ public class Lightning extends Weapon
     @Override
     protected void onHitEnemy(Enemy e, double dx, double dy, double dist)
     {
-        if(!(getWorld() instanceof GameWorld)) return;
-
-        GameWorld gw = (GameWorld) getWorld();
-        boolean died = e.takeDamage(damage);
-        if(died)
+        if(!(getWorld() instanceof GameWorld))
         {
-            gw.handleEnemyDefeat(e);
+            return;
         }
+
+        e.takeDamage(damage);
         hasHit = true;
     }
 }

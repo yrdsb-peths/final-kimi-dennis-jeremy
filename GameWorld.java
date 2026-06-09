@@ -24,8 +24,10 @@ public class GameWorld extends World
 
     static final int SWORD_MELEE_RADIUS = 75;
     static final int SKILL_INTERVAL = 90;
-    static final int MIN_SPAWN_DISTANCE = 300;
     static final int MAX_ENEMIES = 30;
+    static final int ELITE_WARN_START_FRAMES = 360;
+    static final int ELITE_SPAWN_AT_FRAMES = 180;
+    static final int OFFSCREEN_MARGIN = 120;
     static final String SOUND_FIREBALL = "fireball.mp3";
     static final String SOUND_LIGHTNING = "lightning.mp3";
     static final String SOUND_GAME_OVER = "game over.mp3";
@@ -43,6 +45,8 @@ public class GameWorld extends World
     int enemiesKilled = 0;
     boolean gameOverHandled = false;
     boolean roundEndHandled = false;
+    boolean eliteSpawnedThisRound = false;
+    boolean eliteDefeatedThisRound = false;
     GreenfootSound backgroundMusic;
 
     public String heroType = "aurea";
@@ -133,6 +137,7 @@ public class GameWorld extends World
         drawBackground(bgOffX, bgOffY);
         updateScreenPositions();
         spawnEnemy();
+        updateEliteSpawn();
 
         if(fireballLevel > 0)
         {
@@ -196,7 +201,8 @@ public class GameWorld extends World
             round + 1,
             fireballLevel, lightningLevel, iceWaveLevel,
             gunLevel, swordLevel,
-            enemiesKilled
+            enemiesKilled,
+            eliteDefeatedThisRound
         ));
     }
 
@@ -210,7 +216,91 @@ public class GameWorld extends World
         enemiesKilled++;
         player.gainXP(e.xpDrop);
         player.gainCoin(e.coinDrop);
+
+        if(e instanceof EliteEnemy)
+        {
+            eliteDefeatedThisRound = true;
+        }
+
         removeObject(e);
+    }
+
+    public static int weaponTriggerCount(int level)
+    {
+        return 1 + level / 5;
+    }
+
+    private void updateEliteSpawn()
+    {
+        if(eliteSpawnedThisRound || roundEndHandled)
+        {
+            return;
+        }
+
+        int framesLeft = ROUND_DURATION - roundTimer;
+
+        if(framesLeft > ELITE_SPAWN_AT_FRAMES)
+        {
+            return;
+        }
+
+        spawnEliteEnemy();
+        eliteSpawnedThisRound = true;
+    }
+
+    private void spawnEliteEnemy()
+    {
+        double[] pos = randomOffScreenWorldPosition();
+        EliteEnemy elite = new EliteEnemy(pos[0], pos[1], round);
+
+        int sx = (int)(screenCX + (pos[0] - player.worldX));
+        int sy = (int)(screenCY + (pos[1] - player.worldY));
+
+        addObject(elite, sx, sy);
+    }
+
+    private double[] randomOffScreenWorldPosition()
+    {
+        double minDistance = Math.sqrt(screenCX * screenCX + screenCY * screenCY) + OFFSCREEN_MARGIN;
+        double angle = Math.random() * Math.PI * 2;
+
+        return new double[] {
+            player.worldX + Math.cos(angle) * minDistance,
+            player.worldY + Math.sin(angle) * minDistance
+        };
+    }
+
+    public java.util.List<Enemy> getClosestEnemies(int count, java.util.Set<Enemy> exclude)
+    {
+        java.util.List<Enemy> enemies = new java.util.ArrayList<>(getObjects(Enemy.class));
+        java.util.List<Enemy> sorted = new java.util.ArrayList<>();
+
+        for(Enemy enemy : enemies)
+        {
+            if(enemy.state == Enemy.State.DEATH)
+            {
+                continue;
+            }
+
+            if(exclude != null && exclude.contains(enemy))
+            {
+                continue;
+            }
+
+            sorted.add(enemy);
+        }
+
+        sorted.sort((a, b) -> Double.compare(
+            distanceBetween(a.worldX, a.worldY, player.worldX, player.worldY),
+            distanceBetween(b.worldX, b.worldY, player.worldX, player.worldY)
+        ));
+
+        if(sorted.size() <= count)
+        {
+            return sorted;
+        }
+
+        return sorted.subList(0, count);
     }
 
     private void updateScreenPositions()
@@ -277,6 +367,20 @@ public class GameWorld extends World
 
         showText("Round " + round + " / " + TOTAL_ROUNDS, getWidth() / 2, 30);
         showText(secondsLeft + " seconds left", getWidth() / 2, 58);
+
+        int framesLeft = ROUND_DURATION - roundTimer;
+
+        if(!eliteSpawnedThisRound
+            && framesLeft <= ELITE_WARN_START_FRAMES
+            && framesLeft > ELITE_SPAWN_AT_FRAMES)
+        {
+            int eliteSeconds = (framesLeft - ELITE_SPAWN_AT_FRAMES + 59) / 60;
+            showText("Elite incoming: " + eliteSeconds, getWidth() / 2, 86);
+        }
+        else if(eliteSpawnedThisRound && !eliteDefeatedThisRound)
+        {
+            showText("Elite enemy active!", getWidth() / 2, 86);
+        }
     }
 
     private void drawBar(int x, int y, int w, int h, int value, int max, Color fill, Color back)
@@ -337,17 +441,25 @@ public class GameWorld extends World
         {
             fireballTimer = 0;
 
-            Enemy closest = getClosestEnemy();
+            int shots = weaponTriggerCount(fireballLevel);
+            java.util.List<Enemy> targets = getClosestEnemies(shots, null);
+            int damage = player.getDamage() + (fireballLevel - 1) * 5;
+            boolean fired = false;
 
-            if(closest != null)
+            for(Enemy target : targets)
             {
                 Fireball fb = new Fireball(
                     player.worldX, player.worldY,
-                    closest.worldX, closest.worldY,
-                    player.getDamage() + (fireballLevel - 1) * 5
+                    target.worldX, target.worldY,
+                    damage
                 );
 
                 addObject(fb, screenCX, screenCY);
+                fired = true;
+            }
+
+            if(fired)
+            {
                 Greenfoot.playSound(SOUND_FIREBALL);
             }
         }
@@ -361,18 +473,23 @@ public class GameWorld extends World
         {
             lightningTimer = 0;
 
-            Enemy closest = getClosestEnemy();
+            int shots = weaponTriggerCount(lightningLevel);
+            java.util.List<Enemy> targets = getClosestEnemies(shots, null);
+            int damage = player.getDamage() + (lightningLevel - 1) * 5;
+            boolean fired = false;
 
-            if(closest != null)
+            for(Enemy target : targets)
             {
-                double ex = closest.worldX;
-                double ey = closest.worldY;
+                int sx = (int)(screenCX + (target.worldX - player.worldX));
+                int sy = (int)(screenCY + (target.worldY - player.worldY));
 
-                int sx = (int)(screenCX + (ex - player.worldX));
-                int sy = (int)(screenCY + (ey - player.worldY));
-
-                Lightning lt = new Lightning(ex, ey, player.getDamage() + (lightningLevel - 1) * 5);
+                Lightning lt = new Lightning(target.worldX, target.worldY, damage);
                 addObject(lt, sx, sy);
+                fired = true;
+            }
+
+            if(fired)
+            {
                 Greenfoot.playSound(SOUND_LIGHTNING);
             }
         }
@@ -412,7 +529,6 @@ public class GameWorld extends World
             int dmg = player.getDamage() + (swordLevel - 1) * 5;
 
             java.util.List<Enemy> enemies = new java.util.ArrayList<>(getObjects(Enemy.class));
-            java.util.List<Enemy> defeated = new java.util.ArrayList<>();
 
             for(Enemy e : enemies)
             {
@@ -421,15 +537,7 @@ public class GameWorld extends World
                     continue;
                 }
 
-                if(e.takeDamage(dmg))
-                {
-                    defeated.add(e);
-                }
-            }
-
-            for(Enemy e : defeated)
-            {
-                handleEnemyDefeat(e);
+                e.takeDamage(dmg);
             }
         }
     }
@@ -462,15 +570,9 @@ public class GameWorld extends World
                 return;
             }
 
-            double x;
-            double y;
-
-            do
-            {
-                x = player.worldX + Greenfoot.getRandomNumber(1600) - 800;
-                y = player.worldY + Greenfoot.getRandomNumber(900) - 450;
-            }
-            while(distanceBetween(x, y, player.worldX, player.worldY) < MIN_SPAWN_DISTANCE);
+            double[] pos = randomOffScreenWorldPosition();
+            double x = pos[0];
+            double y = pos[1];
 
             Enemy e = new Enemy(x, y, round);
 

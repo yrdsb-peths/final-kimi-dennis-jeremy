@@ -16,6 +16,7 @@ public class UpgradeScreen extends World
     int gunLevel;
     int swordLevel;
     int enemiesKilled;
+    boolean eliteDefeatedThisRound;
 
     static final int WEAPON_BUY_COST    = 10;
     static final int WEAPON_UPGRADE_COST = 15;
@@ -32,7 +33,8 @@ public class UpgradeScreen extends World
         int nextRound,
         int fireballLevel, int lightningLevel, int iceWaveLevel,
         int gunLevel, int swordLevel,
-        int enemiesKilled)
+        int enemiesKilled,
+        boolean eliteDefeatedThisRound)
     {
         super(1500, 750, 1);
         ensureShopBackground();
@@ -53,6 +55,7 @@ public class UpgradeScreen extends World
         this.gunLevel       = gunLevel;
         this.swordLevel     = swordLevel;
         this.enemiesKilled  = enemiesKilled;
+        this.eliteDefeatedThisRound = eliteDefeatedThisRound;
         this.heroType       = HeroData.heroType;
         drawUI();
     }
@@ -200,6 +203,13 @@ public class UpgradeScreen extends World
         bg.setColor(Color.WHITE);
         bg.setFont(new Font("Arial", true, false, 36));
         drawCenteredText(bg, "Round " + (nextRound-1) + " end ", getWidth()/2, 60);
+
+        if(eliteDefeatedThisRound)
+        {
+            bg.setFont(new Font("Arial", true, false, 22));
+            bg.setColor(new Color(255, 220, 80));
+            drawCenteredText(bg, "Elite defeated! Bonus rewards collected.", getWidth()/2, 145);
+        }
 
         if(nextRound > 30)
             drawCenteredText(bg, "Congratulations! Press SPACE to view your results.", getWidth()/2, 120);
