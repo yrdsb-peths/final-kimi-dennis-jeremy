@@ -1,5 +1,6 @@
 #BlueJ class context
 comment0.target=IntroductionScreen
+comment0.text=\r\n\ The\ InstructionScreen\ class\ explains\ the\ game\ controls\ and\ how\ to\ play.\r\n\ \r\n\ @author\ Denis\r\n\ @version\ June\ 2026\r\n
 comment1.params=
 comment1.target=IntroductionScreen()
 comment2.params=

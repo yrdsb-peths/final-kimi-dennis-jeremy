@@ -1,5 +1,10 @@
 import greenfoot.*;
-
+/**
+ * The InstructionScreen class explains the game controls and how to play.
+ * 
+ * @author Denis
+ * @version June 2026
+ */
 public class IntroductionScreen extends World
 {
   public IntroductionScreen()

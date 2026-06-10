@@ -1,4 +1,10 @@
 import greenfoot.*;
+/**
+ * The Bullet class creates a projectile fired by LeonClovis.
+ * 
+ * @author Denis
+ * @version June 2026
+ */
 
 public class Bullet extends Actor
 {
