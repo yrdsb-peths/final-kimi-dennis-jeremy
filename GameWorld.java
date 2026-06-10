@@ -24,7 +24,7 @@ public class GameWorld extends World
     static final int SWORD_MELEE_RADIUS = 75;
     static final int SKILL_INTERVAL = 90;
     static final int MAX_ENEMIES = 30;
-    static final int ELITE_SPAWN_AT_FRAMES = 3600;
+    static final int ROUND_DURATION = 60 * 60;
     static final int OFFSCREEN_MARGIN = 120;
     static final String SOUND_FIREBALL = "fireball.mp3";
     static final String SOUND_LIGHTNING = "lightning.mp3";
@@ -43,7 +43,6 @@ public class GameWorld extends World
     int enemiesKilled = 0;
     boolean gameOverHandled = false;
     boolean roundEndHandled = false;
-    boolean eliteSpawnedThisRound = false;
     boolean eliteDefeatedThisRound = false;
     static GreenfootSound backgroundMusic;
 
@@ -159,7 +158,6 @@ public class GameWorld extends World
         drawBackground(bgOffX, bgOffY);
         updateScreenPositions();
         spawnEnemy();
-        updateEliteSpawn();
 
         if(fireballLevel > 0)
         {
@@ -205,17 +203,13 @@ public class GameWorld extends World
 
     private void checkRoundEnd()
     {
-        if(roundEndHandled)
+        if(roundEndHandled || roundTimer < ROUND_DURATION)
         {
             return;
         }
 
-        // Round ends only when elite has been defeated and all enemies are cleared
-        if(eliteDefeatedThisRound && getObjects(Enemy.class).isEmpty())
-        {
-            roundEndHandled = true;
-            goToUpgradeScreen();
-        }
+        roundEndHandled = true;
+        goToUpgradeScreen();
     }
 
     public void addAttributePoint()
@@ -261,32 +255,6 @@ public class GameWorld extends World
     public static int weaponTriggerCount(int level)
     {
         return 1 + level / 5;
-    }
-
-    private void updateEliteSpawn()
-    {
-        if(eliteSpawnedThisRound || roundEndHandled)
-        {
-            return;
-        }
-
-        // Spawn elite after ELITE_SPAWN_AT_FRAMES frames into the round
-        if(roundTimer >= ELITE_SPAWN_AT_FRAMES)
-        {
-            spawnEliteEnemy();
-            eliteSpawnedThisRound = true;
-        }
-    }
-
-    private void spawnEliteEnemy()
-    {
-        double[] pos = randomOffScreenWorldPosition();
-        EliteEnemy elite = new EliteEnemy(pos[0], pos[1], round);
-
-        int sx = (int)(screenCX + (pos[0] - player.worldX));
-        int sy = (int)(screenCY + (pos[1] - player.worldY));
-
-        addObject(elite, sx, sy);
     }
 
     private double[] randomOffScreenWorldPosition()
@@ -393,20 +361,13 @@ public class GameWorld extends World
         showText("Coin: " + p.coin, 80, 90);
         showText("Weapon: " + HeroData.signatureWeaponName(heroType) + " Lv." + getSignatureWeaponLevel(), 130, 115);
 
+        int secondsLeft = Math.max(0, (ROUND_DURATION - roundTimer) / 60);
         showText("Round " + round + " / " + TOTAL_ROUNDS, getWidth() / 2, 30);
+        showText(secondsLeft + "s left", getWidth() / 2, 58);
 
-        if(eliteSpawnedThisRound && !eliteDefeatedThisRound)
+        if(eliteDefeatedThisRound)
         {
-            showText("Elite enemy active! Defeat all enemies to advance.", getWidth() / 2, 58);
-        }
-        else if(!eliteSpawnedThisRound)
-        {
-            int secondsLeft = (ELITE_SPAWN_AT_FRAMES - roundTimer) / 60;
-            showText("Elite in: " + secondsLeft + "s", getWidth() / 2, 58);
-        }
-        else
-        {
-            showText("", getWidth() / 2, 58);
+            showText("", getWidth() / 2, 86);
         }
     }
 
@@ -586,12 +547,6 @@ public class GameWorld extends World
 
     public void spawnEnemy()
     {
-        // No normal spawns once elite is on the field
-        if(eliteSpawnedThisRound)
-        {
-            return;
-        }
-
         enemySpawnTimer++;
 
         if(enemySpawnTimer >= ENEMY_SPAWN_INTERVAL)
@@ -607,7 +562,9 @@ public class GameWorld extends World
             double x = pos[0];
             double y = pos[1];
 
-            Enemy e = new Enemy(x, y, round);
+            Enemy e = Greenfoot.getRandomNumber(100) < 5
+                ? new EliteEnemy(x, y, round)
+                : new Enemy(x, y, round);
 
             int sx = (int)(screenCX + (x - player.worldX));
             int sy = (int)(screenCY + (y - player.worldY));
