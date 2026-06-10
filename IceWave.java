@@ -11,15 +11,18 @@ public class IceWave extends Weapon
             frames[i] = new GreenfootImage("IceWave/IceWave" + i + ".png");
             int w = frames[i].getWidth();
             int h = frames[i].getHeight();
+
             if(w > 0 && h > 0)
+            {
                 frames[i].scale(w * 3, h * 3);
+            }
         }
     }
 
     int frame = 0;
     int animationTimer = 0;
 
-    static final int RADIUS   = 160;
+    static final int RADIUS = 160;
     static final int KNOCKBACK = 60;
     static final String SOUND_ICEWAVE = "icewave.mp3";
 
@@ -36,7 +39,10 @@ public class IceWave extends Weapon
     @Override
     public void act()
     {
-        if(getWorld() == null) return;
+        if(getWorld() == null)
+        {
+            return;
+        }
 
         GameWorld gw = (GameWorld)getWorld();
         worldX = gw.player.worldX;
@@ -62,15 +68,18 @@ public class IceWave extends Weapon
     private void animate()
     {
         animationTimer++;
+
         if(animationTimer % 3 == 0)
         {
             frame++;
+
             if(frame >= frames.length)
             {
                 frame = 0;
                 soundPlayedThisCycle = false;
                 wavesTriggered = 0;
             }
+
             setImage(frames[frame]);
         }
     }

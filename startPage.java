@@ -28,7 +28,8 @@ public class startPage extends World
     public void act()
     {
         String key = Greenfoot.getKey();
-        if(key != null && (key.equalsIgnoreCase("space") || key.equals(" ")))
+        if(key != null && (key.equalsIgnoreCase("space") || key.equals(" "))){
             Greenfoot.setWorld(new TitleScreen());
+        }
     }
 }

@@ -36,7 +36,15 @@ public abstract class Hero extends Actor
         power = 3;
         xpToNextLevel = 10;
     }
-
+    
+    private void checkRestart()
+    {
+        if(isDead && Greenfoot.isKeyDown("space"))
+        {
+            Greenfoot.setWorld(new TitleScreen());
+        }
+    }
+    
     public void act()
     {
         if(getWorld() instanceof GameWorld || getWorld() instanceof MyWorld)
@@ -50,16 +58,16 @@ public abstract class Hero extends Actor
         if(isDead)
         {
             onDeathAnimation();
+            checkRestart();
             return;
         }
-
+    
         readInput();
         updateHitRecovery();
         checkLevelUp();
         updateAnimation();
         checkDead();
     }
-
     public void readInput()
     {
         moveX = 0;
@@ -186,6 +194,14 @@ public abstract class Hero extends Actor
         {
             isDead = true;
             setState(State.DEATH);
+    
+            World world = getWorld();
+    
+            if(world != null)
+            {
+                world.showText("GAME OVER", world.getWidth() / 2, world.getHeight() / 2 - 20);
+                world.showText("Press SPACE to Restart", world.getWidth() / 2, world.getHeight() / 2 + 20);
+            }
         }
     }
 
