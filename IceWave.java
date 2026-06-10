@@ -21,8 +21,11 @@ public class IceWave extends Weapon
 
     static final int RADIUS   = 160;
     static final int KNOCKBACK = 60;
+    static final String SOUND_ICEWAVE = "icewave.mp3";
 
-    boolean damageDealtThisCycle = false;
+    boolean soundPlayedThisCycle = false;
+    int wavesThisCycle = 1;
+    int wavesTriggered = 0;
 
     public IceWave()
     {
@@ -38,9 +41,22 @@ public class IceWave extends Weapon
         GameWorld gw = (GameWorld)getWorld();
         worldX = gw.player.worldX;
         worldY = gw.player.worldY;
+        damage = gw.player.getDamage() + (gw.iceWaveLevel - 1) * 5;
+        wavesThisCycle = GameWorld.weaponTriggerCount(gw.iceWaveLevel);
 
         animate();
-        if(frame == 10) checkHitEnemy(worldX, worldY, RADIUS);
+
+        if(frame == 10 && wavesTriggered < wavesThisCycle)
+        {
+            if(!soundPlayedThisCycle)
+            {
+                Greenfoot.playSound(SOUND_ICEWAVE);
+                soundPlayedThisCycle = true;
+            }
+
+            triggerIceWaveHit();
+            wavesTriggered++;
+        }
     }
 
     private void animate()
@@ -52,31 +68,45 @@ public class IceWave extends Weapon
             if(frame >= frames.length)
             {
                 frame = 0;
-                damageDealtThisCycle = false;
+                soundPlayedThisCycle = false;
+                wavesTriggered = 0;
             }
             setImage(frames[frame]);
+        }
+    }
+
+    private void triggerIceWaveHit()
+    {
+        if(getWorld() == null)
+        {
+            return;
+        }
+
+        for(Enemy e : getWorld().getObjects(Enemy.class))
+        {
+            double dx = e.worldX - worldX;
+            double dy = e.worldY - worldY;
+            double dist = Math.sqrt(dx * dx + dy * dy);
+
+            if(dist < RADIUS)
+            {
+                onHitEnemy(e, dx, dy, dist);
+            }
         }
     }
 
     @Override
     protected void onHitEnemy(Enemy e, double dx, double dy, double dist)
     {
-        if(damageDealtThisCycle) return;
-        damageDealtThisCycle = true;
-
-        if(dist == 0) return;
-
-        GameWorld gw = (GameWorld)getWorld();
-        boolean died = e.takeDamage(damage);
-        if(died)
+        if(dist == 0)
         {
-            gw.player.gainXP(e.xpDrop);
-            gw.player.gainCoin(e.coinDrop);
-            if(e.getWorld() != null) gw.removeObject(e);
+            return;
         }
-        else
+
+        boolean died = e.takeDamage(damage);
+
+        if(!died)
         {
-            // Knockback
             e.worldX += dx / dist * KNOCKBACK;
             e.worldY += dy / dist * KNOCKBACK;
         }

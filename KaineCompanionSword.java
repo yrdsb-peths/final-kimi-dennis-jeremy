@@ -2,9 +2,9 @@ import greenfoot.*;
 
 public class KaineCompanionSword extends Actor
 {
-    private static final int SWORD_WIDTH = 80;
-    private static final int SWORD_RIGHT_WIDTH = 160;
-    private static final int SWORD_HEIGHT = 160;
+    private static final int SWORD_WIDTH = 40;
+    private static final int SWORD_RIGHT_WIDTH = 80;
+    private static final int SWORD_HEIGHT = 80;
     private static final int HIT_COOLDOWN = 20;
 
     private static final String FIRE_SWORD_SOUND = "fire-sword.wav";
@@ -103,16 +103,7 @@ public class KaineCompanionSword extends Actor
             hitCooldowns.put(enemy, HIT_COOLDOWN);
             playActiveSwordSound();
 
-            if(enemy.takeDamage(damage))
-            {
-                gw.player.gainXP(enemy.xpDrop);
-                gw.player.gainCoin(enemy.coinDrop);
-
-                if(enemy.getWorld() != null)
-                {
-                    enemy.getWorld().removeObject(enemy);
-                }
-            }
+            enemy.takeDamage(damage);
         }
     }
 
