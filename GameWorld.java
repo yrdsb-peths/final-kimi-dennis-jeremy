@@ -278,7 +278,7 @@ public class GameWorld extends World
         }
 
         gameOverHandled = true;
-        Greenfoot.setWorld(new TitleScreen());
+        Greenfoot.setWorld(new GameOverScreen());
     }
 
     public void spawnFireball()
@@ -331,23 +331,31 @@ public class GameWorld extends World
     public void spawnGun()
     {
         gunTimer++;
-
+    
         if(gunTimer >= SKILL_INTERVAL)
         {
             gunTimer = 0;
-
+    
             Enemy closest = getClosestEnemy();
-
+    
             if(closest == null || !(player instanceof LeonClovis))
             {
                 return;
             }
-
+    
             LeonClovis leon = (LeonClovis)player;
+    
             leon.gunDamage = player.getDamage() + (gunLevel - 1) * 5;
-
-            Bullet bullet = new Bullet(closest, leon, leon.gunDamage);
+    
+            Bullet bullet = new Bullet(
+                closest,
+                leon,
+                leon.gunDamage
+            );
+    
             addObject(bullet, screenCX, screenCY);
+    
+            leon.playGunSound();
         }
     }
 

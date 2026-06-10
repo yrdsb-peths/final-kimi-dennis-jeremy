@@ -6,6 +6,7 @@ public class LeonClovis extends Hero
     static GreenfootImage[] leonLeftFrames  = new GreenfootImage[8];
     static GreenfootImage[] leonFrontFrames = new GreenfootImage[4];
     static GreenfootImage[] leonBackFrames  = new GreenfootImage[4];
+    private GreenfootSound gunSound = new GreenfootSound("lyserGun.mp3");
 
     static
     {
@@ -98,5 +99,10 @@ public class LeonClovis extends Hero
     protected void onDeathAnimation()
     {
         // Leon has no death animation; keep last frame
+    }
+    
+    public void playGunSound()
+    {   
+    Greenfoot.playSound("lyserGun.mp3");
     }
 }

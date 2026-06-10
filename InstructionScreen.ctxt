@@ -1,7 +1,7 @@
 #BlueJ class context
-comment0.target=HitEffect
+comment0.target=InstructionScreen
 comment1.params=
-comment1.target=HitEffect()
+comment1.target=InstructionScreen()
 comment2.params=
 comment2.target=void\ act()
 numComments=3
