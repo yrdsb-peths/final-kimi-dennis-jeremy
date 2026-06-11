@@ -1,0 +1,21 @@
+#BlueJ class context
+comment0.target=EndScreen
+comment1.params=victory\ heroType\ roundsSurvived\ enemiesKilled\ hp\ maxHp\ xp\ coin\ level\ speed\ stamina\ power\ fireballLevel\ lightningLevel\ iceWaveLevel\ gunLevel\ swordLevel
+comment1.target=EndScreen(boolean,\ java.lang.String,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int,\ int)
+comment2.params=
+comment2.target=void\ act()
+comment3.params=
+comment3.target=void\ drawContent()
+comment4.params=
+comment4.target=java.lang.String\ heroName()
+comment5.params=
+comment5.target=int\ getSignatureWeaponLevel()
+comment6.params=bg\ x\ y\ text
+comment6.target=void\ drawSection(greenfoot.GreenfootImage,\ int,\ int,\ java.lang.String)
+comment7.params=bg\ x\ y\ text
+comment7.target=void\ drawBody(greenfoot.GreenfootImage,\ int,\ int,\ java.lang.String)
+comment8.params=bg\ x\ y\ name\ level
+comment8.target=void\ drawWeaponLine(greenfoot.GreenfootImage,\ int,\ int,\ java.lang.String,\ int)
+comment9.params=bg\ text\ cx\ y
+comment9.target=void\ drawCenteredText(greenfoot.GreenfootImage,\ java.lang.String,\ int,\ int)
+numComments=10

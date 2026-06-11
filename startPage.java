@@ -1,10 +1,10 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 /**
- * Write a description of class startPage here.
+ * The startPage class displays the first starting page of the game.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Denis
+ * @version June 2026
  */
 public class startPage extends World
 {
@@ -27,8 +27,8 @@ public class startPage extends World
     
     public void act()
     {
-        if(Greenfoot.isKeyDown("space"))
-        {
+        String key = Greenfoot.getKey();
+        if(key != null && (key.equalsIgnoreCase("space") || key.equals(" "))){
             Greenfoot.setWorld(new TitleScreen());
         }
     }

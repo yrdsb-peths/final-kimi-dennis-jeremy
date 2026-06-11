@@ -95,18 +95,10 @@ public class Fireball extends Weapon
         }
 
         boolean died = e.takeDamage(damage);
-        if(died)
+
+        if(died && world instanceof MyWorld)
         {
-            if(world instanceof GameWorld)
-            {
-                GameWorld gw = (GameWorld)world;
-                gw.player.gainXP(e.xpDrop);
-                gw.player.gainCoin(e.coinDrop);
-            }
-            else if(world instanceof MyWorld)
-            {
-                ((MyWorld)world).giveSelectedPlayerReward(e.xpDrop, e.coinDrop);
-            }
+            ((MyWorld)world).giveSelectedPlayerReward(e.xpDrop, e.coinDrop);
 
             if(e.getWorld() != null)
             {

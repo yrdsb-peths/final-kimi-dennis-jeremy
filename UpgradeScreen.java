@@ -2,6 +2,8 @@ import greenfoot.*;
 
 public class UpgradeScreen extends World
 {
+    private static GreenfootImage shopBackground;
+
     String heroType;
     int hp, maxHp, xp, coin, level, speed, stamina, power;
     int xpToNextLevel;
@@ -13,8 +15,9 @@ public class UpgradeScreen extends World
     int iceWaveLevel;
     int gunLevel;
     int swordLevel;
+    int enemiesKilled;
+    boolean eliteDefeatedThisRound;
 
-    
     static final int WEAPON_BUY_COST    = 10;
     static final int WEAPON_UPGRADE_COST = 15;
 
@@ -29,9 +32,12 @@ public class UpgradeScreen extends World
         int xpToNextLevel, int attributePoints,
         int nextRound,
         int fireballLevel, int lightningLevel, int iceWaveLevel,
-        int gunLevel, int swordLevel)
+        int gunLevel, int swordLevel,
+        int enemiesKilled,
+        boolean eliteDefeatedThisRound)
     {
         super(1500, 750, 1);
+        ensureShopBackground();
         this.hp             = hp;
         this.maxHp          = maxHp;
         this.xp             = xp;
@@ -48,6 +54,8 @@ public class UpgradeScreen extends World
         this.iceWaveLevel   = iceWaveLevel;
         this.gunLevel       = gunLevel;
         this.swordLevel     = swordLevel;
+        this.enemiesKilled  = enemiesKilled;
+        this.eliteDefeatedThisRound = eliteDefeatedThisRound;
         this.heroType       = HeroData.heroType;
         drawUI();
     }
@@ -151,7 +159,13 @@ public class UpgradeScreen extends World
     {
         if(nextRound > 30)
         {
-            Greenfoot.setWorld(new TitleScreen());
+            Greenfoot.setWorld(new EndScreen(
+                true, heroType, 30, enemiesKilled,
+                hp, maxHp, xp, coin,
+                level, speed, stamina, power,
+                fireballLevel, lightningLevel, iceWaveLevel,
+                gunLevel, swordLevel
+            ));
             return;
         }
         HeroData.heroType = heroType;
@@ -161,23 +175,44 @@ public class UpgradeScreen extends World
             xpToNextLevel, nextRound,
             heroType,
             fireballLevel, lightningLevel, iceWaveLevel,
-            gunLevel, swordLevel
+            gunLevel, swordLevel,
+            enemiesKilled
         );
         Greenfoot.setWorld(gw);
+    }
+
+    private static void ensureShopBackground()
+    {
+        if(shopBackground != null) return;
+        shopBackground = new GreenfootImage("shop.png");
+        if(shopBackground.getWidth() > 0)
+            shopBackground.scale(1500, 750);
     }
 
     private void drawUI()
     {
         GreenfootImage bg = getBackground();
         bg.clear();
-        bg.setColor(new Color(20, 20, 40));
-        bg.fillRect(0, 0, getWidth(), getHeight());
+        if(shopBackground != null && shopBackground.getWidth() > 0)
+            bg.drawImage(shopBackground, 0, 0);
+        else
+        {
+            bg.setColor(new Color(20, 20, 40));
+            bg.fillRect(0, 0, getWidth(), getHeight());
+        }
         bg.setColor(Color.WHITE);
         bg.setFont(new Font("Arial", true, false, 36));
         drawCenteredText(bg, "Round " + (nextRound-1) + " end ", getWidth()/2, 60);
 
+        if(eliteDefeatedThisRound)
+        {
+            bg.setFont(new Font("Arial", true, false, 22));
+            bg.setColor(new Color(255, 220, 80));
+            drawCenteredText(bg, "Elite defeated! Bonus rewards collected.", getWidth()/2, 145);
+        }
+
         if(nextRound > 30)
-            drawCenteredText(bg, "Congratulations! Press SPACE for title screen.", getWidth()/2, 120);
+            drawCenteredText(bg, "Congratulations! Press SPACE to view your results.", getWidth()/2, 120);
         else
             drawCenteredText(bg, "Press SPACE to start round " + nextRound, getWidth()/2, 120);
 
