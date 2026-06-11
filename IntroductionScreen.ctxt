@@ -1,0 +1,16 @@
+#BlueJ class context
+comment0.target=IntroductionScreen
+comment0.text=\r\n\ The\ InstructionScreen\ class\ explains\ the\ game\ controls\ and\ how\ to\ play.\r\n\ \r\n\ @author\ Denis\r\n\ @version\ June\ 2026\r\n
+comment1.params=
+comment1.target=IntroductionScreen()
+comment2.params=
+comment2.target=void\ act()
+comment3.params=
+comment3.target=void\ drawContent()
+comment4.params=bg\ x\ y\ text
+comment4.target=void\ drawSection(greenfoot.GreenfootImage,\ int,\ int,\ java.lang.String)
+comment5.params=bg\ x\ y\ text
+comment5.target=void\ drawBody(greenfoot.GreenfootImage,\ int,\ int,\ java.lang.String)
+comment6.params=bg\ text\ cx\ y
+comment6.target=void\ drawCenteredText(greenfoot.GreenfootImage,\ java.lang.String,\ int,\ int)
+numComments=7

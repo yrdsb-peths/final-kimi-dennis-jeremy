@@ -46,13 +46,21 @@ public class AureaSolvine extends Hero
 
     private void updateState()
     {
-        if(state == State.HIT)
+        if(state == State.HIT || state == State.DEATH)
         {
             return;
         }
 
         boolean moving = moveX != 0 || moveY != 0;
-        setState(moving ? State.RUN : State.IDLE);
+
+        if(moving)
+        {
+            setState(State.RUN);
+        }
+        else
+        {
+            setState(State.IDLE);
+        }
     }
 
     private void animate()
@@ -65,11 +73,20 @@ public class AureaSolvine extends Hero
         }
 
         GreenfootImage[] frames = getCurrentFrames();
+
         animFrame++;
 
         if(animFrame >= frames.length)
         {
-            animFrame = state == State.HIT ? frames.length - 1 : 0;
+            if(state == State.HIT)
+            {
+                animFrame = 0;
+                setState(State.IDLE);
+            }
+            else
+            {
+                animFrame = 0;
+            }
         }
 
         GreenfootImage image = new GreenfootImage(frames[animFrame]);
@@ -113,10 +130,13 @@ public class AureaSolvine extends Hero
         {
             case RUN:
                 return runFrames;
+
             case HIT:
                 return hitFrames;
+
             case DEATH:
                 return deathFrames;
+
             default:
                 return idleFrames;
         }
@@ -148,16 +168,19 @@ public class AureaSolvine extends Hero
         }
 
         GreenfootImage background = world.getBackground();
+
         int hpBarWidth = Math.max(0, Math.min(300, hp * 300 / maxHp));
         int xpBarWidth = Math.max(0, Math.min(300, xp * 300 / xpToNextLevel));
 
         background.setColor(Color.WHITE);
         background.fillRect(10, 10, 300, 25);
+
         background.setColor(Color.RED);
         background.fillRect(10, 10, hpBarWidth, 25);
 
         background.setColor(Color.WHITE);
         background.fillRect(10, 45, 300, 25);
+
         background.setColor(Color.BLUE);
         background.fillRect(10, 45, xpBarWidth, 25);
 

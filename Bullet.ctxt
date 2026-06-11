@@ -1,5 +1,6 @@
 #BlueJ class context
 comment0.target=Bullet
+comment0.text=\r\n\ The\ Bullet\ class\ creates\ a\ projectile\ fired\ by\ LeonClovis.\r\n\ \r\n\ @author\ Denis\r\n\ @version\ June\ 2026\r\n
 comment1.params=enemy\ shooter\ damage
 comment1.target=Bullet(Enemy,\ Hero,\ int)
 comment2.params=

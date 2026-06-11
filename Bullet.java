@@ -1,4 +1,10 @@
 import greenfoot.*;
+/**
+ * The Bullet class creates a projectile fired by LeonClovis.
+ * 
+ * @author Denis
+ * @version June 2026
+ */
 
 public class Bullet extends Actor
 {
@@ -56,10 +62,21 @@ public class Bullet extends Actor
         if(getWorld() != null)
             getWorld().addObject(new HitEffect(), getX(), getY());
 
-        enemy.takeDamage(damage, player);
+        World world = getWorld();
+
+        if(world instanceof GameWorld)
+        {
+            enemy.takeDamage(damage);
+        }
+        else
+        {
+            enemy.takeDamage(damage, player);
+        }
 
         if(getWorld() != null)
+        {
             getWorld().removeObject(this);
+        }
     }
 
     public void removeAtEdge()

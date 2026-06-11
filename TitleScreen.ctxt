@@ -1,5 +1,6 @@
 #BlueJ class context
 comment0.target=TitleScreen
+comment0.text=\r\n\ The\ TitleScreen\ class\ displays\ the\ main\ title\ screen\ and\ allows\ the\ player\ to\ start\ the\ game.\r\n\ \r\n\ @author\ Denis\r\n\ @version\ June\ 2026\r\n
 comment1.params=
 comment1.target=TitleScreen()
 comment2.params=
